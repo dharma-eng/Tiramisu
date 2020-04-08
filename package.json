@@ -1,0 +1,10 @@
+{
+    "name": "L2",
+    "version": "0.0.1",
+    "author": "Dharma Labs",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dharmaprotocol/L2.git"
+    }
+}
