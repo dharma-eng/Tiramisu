@@ -2,7 +2,6 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "./lib/BlockLib.sol";
-import "./Config.sol";
 
 contract StateManager {
   uint32 lastConfirmedBlock;
