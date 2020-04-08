@@ -8,6 +8,7 @@ contract StateManager {
   uint32 lastConfirmedBlock;
   bytes32[] blockHashes;
 
+  /* State Query Functions */
   function blockIsPending(uint32 blockNumber, bytes32 blockHash) internal view returns (bool) {
     bool validHash = blockHashes[blockNumber] == blockHash;
     if (!validHash) return false;
@@ -20,6 +21,7 @@ contract StateManager {
     return blockNumber <= lastConfirmedBlock;
   }
 
+  /* State Utility Functions */
   /**
    * @dev putPendingBlock
    * @notice Puts a block in the array of pending blocks.
@@ -31,7 +33,7 @@ contract StateManager {
   function putPendingBlock(Block.BlockInput memory input) internal {
     Block.BlockHeader memory header = Block.toCommitment(input);
     require(header.blockNumber == blockHashes.length, "Invalid block number.");
-    bytes32 blockHash = keccak256(abi.encode(header));
+    bytes32 blockHash = Block.blockHash(header);
     blockHashes.push(blockHash);
     emit Block.BlockSubmitted(header.blockNumber, blockHash);
   }
@@ -46,9 +48,9 @@ contract StateManager {
    * @param header Block header to confirm.
    */
   function confirmBlock(Block.BlockHeader memory header) internal {
-    require(blockIsPending(blockNumber, blockHash), "Only pending blocks can be confirmed.");
+    require(blockIsPending(header.blockNumber, Block.blockHash(header)), "Only pending blocks can be confirmed.");
     require(header.submittedAt + challengePeriod <= block.number, "Challenge period still in progress.");
-    require(header.number == lastConfirmedBlock + 1, "Blocks must be confirmed in order.");
+    require(header.blockNumber == lastConfirmedBlock + 1, "Blocks must be confirmed in order.");
     lastConfirmedBlock += 1;
   }
 
