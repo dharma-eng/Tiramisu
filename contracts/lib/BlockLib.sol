@@ -1,4 +1,5 @@
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 library BlockLib {
   /* <-- Data Structures --> */
@@ -17,8 +18,8 @@ library BlockLib {
     uint16 version;
     uint32 blockNumber;
     uint32 stateSize;
-    bytes32 stateRoot;
     uint40 hardTransactionCount;
+    bytes32 stateRoot;
     bytes32 transactionsRoot;
   }
 
@@ -52,5 +53,9 @@ library BlockLib {
       keccak256(blockInput.transactionsData),
       block.number // current block number, used for challenge period timing
     );
+  }
+
+  function blockHash(BlockHeader memory header) internal pure returns (bytes32) {
+    return keccak256(abi.encode(header));
   }
 }
