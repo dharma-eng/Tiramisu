@@ -7,6 +7,7 @@ library BlockLib {
     uint32 blockNumber;
     uint32 stateSize;
     bytes32 stateRoot;
+    uint40 hardTransactionCount;
     bytes32 transactionsRoot;
     bytes32 transactionsHash;
     uint256 submittedAt;
@@ -17,6 +18,7 @@ library BlockLib {
     uint32 blockNumber;
     uint32 stateSize;
     bytes32 stateRoot;
+    uint40 hardTransactionCount;
     bytes32 transactionsRoot;
   }
 
@@ -45,6 +47,7 @@ library BlockLib {
       blockInput.header.blockNumber,
       blockInput.header.stateSize,
       blockInput.header.stateRoot,
+      blockInput.header.hardTransactionCount,
       blockInput.header.transactionsRoot,
       keccak256(blockInput.transactionsData),
       block.number // current block number, used for challenge period timing

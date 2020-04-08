@@ -1,6 +1,12 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+/**
+ * @title HardTransactionsLib
+ * @dev Contains the data structures and utility functions needed for the L1 hard transaction types.
+ * These structures are essentially the hard transaction input types, and do not represent the data structures
+ * recorded in blocks.
+ */
 library HardTransactionsLib {
   /**
    * @dev Deposit
