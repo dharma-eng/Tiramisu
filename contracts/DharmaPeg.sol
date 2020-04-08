@@ -4,6 +4,8 @@ pragma experimental ABIEncoderV2;
 import { BlockLib as Block } from "./lib/BlockLib.sol";
 import { IDharmaAddressGetter as DharmaAddress } from "./interfaces/IDharmaAddressGetter.sol";
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
+import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
+import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 
@@ -48,6 +50,42 @@ contract DharmaPeg is Owned, StateManager {
     HardTx.HardWithdrawal memory hardTx = HardTx.HardWithdrawal(accountIndex, msg.sender, value);
     emit HardTx.NewHardTransaction(hardTransactions.length);
     hardTransactions.push(abi.encode(hardTx));
+  }
+  
+  /**
+   * @dev executeWithdrawal
+   * @notice Executes a withdrawal which exists in a confirmed block and replaces the leaf with a null value.
+   */
+  function executeWithdrawal(
+    Block.BlockHeader memory header,
+    bytes memory transaction,
+    uint256 transactionIndex,
+    bytes32[] memory inclusionProof
+  ) external {
+    bytes32 blockHash = Block.blockHash(header);
+    require(blockIsConfirmed(header.blockNumber, blockHash), "Block is not confirmed.");
+    (bool included, bytes32 newRoot) = Merkle.verifyAndUpdate(
+      header.transactionsRoot,
+      transaction,
+      bytes(""),
+      transactionIndex,
+      inclusionProof
+    );
+    require(included, "Invalid inclusion proof.");
+    byte txPrefix = transaction[0];
+    uint56 value;
+    address receiver;
+    if (txPrefix == 0x02) {
+      TX.HardWithdrawal memory withdrawal = TX.decodeHardWithdrawal(transaction);
+      value = withdrawal.value;
+      receiver = withdrawal.withdrawalAddress;
+    } else if (txPrefix == 0x04) {
+      SoftWithdrawal memory withdrawal = TX.decodeSoftWithdrawal(transaction);
+      value = withdrawal.value;
+      receiver = withdrawal.withdrawalAddress;
+    } else revert("Transaction not of a withdrawal type.");
+    /* Add decimal conversion */
+    tokenContract.transfer(receiver, value);
   }
 
   function submitBlock(Block.BlockInput calldata input) external onlyOwner {
