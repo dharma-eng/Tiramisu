@@ -1,4 +1,5 @@
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 library TransactionsLib {
   struct TransactionsMetadata {
@@ -15,6 +16,7 @@ library TransactionsLib {
   struct HardWithdrawal {
     uint40 hardTransactionIndex;
     uint32 accountIndex;
+    address withdrawalAddress;
     uint56 value;
     bytes32 intermediateStateRoot;
   }
@@ -38,10 +40,12 @@ library TransactionsLib {
       mstore(ret, shr(216, mload(bodyPtr)))
       // accountIndex: [offset 5 bytes] [32 bits]  (load(5) >> 224)
       mstore(add(ret, 0x20), shr(224, mload(add(bodyPtr, 5))))
-      // value: [offset 9 bytes] [56 bits]  (load(9) >> 200)
-      mstore(add(ret, 0x40), shr(200, mload(add(bodyPtr, 9))))
-      // intermediateStateRoot: [offset 16 bytes] [256 bits] (load(16))
-      mstore(add(ret, 0x60), mload(add(bodyPtr, 16)))
+      // withdrawalAddress: [offset 9 bytes] [160 bits]  (load(9) >> 96)
+      mstore(add(ret, 0x40), shr(96, mload(add(bodyPtr, 9))))
+      // value: [offset 29 bytes] [56 bits]  (load(9) >> 200)
+      mstore(add(ret, 0x60), shr(200, mload(add(bodyPtr, 29))))
+      // intermediateStateRoot: [offset 36 bytes] [256 bits] (load(16))
+      mstore(add(ret, 0x80), mload(add(bodyPtr, 36)))
     }
   }
 
