@@ -3,12 +3,13 @@ pragma experimental ABIEncoderV2;
 
 library BlockLib {
   /* <-- Data Structures --> */
+
   struct BlockHeader {
     uint16 version;
     uint32 blockNumber;
     uint32 stateSize;
     bytes32 stateRoot;
-    uint40 hardTransactionCount;
+    uint40 hardTransactionsCount;
     bytes32 transactionsRoot;
     bytes32 transactionsHash;
     uint256 submittedAt;
@@ -18,7 +19,7 @@ library BlockLib {
     uint16 version;
     uint32 blockNumber;
     uint32 stateSize;
-    uint40 hardTransactionCount;
+    uint40 hardTransactionsCount;
     bytes32 stateRoot;
     bytes32 transactionsRoot;
   }
@@ -32,8 +33,6 @@ library BlockLib {
     bytes transactionsData;
   }
 
-  /* <-- Events --> */
-  event BlockSubmitted(uint32 indexed blockNumber, bytes32 blockHash);
 
   /* <-- Utility Functions --> */
   /**
@@ -48,7 +47,7 @@ library BlockLib {
       blockInput.header.blockNumber,
       blockInput.header.stateSize,
       blockInput.header.stateRoot,
-      blockInput.header.hardTransactionCount,
+      blockInput.header.hardTransactionsCount,
       blockInput.header.transactionsRoot,
       keccak256(blockInput.transactionsData),
       block.number // current block number, used for challenge period timing
