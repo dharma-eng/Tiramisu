@@ -4,14 +4,14 @@ pragma experimental ABIEncoderV2;
 import { IDharmaAddressGetter as DharmaAddressHandler } from "./interfaces/IDharmaAddressGetter.sol";
 import "./interfaces/IERC20.sol";
 
-contract Config {
+contract Configurable {
   /* <-- Storage --> */
   /**
    * @dev daiDecimals
    * @notice Decimal places for DAI on the L2.
    * This value should not be mutable.
    */
-  uint256 public constant daiDecimals = 0;
+  uint256 public daiDecimals = 0;
 
   /** 
     * @dev challengePeriod
@@ -54,7 +54,7 @@ contract Config {
    * @dev pendingChanges
    * @notice A mapping which has the value `true` for a pending change which has been recorded.
    */
-  mapping(bytes32 => bool) pendingChanges;
+  mapping(bytes32 => bool) internal pendingChanges;
 
   /* <-- Data Structures --> */
   /**
