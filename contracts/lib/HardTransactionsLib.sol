@@ -55,8 +55,6 @@ library HardTransactionsLib {
 
   enum HardTransactionType { INVALID, DEPOSIT, WITHDRAWAL, ADD_SIGNER }
 
-  event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
-
   function checkTransactionType(bytes memory encodedTransaction) internal pure returns (HardTransactionType) {
     if (encodedTransaction.length == 47) return HardTransactionType.DEPOSIT;
     if (encodedTransaction.length == 31) return HardTransactionType.WITHDRAWAL;
