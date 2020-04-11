@@ -17,6 +17,8 @@ function compile(dir, fileName, importPath) {
     let fP = (_path.match(/\//g)) ? path.resolve(importPath, _path) : path.resolve(dir, _path)
     // console.log(`Imported ${fP}`);
     if (fs.existsSync(fP)) return { contents: fs.readFileSync(fP, 'utf8') };
+    fP = (_path.match(/\//g)) ? path.resolve(dir, _path) : path.resolve(importPath, _path);
+    if (fs.existsSync(fP)) return { contents: fs.readFileSync(fP, 'utf8') };
     else return { error: 'File not found' };
   }
   let sources = {};
