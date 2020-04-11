@@ -1,7 +1,9 @@
 const { toBuf, toHex, toInt } = require('../lib/to');
 
 class HardDeposit {
-  prefix = 1;
+  get prefix() {
+    return 1;
+  }
 
   constructor({
     accountIndex,
@@ -12,33 +14,27 @@ class HardDeposit {
   }) {
     this.accountIndex = toHex(accountIndex);
     this.hardTransactionIndex = toInt(hardTransactionIndex);
-    this.contractAddress = toHex(contractAddress);
-    this.signerAddress = toHex(signerAddress);
+    // this.contractAddress = toHex(contractAddress);
+    // this.signerAddress = toHex(signerAddress);
     this.value = toInt(value);
   }
 
-  /* returns encoded buffer */
-  encodeForBlock(intermediateStateRoot) {
-    this.intermediateStateRoot = intermediateStateRoot;
+  addOutput(intermediateStateRoot) {
+    this.intermediateStateRoot = toHex(intermediateStateRoot);
+  }
+
+  encode(prefix = false) {
     const txIndex = toBuf(this.hardTransactionIndex, 5);
     const acctIndex = toBuf(this.accountIndex, 4);
     const value = toBuf(this.value, 7);
-    const root = toBuf(intermediateStateRoot);
+    const root = toBuf(this.intermediateStateRoot, 32);
     return Buffer.concat([
+      prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
       txIndex,
       acctIndex,
       value,
       root
     ]);
-  }
-
-  /* returns prefixed encoded buffer - assumes encodeForBlock has been called */
-  encodeForTree(intermediateStateRoot) {
-    const prefix = toBuf(this.prefix, 1);
-    return Buffer.concat([
-      prefix,
-      this.encodeForBlock(this.accountIndex, intermediateStateRoot)
-    ])
   }
 }
 
