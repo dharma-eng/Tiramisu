@@ -1,6 +1,6 @@
 /* Takes an array of transaction objects -- must be of the types defined in app/types */
 function sortTransactions(transactions) {
-  const arrays = new Array(8).fill([]);
+  const arrays = new Array(8).fill(null).map(() => []);
   for (let tx of transactions) arrays[tx.prefix].push(tx);
   const [
     hardCreates,
@@ -11,9 +11,10 @@ function sortTransactions(transactions) {
     softCreates,
     softTransfers,
     softChangeSigners
-  ] = arrays;
+  ] = [...arrays];
+  
   const hardSort = (arr) => arr.sort((a, b) => a.hardTransactionIndex - b.hardTransactionIndex);
-  [hardCreates, hardDeposits, hardWithdrawals, hardAddSigners].map(hardSort)
+  [hardCreates, hardDeposits, hardWithdrawals, hardAddSigners].map(a => hardSort(a));
   return {
     hardCreates,
     hardDeposits,
