@@ -15,7 +15,7 @@ function compileBase(override = false) {
 function compileBaseMock(override = false) {
   const _path = path.join(__dirname, './standard-mock.json');
   if (!override && fs.existsSync(_path)) return require(_path);
-  const code = compile(path.join(dir, 'mocks'), 'MockDharmaPeg.sol');
+  const code = compile(path.join(dir, 'mocks'), 'MockDharmaPeg.sol', dir);
   fs.writeFileSync(_path, JSON.stringify(code, null, 2));
   return code;
 }
