@@ -15,7 +15,7 @@ const toInt = (value) => {
 const toHex = (value) => {
   if (typeof value == 'number') return value.toString(16);
   if (typeof value == 'string') {
-    if (value.slice(0, 2) == '0x') value;
+    if (value.slice(0, 2) == '0x') return value;
     return (+value).toString(16);
   }
   if (Buffer.isBuffer(value)) return bufferToHex(value);
@@ -28,8 +28,14 @@ const toBuf = (value, length) => {
   return (length) ? setLength(buf, length) : buf;
 }
 
+const toNonPrefixed = (str) => {
+  if (str.slice(0, 2) == '0x') return str.slice(2);
+  return str;
+}
+
 module.exports = {
   toInt,
   toHex,
   toBuf,
+  toNonPrefixed
 };
