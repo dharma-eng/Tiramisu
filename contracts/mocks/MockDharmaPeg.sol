@@ -6,9 +6,9 @@ import "./DaiMock.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IDharmaAddressGetter.sol";
 
-abstract contract MockDharmaPeg is DharmaPeg {
+contract MockDharmaPeg is DharmaPeg {
   constructor() public DharmaPeg(
-    50, /* challenge period */
+    0, /* challenge period */
     50, /* commitment bond */
     0, /* version */
     0, /* config change delay */
