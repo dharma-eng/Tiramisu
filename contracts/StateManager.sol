@@ -5,8 +5,8 @@ import { BlockLib as Block } from "./lib/BlockLib.sol";
 import "./Configurable.sol";
 
 contract StateManager is Configurable {
-  uint32 lastConfirmedBlock;
-  bytes32[] internal blockHashes;
+  uint32 public confirmedBlocks;
+  bytes32[] public blockHashes;
   
   /* <-- Events --> */
   event BlockSubmitted(uint32 blockNumber, bytes32 blockHash);
@@ -15,13 +15,13 @@ contract StateManager is Configurable {
   function blockIsPending(uint32 blockNumber, bytes32 blockHash) public view returns (bool) {
     bool validHash = blockHashes[blockNumber] == blockHash;
     if (!validHash) return false;
-    return blockNumber > lastConfirmedBlock;
+    return blockNumber >= confirmedBlocks;
   }
 
   function blockIsConfirmed(uint32 blockNumber, bytes32 blockHash) public view returns (bool) {
     bool validHash = blockHashes[blockNumber] == blockHash;
     if (!validHash) return false;
-    return blockNumber <= lastConfirmedBlock;
+    return blockNumber < confirmedBlocks;
   }
 
   /* State Utility Functions */
@@ -54,8 +54,8 @@ contract StateManager is Configurable {
   function _confirmBlock(Block.BlockHeader memory header) internal {
     require(blockIsPending(header.blockNumber, Block.blockHash(header)), "Only pending blocks can be confirmed.");
     require(header.submittedAt + challengePeriod <= block.number, "Challenge period still in progress.");
-    require(header.blockNumber == lastConfirmedBlock + 1, "Blocks must be confirmed in order.");
-    lastConfirmedBlock += 1;
+    require(header.blockNumber == confirmedBlocks, "Blocks must be confirmed in order.");
+    confirmedBlocks += 1;
   }
 
   /**
