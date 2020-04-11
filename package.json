@@ -7,6 +7,11 @@
         "type": "git",
         "url": "https://github.com/dharmaprotocol/L2.git"
     },
+    "scripts": {
+        "test:blockchain": "mocha ./app/Blockchain.spec.js",
+        "test:state": "mocha ./app/state/State.spec.js",
+        "test:state-machine": "mocha ./app/state/StateMachine.spec.js"
+    },
     "dependencies": {
         "ethereumjs-utils": "^5.2.5",
         "keccak256": "^1.0.0",
