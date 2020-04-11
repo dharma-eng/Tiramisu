@@ -15,47 +15,30 @@ class StateMachine {
     softTransfers,
     softChangeSigners
   }) {
-    const [
-      hardCreatesCount,
-      hardDepositsCount,
-      hardWithdrawalsCount,
-      hardAddSignersCount,
-      softWithdrawalsCount,
-      softCreatesCount,
-      softTransfersCount,
-      softChangeSignersCount
-    ] = [
-      hardCreates.length,
-      hardDepositCount.length,
-      0, 0, 0, 0, 0, 0
-    ]
-
-    const leaves = [];
-    const buffers = [];
+    /* Execute hard deposits. */
+    for (let transaction of hardCreates) await this.hardCreate(transaction)
     
-    for (let tx of hardCreates) {
-      const { treeLeaf, blockBuffer } = await this.hardCreate(tx)
-      leaves.push(treeLeaf);
-      buffers.push(blockBuffer);
+    /* Execute hard deposits. */
+    for (let transaction of hardDeposits) await this.hardDeposit(transaction);
+
+    /* Execute soft withdrawals, remove any that are invalid. */
+    for (let i = 0; i < softTransfers.length; i++) {
+      const transaction = softTransfers[i];
+      const res = await this.softTransfer(transaction);
+      if (!res) {
+        softTransfers.splice(i, 1);
+        continue;
+      }
     }
-    for (let tx of hardDeposits) {
-      const { treeLeaf, blockBuffer } = await this.hardDeposit(tx);
-      leaves.push(treeLeaf);
-      buffers.push(blockBuffer);
-    }
-    for (let tx of softTransfers) {
-      const res = await this.softTransfer(tx);
-      if (!res) continue;
-      softTransfersCount++;
-      leaves.push(treeLeaf);
-      buffers.push(blockBuffer);
-    }
-    for (let tx of softWithdrawals) {
-      const res = await this.softWithdrawal(tx);
-      if (!res) continue;
-      softWithdrawalsCount++;
-      leaves.push(treeLeaf);
-      buffers.push(blockBuffer);
+
+    /* Execute soft withdrawals, remove any that are invalid. */
+    for (let i = 0; i < softWithdrawals.length; i++) {
+      const transaction = softWithdrawals[i];
+      const res = await this.softWithdrawal(transaction);
+      if (!res) {
+        softWithdrawals.splice(i, 1);
+        continue;
+      }
     }
   }
 
@@ -73,10 +56,8 @@ class StateMachine {
     });
     const index = await this.state.putAccount(account);
     const stateRoot = await this.state.rootHash();
-    return {
-      treeLeaf: transaction.encodeForTree(index, stateRoot),
-      blockBuffer: transaction.encodeForBlock(index, stateRoot)
-    }
+    transaction.addOutput(index, stateRoot);
+    return true;
   }
 
   async hardDeposit(transaction) {
@@ -88,62 +69,68 @@ class StateMachine {
     account.balance += value;
     await this.state.updateAccount(accountIndex, account);
     const stateRoot = await this.state.rootHash();
-    return {
-      treeLeaf: transaction.encodeForTree(stateRoot),
-      blockBuffer: transaction.encodeForBlock(stateRoot)
-    }
+    transaction.addOutput(accountIndex, stateRoot);
+    return true;
   }
 
-  async softTransfer({ transaction, reject, resolve }) {
+  async softTransfer(transaction) {
     const { fromAccountIndex, toAccountIndex, value } = transaction;
     const fromAccount = await this.state.getAccount(fromAccountIndex);
     const toAccount = await this.state.getAccount(toAccountIndex);
+
     /* Verification */
     if (!fromAccount || !toAccount) {
-      reject('Account does not exist.')
-      return null;
+      transaction.reject('Account does not exist.')
+      return false;
     }
     const errorMessage = transaction.checkValid(fromAccount);
     if (errorMessage) {
-      reject(errorMessage);
-      return null;
+      transaction.reject(errorMessage);
+      return false;
     }
-    /* Update caller */
+
+    /* Update caller account */
     fromAccount.nonce += 1;
     fromAccount.balance -= value;
     await this.state.updateAccount(fromAccountIndex, fromAccount);
+    
     /* Update receiver */
     toAccount.balance += value;
     await this.state.updateAccount(toAccountIndex, toAccount);
     const root = await this.state.rootHash();
-    resolve(root);
-    return {
-      treeLeaf: transaction.encodeForTree(stateRoot),
-      blockBuffer: transaction.encodeForBlock(stateRoot)
-    }
+
+    /* Resolve promise, return success */
+    transaction.resolve(root);
+    transaction.addOutput(root);
+    return true;
   }
 
-  async softWithdrawal({ transaction, reject, resolve }) {
+  async softWithdrawal(transaction) {
     const { fromAccountIndex, value } = transaction;
     const fromAccount = await this.state.getAccount(fromAccountIndex);
+    
+    /* Verification */
     if (!fromAccount) {
-      reject('Account does not exist.')
-      return null;
+      transaction.reject('Account does not exist.')
+      return false;
     }
     const errorMessage = transaction.checkValid(fromAccount);
     if (errorMessage) {
-      reject(errorMessage);
-      return null;
+      transaction.reject(errorMessage);
+      return false;
     }
-    /* Update caller */
+
+    /* Update caller account */
     fromAccount.nonce += 1;
     fromAccount.balance -= value;
     await this.state.updateAccount(fromAccountIndex, fromAccount);
     const root = await this.state.rootHash();
-    resolve(root);
-    return {
-      treeLeaf: transaction.encodeForTree(stateRoot),
-      blockBuffer: transaction.encodeForBlock(stateRoot)
-    }
+
+    /* Resolve promise, return success */
+    transaction.resolve(root);
+    transaction.addOutput(root);
+    return true;
   }
 }
+
+module.exports = StateMachine;
