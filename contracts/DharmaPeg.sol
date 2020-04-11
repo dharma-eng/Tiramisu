@@ -42,16 +42,16 @@ contract DharmaPeg is Owned, StateManager {
   event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
 
   function _deposit(address contractAddress, address signerAddress, uint56 value) internal {
-    /* Note - need to add unit conversion for correct decimal values */
-    require(daiContract.transferFrom(contractAddress, address(this), uint256(value)), "Transfer Failed.");
     /* TODO - replace storage of full data with storage of a hash, and emit the data in the event */
-    HardTx.HardDeposit memory deposit = HardTx.HardDeposit(msg.sender, signerAddress, value);
+    HardTx.HardDeposit memory deposit = HardTx.HardDeposit(contractAddress, signerAddress, value);
     emit NewHardTransaction(hardTransactions.length);
     hardTransactions.push(abi.encode(deposit));
   }
 
   function deposit(uint56 value) external {
     address contractAddress = addressHandler.getContractAddressForSigner(msg.sender);
+    /* Note - need to add unit conversion for correct decimal values */
+    require(daiContract.transferFrom(contractAddress, address(this), uint256(value)), "Transfer Failed.");
     _deposit(contractAddress, msg.sender, value);
   }
 
@@ -61,6 +61,8 @@ contract DharmaPeg is Owned, StateManager {
       addressHandler.verifySignerHasAuthority(msg.sender, signerAddress),
       "Signer address does not match caller."
     );
+    /* Note - need to add unit conversion for correct decimal values */
+    require(daiContract.transferFrom(msg.sender, address(this), uint256(value)), "Transfer Failed.");
     _deposit(msg.sender, signerAddress, value);
   }
 
