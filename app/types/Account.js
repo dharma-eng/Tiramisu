@@ -22,7 +22,7 @@ class Account {
     const balance = toBuf(this.balance, 7);
     let signerString = '';
     for (let signer of this.signers) {
-      let s = (signer.slice(0, 2) == '0x') ? signer.slice(2) : s;
+      let s = (signer.slice(0, 2) == '0x') ? signer.slice(2) : signer;
       signerString = `${signerString}${s}`
     }
     let signers = toBuf(`0x${signerString}`)
@@ -56,7 +56,7 @@ class Account {
   }
 
   hasSigner(_address) {
-    let address = _address.toLowerCase()
+    let address = toHex(_address).toLowerCase()
     return this.signers.filter(s => s.toLowerCase() == address).length > 0;
   }
 
