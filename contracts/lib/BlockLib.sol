@@ -19,8 +19,8 @@ library BlockLib {
     uint16 version;
     uint32 blockNumber;
     uint32 stateSize;
-    uint40 hardTransactionsCount;
     bytes32 stateRoot;
+    uint40 hardTransactionsCount;
     bytes32 transactionsRoot;
   }
 
