@@ -90,7 +90,7 @@ The set of transactions for each block is represented as a merkle root, composed
 Once this information has been committed into a single root hash, it is concatenated with the most recent `hardTransactionIndex`, as well as with `newHardTransactionCount` _(or the total number of hard transactions in the block)_ and hashed once more to arrive at the final transaction root.
 
 ### Data Availability Format
-Additionally, all transaction data is provided whenever new blocks are produced so that it can be made available for fraud proofs. This data is prefixed with an eight-byte header containing the following information:
+Additionally, all transaction data is provided whenever new blocks are produced so that it can be made available for fraud proofs. This data is prefixed with a an eighteen-byte header containing the following information:
 - `transactionSerializationVersion` _(16 bits)_
 - `newAccountCreationDeposits` _(16 bits)_
 - `newDefaultDeposits` _(16 bits)_
