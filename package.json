@@ -10,13 +10,16 @@
     "scripts": {
         "test:blockchain": "mocha ./app/Blockchain.spec.js",
         "test:state": "mocha ./app/state/State.spec.js",
-        "test:state-machine": "mocha ./app/state/StateMachine.spec.js"
+        "test:state-machine": "mocha ./app/state/StateMachine.spec.js",
+        "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/placeholder.js\""
     },
     "dependencies": {
         "ethereumjs-utils": "^5.2.5",
         "keccak256": "^1.0.0",
         "solc": "^0.6.0",
+        "solidity-coverage": "^0.7.4",
         "sparse-merkle-tree": "^1.0.0",
+        "truffle": "^5.1.21",
         "web3": "^1.2.6"
     },
     "devDependencies": {
