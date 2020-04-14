@@ -20,7 +20,6 @@
     ]
   },
   "scripts": {
-    "ci": "prettier --debug-check",
     "test": "npm run test:blockchain && npm run  test:state && npm run test:state-machine && npm run test:coverage",
     "test:blockchain": "mocha ./app/Blockchain.spec.js",
     "test:state": "mocha ./app/state/State.spec.js",
