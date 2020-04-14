@@ -506,25 +506,6 @@ Proves that a single transaction exists in the supplied transactions root by ver
 - Return `verifyMerkleRoot(transactionsRoot, transaction, transactionIndex, siblings)`
 
 ---
-### Transaction Exists in Transactions Tree
-```csharp=
-rootHasTransaction(transactionsRoot, transaction, transactionIndex, siblings)
-{ ... }
-```
-#### Input
-* `transactionsRoot <bytes32>` - The root hash of a transactions merkle tree.
-* `transaction <bytes>` - An encoded transaction of any type.
-* `transactionIndex <uint>` - The index of the transaction in the merkle tree.
-* `siblings <bytes32[]>` - The neighboring nodes of the transactions going up the merkle tree.
-
-#### Description
-Proves that a single transaction exists in the supplied transactions root by verifying the supplied merkle proof `(transactionIndex, siblings)`.
-
-
-#### Process
-- Return `verifyMerkleRoot(transactionsRoot, transaction, transactionIndex, siblings)`
-
----
 ### Transaction Had Previous State
 ```csharp=
 provePriorState(bytes previousSource, bytes blockHeader, uint40 transactionIndex) {
