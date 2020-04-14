@@ -1,31 +1,48 @@
 {
-    "name": "L2",
-    "version": "0.0.1",
-    "author": "Dharma Labs",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/dharmaprotocol/L2.git"
-    },
-    "scripts": {
-        "test:blockchain": "mocha ./app/Blockchain.spec.js",
-        "test:state": "mocha ./app/state/State.spec.js",
-        "test:state-machine": "mocha ./app/state/StateMachine.spec.js",
-        "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/placeholder.js\""
-    },
-    "dependencies": {
-        "ethereumjs-utils": "^5.2.5",
-        "keccak256": "^1.0.0",
-        "solc": "^0.6.0",
-        "solidity-coverage": "^0.7.4",
-        "sparse-merkle-tree": "^1.0.0",
-        "truffle": "^5.1.21",
-        "web3": "^1.2.6"
-    },
-    "devDependencies": {
-        "chai": "^4.2.0",
-        "chai-as-promised": "^7.1.1",
-        "ganache-core": "^2.10.2",
-        "mocha": "^7.1.1"
+  "name": "L2",
+  "version": "0.0.1",
+  "author": "Dharma Labs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dharmaprotocol/L2.git"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{js,css,json,md}": [
+      "prettier --debug-check",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "scripts": {
+    "test:blockchain": "mocha ./app/Blockchain.spec.js",
+    "test:state": "mocha ./app/state/State.spec.js",
+    "test:state-machine": "mocha ./app/state/StateMachine.spec.js",
+    "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/placeholder.js\"",
+    "prettier": "prettier --write"
+  },
+  "dependencies": {
+    "ethereumjs-utils": "^5.2.5",
+    "keccak256": "^1.0.0",
+    "solc": "^0.6.0",
+    "solidity-coverage": "^0.7.4",
+    "sparse-merkle-tree": "^1.0.0",
+    "truffle": "^5.1.21",
+    "web3": "^1.2.6"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "ganache-core": "^2.10.2",
+    "mocha": "^7.1.1",
+    "husky": "^4.2.1",
+    "prettier": "1.16.4",
+    "pretty-quick": "^2.0.1",
+    "lint-staged": "^9.2.1"
+  }
 }
