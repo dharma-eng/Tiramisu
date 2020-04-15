@@ -15,6 +15,16 @@ class Account {
     this.signers = signers.map(toHex);
   }
 
+  addSigner(address) {
+    this.signers.push(toHex(address));
+  }
+
+  removeSigner(address) {
+    let addr = toHex(address).toLowerCase();
+    let signerIndex = this.signers.map(s => s.toLowerCase()).indexOf(addr);
+    this.signers.splice(signerIndex, 1);
+  }
+
   /* outputs buffer */  
   encode() {
     const address = toBuf(this.address, 20);
