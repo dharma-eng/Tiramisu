@@ -90,7 +90,7 @@ The set of transactions for each block is represented as a merkle root, composed
 Once this information has been committed into a single root hash, it is concatenated with the most recent `hardTransactionIndex`, as well as with `newHardTransactionCount` _(or the total number of hard transactions in the block)_ and hashed once more to arrive at the final transaction root.
 
 ### Data Availability Format
-Additionally, all transaction data is provided whenever new blocks are produced so that it can be made available for fraud proofs. This data is prefixed with an eight-byte header containing the following information:
+Additionally, all transaction data is provided whenever new blocks are produced so that it can be made available for fraud proofs. This data is prefixed with a an eighteen-byte header containing the following information:
 - `transactionSerializationVersion` _(16 bits)_
 - `newAccountCreationDeposits` _(16 bits)_
 - `newDefaultDeposits` _(16 bits)_
@@ -501,25 +501,6 @@ rootHasTransaction(transactionsRoot, transaction, transactionIndex, siblings)
 
 #### Description
 Proves that a single transaction exists in the supplied transactions root by verifying the supplied merkle proof `(transactionIndex, siblings)`.
-
-#### Process
-- Return `verifyMerkleRoot(transactionsRoot, transaction, transactionIndex, siblings)`
-
----
-### Transaction Exists in Transactions Tree
-```csharp=
-rootHasTransaction(transactionsRoot, transaction, transactionIndex, siblings)
-{ ... }
-```
-#### Input
-* `transactionsRoot <bytes32>` - The root hash of a transactions merkle tree.
-* `transaction <bytes>` - An encoded transaction of any type.
-* `transactionIndex <uint>` - The index of the transaction in the merkle tree.
-* `siblings <bytes32[]>` - The neighboring nodes of the transactions going up the merkle tree.
-
-#### Description
-Proves that a single transaction exists in the supplied transactions root by verifying the supplied merkle proof `(transactionIndex, siblings)`.
-
 
 #### Process
 - Return `verifyMerkleRoot(transactionsRoot, transaction, transactionIndex, siblings)`
