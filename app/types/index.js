@@ -3,6 +3,9 @@ module.exports = {
   Block: require('./Block'),
   HardDeposit: require('./HardDeposit'),
   HardCreate: require('./HardCreate'),
+  HardWithdraw: require('./HardWithdraw'),
+  HardAddSigner: require('./HardAddSigner'),
   SoftTransfer: require('./SoftTransfer'),
-  SoftWithdrawal: require('./SoftWithdrawal')
+  SoftWithdrawal: require('./SoftWithdrawal'),
+  SoftChangeSigner: require('./SoftChangeSigner')
 }
