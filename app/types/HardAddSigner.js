@@ -2,7 +2,7 @@ const { toBuf, toHex, toInt } = require('../lib/to');
 
 class HardAddSigner {
   get prefix() {
-    return 4;
+    return 3;
   }
 
   constructor({
