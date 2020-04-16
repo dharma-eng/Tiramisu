@@ -6,6 +6,7 @@ async function getWeb3() {
   let web3 = new Web3(
     new Web3.providers.WebsocketProvider("ws://localhost:8545")
   );
+  /* If the provider fails, the function can be undefined */
   if (!web3.isConnected || !web3.isConnected()) {
     web3 = new Web3(ganache.provider());
     usingExternalHost = false;
