@@ -1,4 +1,4 @@
-const keccak256 = require('../lib/keccak256');
+const keccak256 = require("./keccak256");
 
 function getParent(a, b) {
   return keccak256(Buffer.concat([a, b]));
@@ -24,7 +24,7 @@ function getMerkleRoot(leaves) {
     currentLevel += 1;
     // Calculate the nodes for the currentLevel
     for (let i = 0; i < nextLevelLength / 2; i++) {
-      nodes[i] = getParent(nodes[i*2], nodes[i*2 + 1]);
+      nodes[i] = getParent(nodes[i * 2], nodes[i * 2 + 1]);
     }
     nextLevelLength = nextLevelLength / 2;
     // Check if we will need to add an extra node
@@ -36,19 +36,20 @@ function getMerkleRoot(leaves) {
   return nodes[0];
 }
 
-const isOdd = (n) => n % 2 == 1;
+const isOdd = n => n % 2 == 1;
 
 function getMerkleProof(leaves, index) {
   let levels = [];
   const putInLevel = (l, n) => {
     if (!levels[l]) levels[l] = [];
-    levels[l].push(n)
-  }
+    levels[l].push(n);
+  };
 
-  if (leaves.length == 0) return {
-    root: Buffer.alloc(32, 0),
-    siblings: []
-  }
+  if (leaves.length == 0)
+    return {
+      root: Buffer.alloc(32, 0),
+      siblings: []
+    };
   let nextLevelLength = leaves.length;
   let currentLevel = 0;
   // bytes32[160] memory defaultHashes = getDefaultHashes();
@@ -56,15 +57,15 @@ function getMerkleProof(leaves, index) {
   // Generate the leaves
   for (let i = 0; i < leaves.length; i++) {
     let node = keccak256(leaves[i]);
-    putInLevel(0, node)
-    nodes[i] = node
+    putInLevel(0, node);
+    nodes[i] = node;
   }
-  // 
+  //
   if (leaves.length == 1) return { root: nodes[0], siblings: [] };
   // Add a defaultNode if we've got an odd number of leaves
   if (nextLevelLength % 2 == 1) {
     let node = Buffer.alloc(32, 0);
-    putInLevel(0, node)
+    putInLevel(0, node);
     nodes[nextLevelLength] = node;
     nextLevelLength += 1;
   }
@@ -74,28 +75,29 @@ function getMerkleProof(leaves, index) {
     currentLevel += 1;
     // Calculate the nodes for the currentLevel
     for (let i = 0; i < nextLevelLength / 2; i++) {
-      let node = getParent(nodes[i*2], nodes[i*2 + 1]);
-      putInLevel(currentLevel, node)
+      let node = getParent(nodes[i * 2], nodes[i * 2 + 1]);
+      putInLevel(currentLevel, node);
       nodes[i] = node;
     }
     nextLevelLength = nextLevelLength / 2;
     // Check if we will need to add an extra node
     if (nextLevelLength % 2 == 1 && nextLevelLength != 1) {
       let node = Buffer.alloc(32, 0);
-      putInLevel(currentLevel, node)
-      nodes[nextLevelLength] = node
+      putInLevel(currentLevel, node);
+      nodes[nextLevelLength] = node;
       nextLevelLength += 1;
     }
   }
-  let root, siblings = [];
+  let root,
+    siblings = [];
   // console.log(levels)
   root = nodes[0];
   for (let i = 0; i < levels.length - 1; i++) {
-    let numNext = Math.floor(index / (2 ** i))
-    if (isOdd(numNext)) siblings.push(levels[i][numNext - 1])
-    else siblings.push(levels[i][numNext + 1])
+    let numNext = Math.floor(index / 2 ** i);
+    if (isOdd(numNext)) siblings.push(levels[i][numNext - 1]);
+    else siblings.push(levels[i][numNext + 1]);
   }
-  return { root, siblings }
+  return { root, siblings };
 }
 
-module.exports = {getMerkleRoot, getMerkleProof};
+module.exports = { getMerkleRoot, getMerkleProof };
