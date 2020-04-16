@@ -1,8 +1,11 @@
-const MockDharmaPeg = artifacts.require("mocks/MockDharmaPeg.sol");
-const MerkleProofLib = artifacts.require("lib/merkle/MerkleProofLib.sol");
+const MockDharmaPeg = artifacts.require("MockDharmaPeg");
+const MockDharmaDai = artifacts.require("MockDharmaDai");
+const MerkleProofLib = artifacts.require("MerkleProofLib");
 
 module.exports = function(deployer) {
   deployer.deploy(MerkleProofLib);
   deployer.link(MerkleProofLib, MockDharmaPeg);
-  deployer.deploy(MockDharmaPeg);
+  deployer
+    .deploy(MockDharmaDai, 5000, "DharmaDai", "DDAI")
+    .then(() => deployer.deploy(MockDharmaPeg, MockDharmaDai.address));
 };
