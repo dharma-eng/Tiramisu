@@ -22,7 +22,7 @@
   "scripts": {
     "build": "./node_modules/.bin/truffle compile",
     "migrate": "./node_modules/.bin/truffle migrate -- --network development",
-    "test": "yarn build && yarn test:blockchain && yarn test:state && yarn test:state-machine && yarn test:coverage",
+    "test": "npm run build && npm run test:blockchain && npm run test:state && npm run test:state-machine && npm run test:coverage",
     "test:blockchain": "mocha ./test/tests/Blockchain.spec.js",
     "test:state": "mocha ./test/tests/State.spec.js",
     "test:state-machine": "mocha ./test/tests/StateMachine.spec.js",
