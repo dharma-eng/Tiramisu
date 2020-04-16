@@ -1,5 +1,5 @@
-const Account = require('../types/Account');
-const { toHex } = require('../lib/to')
+const Account = require("../types/Account");
+const { toHex } = require("../lib/to");
 
 class StateMachine {
   constructor(state) {
@@ -17,16 +17,18 @@ class StateMachine {
     softChangeSigners
   }) {
     /* Execute hard deposits. */
-    for (let transaction of hardCreates) await this.hardCreate(transaction)
-    
+    for (let transaction of hardCreates) await this.hardCreate(transaction);
+
     /* Execute hard deposits. */
     for (let transaction of hardDeposits) await this.hardDeposit(transaction);
 
     /* Execute hard withdrawals. */
-    for (let transaction of hardWithdrawals) await this.hardWithdraw(transaction);
+    for (let transaction of hardWithdrawals)
+      await this.hardWithdraw(transaction);
 
     /* Execute hard add signers. */
-    for (let transaction of hardAddSigners) await this.hardAddSigner(transaction);
+    for (let transaction of hardAddSigners)
+      await this.hardAddSigner(transaction);
 
     /* Execute soft withdrawals, remove any that are invalid. */
     for (let i = 0; i < softTransfers.length; i++) {
@@ -60,16 +62,12 @@ class StateMachine {
   }
 
   async hardCreate(transaction) {
-    const {
-      contractAddress,
-      signerAddress,
-      value
-    } = transaction;
+    const { accountAddress, initialSigningKey, value } = transaction;
     const account = new Account({
-      address: contractAddress,
+      address: accountAddress,
       nonce: 0,
       balance: value,
-      signers: [signerAddress]
+      signers: [initialSigningKey]
     });
     const index = await this.state.putAccount(account);
     const stateRoot = await this.state.rootHash();
@@ -78,10 +76,7 @@ class StateMachine {
   }
 
   async hardDeposit(transaction) {
-    const {
-      accountIndex,
-      value
-    } = transaction;
+    const { accountIndex, value } = transaction;
     const account = await this.state.getAccount(accountIndex);
     account.balance += value;
     await this.state.updateAccount(accountIndex, account);
@@ -91,13 +86,10 @@ class StateMachine {
   }
 
   async hardWithdraw(transaction) {
-    const {
-      accountIndex,
-      value
-    } = transaction;
+    const { accountIndex, value } = transaction;
     const account = await this.state.getAccount(accountIndex);
     if (!account || transaction.checkValid(account)) {
-      const stateRoot = `0x${'00'.repeat(20)}`;
+      const stateRoot = `0x${"00".repeat(20)}`;
       transaction.addOutput(stateRoot);
       return false;
     }
@@ -109,18 +101,15 @@ class StateMachine {
   }
 
   async hardAddSigner(transaction) {
-    const {
-      accountIndex,
-      signingAddress
-    } = transaction;
+    const { accountIndex, signingAddress } = transaction;
     const account = await this.state.getAccount(accountIndex);
 
     if (!account || transaction.checkValid(account)) {
-      const stateRoot = `0x${'00'.repeat(20)}`;
+      const stateRoot = `0x${"00".repeat(20)}`;
       transaction.addOutput(stateRoot);
       return false;
     }
-    
+
     account.addSigner(signingAddress);
     await this.state.updateAccount(accountIndex, account);
     const stateRoot = await this.state.rootHash();
@@ -135,7 +124,7 @@ class StateMachine {
 
     /* Verification */
     if (!fromAccount || !toAccount) {
-      transaction.reject('Account does not exist.')
+      transaction.reject("Account does not exist.");
       return false;
     }
     const errorMessage = transaction.checkValid(fromAccount);
@@ -148,7 +137,7 @@ class StateMachine {
     fromAccount.nonce += 1;
     fromAccount.balance -= value;
     await this.state.updateAccount(fromAccountIndex, fromAccount);
-    
+
     /* Update receiver */
     toAccount.balance += value;
     await this.state.updateAccount(toAccountIndex, toAccount);
@@ -163,10 +152,10 @@ class StateMachine {
   async softWithdrawal(transaction) {
     const { fromAccountIndex, value } = transaction;
     const fromAccount = await this.state.getAccount(fromAccountIndex);
-    
+
     /* Verification */
     if (!fromAccount) {
-      transaction.reject('Account does not exist.')
+      transaction.reject("Account does not exist.");
       return false;
     }
     const errorMessage = transaction.checkValid(fromAccount);
@@ -178,7 +167,7 @@ class StateMachine {
     /* Update caller account */
     fromAccount.nonce += 1;
     fromAccount.balance -= value;
-    
+
     /* Update state */
     await this.state.updateAccount(fromAccountIndex, fromAccount);
     const root = await this.state.rootHash();
@@ -190,11 +179,15 @@ class StateMachine {
   }
 
   async softChangeSigner(transaction) {
-    const { fromAccountIndex, modificationCategory, signingAddress } = transaction;
+    const {
+      fromAccountIndex,
+      modificationCategory,
+      signingAddress
+    } = transaction;
     const fromAccount = await this.state.getAccount(fromAccountIndex);
     /* Verification */
     if (!fromAccount) {
-      transaction.reject('Account does not exist.')
+      transaction.reject("Account does not exist.");
       return false;
     }
     const errorMessage = transaction.checkValid(fromAccount);
@@ -207,7 +200,7 @@ class StateMachine {
     fromAccount.nonce += 1;
     if (modificationCategory == 0) fromAccount.addSigner(signingAddress);
     else fromAccount.removeSigner(signingAddress);
-    
+
     /* Update state */
     await this.state.updateAccount(fromAccountIndex, fromAccount);
     const root = await this.state.rootHash();
