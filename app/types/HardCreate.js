@@ -1,5 +1,5 @@
 const { toBuf, toHex, toInt } = require("../lib/to");
-export class HardCreate {
+class HardCreate {
   constructor(args) {
     const {
       hardTransactionIndex,

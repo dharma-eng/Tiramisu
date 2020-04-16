@@ -8,7 +8,7 @@ interface HardCreateArguments {
     value: number
 }
 
-export class HardCreate implements HardTransaction, CreateTransaction {
+class HardCreate implements HardTransaction, CreateTransaction {
     hardTransactionIndex: number;
     contractAddress: string;
     signerAddress: string;
