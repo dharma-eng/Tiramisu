@@ -21,7 +21,7 @@ library MerkleProofLib {
    * @return _updatedRoot Merkle root with _oldLeaf set to _newLeaf.
    */
   function verifyAndUpdate(bytes32 _root, bytes memory _oldLeaf, bytes memory _newLeaf, uint256 _path, bytes32[] memory _siblings)
-  public pure returns (bool _valid, bytes32 _updatedRoot) {
+  internal pure returns (bool _valid, bytes32 _updatedRoot) {
     if (_oldLeaf.length == 32) return (false, _root);
     // First compute the leaf node
     _updatedRoot = keccak256(_newLeaf);
@@ -52,7 +52,7 @@ library MerkleProofLib {
    * @return Boolean stating whether the proof was valid.
    */
   function verify(bytes32 _root, bytes memory leaf, uint256 _path, bytes32[] memory _siblings)
-  public pure returns (bool) {
+  internal pure returns (bool) {
     if (leaf.length == 32) return false;
     // First compute the leaf node
     bytes32 computedNode = keccak256(leaf);
@@ -69,7 +69,7 @@ library MerkleProofLib {
     return computedNode == _root;
   }
 
-  function verify(bytes memory leaf, MerkleProof memory proof) public pure returns(bool) {
+  function verify(bytes memory leaf, MerkleProof memory proof) internal pure returns(bool) {
     return verify(proof.root, leaf, proof.index, proof.siblings);
   }
 
@@ -90,7 +90,7 @@ library MerkleProofLib {
    * @param _index The index of the bit we want to extract
    * @return The bit (1 or 0) in a uint8
    */
-  function getNthBitFromRight(uint256 _intVal, uint256 _index) public pure returns (uint8) {
+  function getNthBitFromRight(uint256 _intVal, uint256 _index) internal pure returns (uint8) {
     return uint8(_intVal >> _index & 1);
   }
 }
