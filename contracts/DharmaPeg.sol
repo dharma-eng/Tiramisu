@@ -10,6 +10,7 @@ import "./lib/Owned.sol";
 import "./StateManager.sol";
 
 contract DharmaPeg is Owned, StateManager {
+  using HardTx for *;
   bytes[] internal hardTransactions;
 
   constructor(
@@ -28,15 +29,14 @@ contract DharmaPeg is Owned, StateManager {
     daiContract = _daiContract;
   }
 
-  function getDepositsFrom(uint256 start, uint256 max)
-  external view returns (HardTx.HardDeposit[] memory deposits) {
-    uint256 stopAt = start + max;
+  function getHardTransactionsFrom(uint256 start, uint256 max)
+  external view returns (bytes[] memory _hardTransactions) {
     uint256 len = hardTransactions.length;
+    uint256 stopAt = start+max;
     if (stopAt > len) stopAt = len;
-    deposits = new HardTx.HardDeposit[](stopAt - start);
-    for (uint256 i = start; i < stopAt; i++) {
-      deposits[i] = HardTx.decodeHardDeposit(hardTransactions[i]);
-    }
+    len = stopAt - start;
+    _hardTransactions = new bytes[](len);
+    for (uint256 i = 0; i < len; i++) _hardTransactions[i] = hardTransactions[i + start];
   }
 
   event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
@@ -45,7 +45,7 @@ contract DharmaPeg is Owned, StateManager {
     /* TODO - replace storage of full data with storage of a hash, and emit the data in the event */
     HardTx.HardDeposit memory deposit = HardTx.HardDeposit(contractAddress, signerAddress, value);
     emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(abi.encode(deposit));
+    hardTransactions.push(deposit.encode());
   }
 
   function deposit(uint56 value) external {
@@ -69,13 +69,13 @@ contract DharmaPeg is Owned, StateManager {
   function forceAddSigner(uint32 accountIndex, address signingAddress) external {
     HardTx.HardAddSigner memory hardTx = HardTx.HardAddSigner(accountIndex, msg.sender, signingAddress);
     emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(abi.encode(hardTx));
+    hardTransactions.push(hardTx.encode());
   }
 
   function forceWithdrawal(uint32 accountIndex, uint56 value) external {
     HardTx.HardWithdrawal memory hardTx = HardTx.HardWithdrawal(accountIndex, msg.sender, value);
     emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(abi.encode(hardTx));
+    hardTransactions.push(hardTx.encode());
   }
   
   /**
