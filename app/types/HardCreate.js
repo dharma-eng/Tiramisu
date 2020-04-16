@@ -1,16 +1,11 @@
-const { toBuf, toHex, toInt } = require('../lib/to');
+const { toBuf, toHex, toInt } = require("../lib/to");
 
 class HardCreate {
   get prefix() {
     return 0;
   }
 
-  constructor({
-    hardTransactionIndex,
-    contractAddress,
-    signerAddress,
-    value
-  }) {
+  constructor({ hardTransactionIndex, contractAddress, signerAddress, value }) {
     this.hardTransactionIndex = toInt(hardTransactionIndex);
     this.contractAddress = toHex(contractAddress);
     this.signerAddress = toHex(signerAddress);
@@ -38,6 +33,18 @@ class HardCreate {
       signerAddress,
       root
     ]);
+  }
+
+  static fromLayer1(hardTransactionIndex, buf) {
+    let contractAddress = toHex(buf.slice(1, 21));
+    let signerAddress = toHex(buf.slice(21, 41));
+    let value = toInt(toHex(buf.slice(41)));
+    return new HardCreate({
+      hardTransactionIndex,
+      contractAddress,
+      signerAddress,
+      value
+    });
   }
 }
 

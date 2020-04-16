@@ -1,21 +1,13 @@
-const { toBuf, toHex, toInt } = require('../lib/to');
+const { toBuf, toHex, toInt } = require("../lib/to");
 
 class HardDeposit {
   get prefix() {
     return 1;
   }
 
-  constructor({
-    accountIndex,
-    hardTransactionIndex,
-    contractAddress,
-    signerAddress,
-    value
-  }) {
-    this.accountIndex = toHex(accountIndex);
+  constructor({ accountIndex, hardTransactionIndex, value }) {
+    this.accountIndex = toInt(accountIndex);
     this.hardTransactionIndex = toInt(hardTransactionIndex);
-    // this.contractAddress = toHex(contractAddress);
-    // this.signerAddress = toHex(signerAddress);
     this.value = toInt(value);
   }
 
@@ -35,6 +27,10 @@ class HardDeposit {
       value,
       root
     ]);
+  }
+
+  static fromCreate({ hardTransactionIndex, value }, accountIndex) {
+    return new HardDeposit({ accountIndex, hardTransactionIndex, value });
   }
 }
 
