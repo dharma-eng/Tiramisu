@@ -8,8 +8,8 @@ class HardCreate {
       value
     } = args;
     this.hardTransactionIndex = toInt(hardTransactionIndex);
-    this.contractAddress = toHex(contractAddress);
-    this.signerAddress = toHex(signerAddress);
+    this.accountAddress = toHex(contractAddress);
+    this.initialSigningKey = toHex(signerAddress);
     this.value = toInt(value);
   }
   get prefix() {
@@ -23,8 +23,8 @@ class HardCreate {
     const txIndex = toBuf(this.hardTransactionIndex, 5);
     const acctIndex = toBuf(this.accountIndex, 4);
     const value = toBuf(this.value, 7);
-    const contractAddress = toBuf(this.contractAddress);
-    const signerAddress = toBuf(this.signerAddress);
+    const contractAddress = toBuf(this.accountAddress);
+    const signerAddress = toBuf(this.initialSigningKey);
     const root = toBuf(this.intermediateStateRoot);
     return Buffer.concat([
       prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
