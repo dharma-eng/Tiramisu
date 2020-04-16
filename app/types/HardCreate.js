@@ -1,22 +1,24 @@
 const { toBuf, toHex, toInt } = require("../lib/to");
-
-class HardCreate {
-  get prefix() {
-    return 0;
-  }
-
-  constructor({ hardTransactionIndex, contractAddress, signerAddress, value }) {
+export class HardCreate {
+  constructor(args) {
+    const {
+      hardTransactionIndex,
+      contractAddress,
+      signerAddress,
+      value
+    } = args;
     this.hardTransactionIndex = toInt(hardTransactionIndex);
     this.contractAddress = toHex(contractAddress);
     this.signerAddress = toHex(signerAddress);
     this.value = toInt(value);
   }
-
+  get prefix() {
+    return 0;
+  }
   addOutput(accountIndex, intermediateStateRoot) {
     this.accountIndex = toInt(accountIndex);
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
-
   encode(prefix = false) {
     const txIndex = toBuf(this.hardTransactionIndex, 5);
     const acctIndex = toBuf(this.accountIndex, 4);
@@ -34,7 +36,6 @@ class HardCreate {
       root
     ]);
   }
-
   static fromLayer1(hardTransactionIndex, buf) {
     let contractAddress = toHex(buf.slice(1, 21));
     let signerAddress = toHex(buf.slice(21, 41));
@@ -47,5 +48,4 @@ class HardCreate {
     });
   }
 }
-
 module.exports = HardCreate;
