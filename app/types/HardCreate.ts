@@ -1,4 +1,4 @@
-import {CreateTransaction, HardTransaction} from "./TransactionInterfaces";
+import {HardCreateTransaction} from "./TransactionInterfaces";
 const { toBuf, toHex, toInt } = require('../lib/to');
 
 interface HardCreateArguments {
@@ -8,10 +8,10 @@ interface HardCreateArguments {
     value: number
 }
 
-class HardCreate implements HardTransaction, CreateTransaction {
+class HardCreate implements HardCreateTransaction {
     hardTransactionIndex: number;
-    contractAddress: string;
-    signerAddress: string;
+    accountAddress: string;
+    initialSigningKey: string;
     value: number;
     intermediateStateRoot: string;
     accountIndex: number;
@@ -28,8 +28,8 @@ class HardCreate implements HardTransaction, CreateTransaction {
             value
         } = args;
         this.hardTransactionIndex = toInt(hardTransactionIndex);
-        this.contractAddress = toHex(contractAddress);
-        this.signerAddress = toHex(signerAddress);
+        this.accountAddress = toHex(contractAddress);
+        this.initialSigningKey = toHex(signerAddress);
         this.value = toInt(value);
     }
 
@@ -42,8 +42,8 @@ class HardCreate implements HardTransaction, CreateTransaction {
         const txIndex = toBuf(this.hardTransactionIndex, 5) as Buffer;
         const acctIndex = toBuf(this.accountIndex, 4) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
-        const contractAddress = toBuf(this.contractAddress) as Buffer;
-        const signerAddress = toBuf(this.signerAddress) as Buffer;
+        const contractAddress = toBuf(this.accountAddress) as Buffer;
+        const signerAddress = toBuf(this.initialSigningKey) as Buffer;
         const root = toBuf(this.intermediateStateRoot) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
