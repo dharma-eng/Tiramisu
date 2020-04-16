@@ -1,26 +1,23 @@
 const { toBuf, toHex, toInt } = require("../lib/to");
-
 class HardAddSigner {
-  get prefix() {
-    return 3;
-  }
-
-  constructor({
-    accountIndex,
-    hardTransactionIndex,
-    callerAddress,
-    signingAddress
-  }) {
+  constructor(args) {
+    const {
+      accountIndex,
+      hardTransactionIndex,
+      callerAddress,
+      signingAddress
+    } = args;
     this.accountIndex = toInt(accountIndex);
     this.hardTransactionIndex = toInt(hardTransactionIndex);
     this.callerAddress = toHex(callerAddress);
     this.signingAddress = toHex(signingAddress);
   }
-
+  get prefix() {
+    return 3;
+  }
   addOutput(intermediateStateRoot) {
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
-
   encode(prefix = false) {
     const txIndex = toBuf(this.hardTransactionIndex, 5);
     const acctIndex = toBuf(this.accountIndex, 4);
@@ -34,21 +31,18 @@ class HardAddSigner {
       root
     ]);
   }
-
   checkValid(account) {
     if (account.hasSigner(this.signingAddress))
       return `Invalid signing address. Account already has signer ${
         this.signingAddress
       }`;
-    if (!account.address == this.callerAddress) return `Caller not appproved.`;
+    if (!(account.address == this.callerAddress)) return `Caller not approved.`;
     if (account.signers.length == 10) return `Account signer array full.`;
   }
-
   static fromLayer1(hardTransactionIndex, buf) {
-    let accountIndex = toHex(buf.slice(1, 5));
+    let accountIndex = toInt(toHex(buf.slice(1, 5)));
     let callerAddress = toHex(buf.slice(5, 25));
     let signingAddress = toHex(buf.slice(25));
-
     return new HardAddSigner({
       hardTransactionIndex,
       accountIndex,
@@ -57,5 +51,4 @@ class HardAddSigner {
     });
   }
 }
-
 module.exports = HardAddSigner;
