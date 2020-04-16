@@ -13,7 +13,7 @@ class HardDeposit implements HardDepositTransaction {
     value: number;
     intermediateStateRoot: string;
 
-    get prefix() {
+    get prefix(): number {
         return 1;
     }
 
