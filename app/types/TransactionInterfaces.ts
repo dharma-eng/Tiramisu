@@ -2,7 +2,7 @@ export interface Transaction {
     prefix: number;
     intermediateStateRoot?: string;
     accountIndex: number;
-    encode(prefix: boolean): Buffer; //encode function
+    encode(prefix: boolean): Buffer;
 }
 
 export interface CreateTransaction {
