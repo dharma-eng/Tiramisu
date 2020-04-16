@@ -62,15 +62,70 @@ library HardTransactionsLib {
     return HardTransactionType.INVALID;
   }
 
+  function encode(HardDeposit memory _tx) internal pure returns (bytes memory ret) {
+    /* Note, while the prefix 0 is used here, this struct actually handles both creates and deposits. */
+    ret = abi.encodePacked(
+      uint8(0),
+      _tx.contractAddress,
+      _tx.signerAddress,
+      _tx.value
+    );
+  }
+
   function decodeHardDeposit(bytes memory data) internal pure returns (HardDeposit memory ret) {
-    ret = abi.decode(data, (HardDeposit));
+    assembly {
+      // Skip length and prefix
+      let ptr := add(data, 0x21)
+      // contractAddress
+      mstore(ret, shr(96, mload(ptr)))
+      // signerAddress
+      mstore(add(ret, 0x20), shr(96, mload(add(ptr, 20))))
+      // value
+      mstore(add(ret, 0x40), shr(200, mload(add(ptr, 40))))
+    }
+  }
+
+  function encode(HardWithdrawal memory _tx) internal pure returns (bytes memory ret) {
+    ret = abi.encodePacked(
+      uint8(2),
+      _tx.accountIndex,
+      _tx.caller,
+      _tx.value
+    );
   }
 
   function decodeHardWithdrawal(bytes memory data) internal pure returns (HardWithdrawal memory ret) {
-    ret = abi.decode(data, (HardWithdrawal));
+    assembly {
+      // Skip length and prefix
+      let ptr := add(data, 0x21)
+      // accountIndex
+      mstore(ret, shr(224, mload(ptr)))
+      // caller
+      mstore(add(ret, 0x20), shr(96, mload(add(ptr, 4))))
+      // value
+      mstore(add(ret, 0x40), shr(200, mload(add(ptr, 24))))
+    }
+  }
+
+  function encode(HardAddSigner memory _tx) internal pure returns (bytes memory ret) {
+    ret = abi.encodePacked(
+      uint8(3),
+      _tx.accountIndex,
+      _tx.caller,
+      _tx.signingAddress
+    );
   }
 
   function decodeHardAddSigner(bytes memory data) internal pure returns (HardAddSigner memory ret) {
-    ret = abi.decode(data, (HardAddSigner));
+    assembly {
+      // Skip length and prefix
+      let ptr := add(data, 0x21)
+      // accountIndex
+      mstore(ret, shr(224, mload(ptr)))
+      // caller
+      mstore(add(ret, 0x20), shr(96, mload(add(ptr, 4))))
+      // signingAddress
+      mstore(add(ret, 0x40), shr(96, mload(add(ptr, 24))))
+    }
   }
 }
