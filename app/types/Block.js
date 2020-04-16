@@ -1,9 +1,35 @@
-const { getMerkleRoot } = require("../lib/merkle");
-const { toInt, toBuf, toHex } = require("../lib/to");
-const TransactionsMetadata = require("./TransactionMetadata");
-const { keccak256 } = require("ethereumjs-utils");
-
-const keys = [
+var __assign =
+  (this && this.__assign) ||
+  function() {
+    __assign =
+      Object.assign ||
+      function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+      };
+    return __assign.apply(this, arguments);
+  };
+var __spreadArrays =
+  (this && this.__spreadArrays) ||
+  function() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++)
+      s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+      for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+        r[k] = a[j];
+    return r;
+  };
+var getMerkleRoot = require("../lib/merkle").getMerkleRoot;
+var _a = require("../lib/to"),
+  toBuf = _a.toBuf,
+  toHex = _a.toHex;
+var TransactionsMetadata = require("./TransactionMetadata");
+var keccak256 = require("ethereumjs-utils").keccak256;
+var keys = [
   "hardCreates",
   "hardDeposits",
   "hardWithdrawals",
@@ -13,69 +39,63 @@ const keys = [
   "softTransfers",
   "softChangeSigners"
 ];
-
-class Block {
-  constructor({
-    version,
-    blockNumber,
-    stateSize,
-    stateRoot,
-    hardTransactionsIndex,
-    transactions
-  }) {
+var Block = /** @class */ (function() {
+  function Block(args) {
+    var version = args.version,
+      blockNumber = args.blockNumber,
+      stateSize = args.stateSize,
+      stateRoot = args.stateRoot,
+      hardTransactionsIndex = args.hardTransactionsIndex,
+      transactions = args.transactions;
     this.transactions = transactions;
-
-    const transactionsArray = keys.reduce(
-      (arr, key) => [...arr, ...transactions[key]],
-      []
-    );
-
+    var transactionsArray = keys.reduce(function(arr, key) {
+      return __spreadArrays(arr, transactions[key]);
+    }, []); //TODO: make transaction type that accepts all types of transactions
     /* Encode transactions with their prefixes, calculate merkle root. */
-    const leaves = transactionsArray.map(t => t.encode(true));
-    const transactionsRoot = getMerkleRoot(leaves);
-
+    var leaves = transactionsArray.map(function(t) {
+      return t.encode(true);
+    });
+    var transactionsRoot = getMerkleRoot(leaves);
     /* Encode transactions without their prefixes and concatenate them. Place the encoded metadata at the beginning. */
-    const transactionsMetadata = TransactionsMetadata.fromTransactions(
+    var transactionsMetadata = TransactionsMetadata.fromTransactions(
       transactions
     );
-    const transactionsBuffer = Buffer.concat(
-      transactionsArray.map(t => t.encode(false))
+    var transactionsBuffer = Buffer.concat(
+      transactionsArray.map(function(t) {
+        return t.encode(false);
+      })
     );
-    const transactionsData = Buffer.concat([
+    var transactionsData = Buffer.concat([
       transactionsMetadata.encode(),
       transactionsBuffer
     ]);
-
     /* Add the hard transactions count from this block to the previous total. */
-    const hardTransactionsCount =
+    var hardTransactionsCount =
       hardTransactionsIndex + transactionsMetadata.hardTransactionsCount;
     this.header = {
-      version,
-      blockNumber,
-      stateSize,
+      version: version,
+      blockNumber: blockNumber,
+      stateSize: stateSize,
       hardTransactionsCount: hardTransactionsCount,
-      stateRoot,
-      transactionsRoot
+      stateRoot: stateRoot,
+      transactionsRoot: transactionsRoot
     };
     this.transactionsData = transactionsData;
   }
-
-  addOutput(submittedAt) {
-    this.commitment = {
-      ...this.header,
+  Block.prototype.addOutput = function(submittedAt) {
+    this.commitment = __assign(__assign({}, this.header), {
       transactionsHash: toHex(keccak256(this.transactionsData)),
-      submittedAt
-    };
-  }
-
+      submittedAt: submittedAt
+    });
+  };
   /* Currently just using ABI for this. */
-  blockHash(web3) {
+  Block.prototype.blockHash = function(web3) {
     if (!this.commitment) {
       throw new Error(
         "Blockhash not available! Requires calling `addOutput` with the block number from submission to L1."
       );
     }
-    const structDef = {
+    var structDef = {
       BlockHeader: {
         version: "uint16",
         blockNumber: "uint32",
@@ -87,11 +107,9 @@ class Block {
         submittedAt: "uint256"
       }
     };
-    const data = toBuf(
-      web3.eth.abi.encodeParameter(structDef, this.commitment)
-    );
+    var data = toBuf(web3.eth.abi.encodeParameter(structDef, this.commitment));
     return toHex(keccak256(data));
-  }
-}
-
+  };
+  return Block;
+})();
 module.exports = Block;
