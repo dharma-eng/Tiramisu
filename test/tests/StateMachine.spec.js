@@ -11,7 +11,7 @@ const {
   SoftTransfer,
   SoftChangeSigner
 } = require("../../app/types");
-const { randomHexBuffer } = require("../../test/utils/test-utils/random");
+const { randomHexBuffer } = require("../../test/utils/random");
 const { toHex } = require("../../app/lib/to");
 
 const randomAccount = () => {
@@ -119,6 +119,7 @@ describe("State Machine Test", () => {
     const hardAddSigner = new HardAddSigner({
       accountIndex: 0,
       hardTransactionIndex: 0,
+      callerAddress: newAddress,
       signingAddress: newAddress
     });
 
