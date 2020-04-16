@@ -20,12 +20,15 @@
     ]
   },
   "scripts": {
+    "build": "./node_modules/.bin/truffle compile",
+    "migrate": "./node_modules/.bin/truffle migrate -- --network development",
     "test": "npm run test:blockchain && npm run  test:state && npm run test:state-machine && npm run test:coverage",
     "test:blockchain": "mocha ./app/Blockchain.spec.js",
     "test:state": "mocha ./app/state/State.spec.js",
     "test:state-machine": "mocha ./app/state/StateMachine.spec.js",
     "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/placeholder.js\"",
-    "prettier": "prettier --write"
+    "prettier": "prettier --write",
+    "start": "node ./node_modules/ganache-cli/cli"
   },
   "dependencies": {
     "ethereumjs-utils": "^5.2.5",
@@ -39,11 +42,12 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "ganache-cli": "^6.9.1",
     "ganache-core": "^2.10.2",
-    "mocha": "^7.1.1",
     "husky": "^4.2.1",
+    "lint-staged": "^9.2.1",
+    "mocha": "^7.1.1",
     "prettier": "1.16.4",
-    "pretty-quick": "^2.0.1",
-    "lint-staged": "^9.2.1"
+    "pretty-quick": "^2.0.1"
   }
 }
