@@ -6,6 +6,6 @@ module.exports = function(deployer) {
   deployer.deploy(MerkleProofLib);
   deployer.link(MerkleProofLib, MockDharmaPeg);
   deployer
-    .deploy(MockDharmaDai, 5000, "DharmaDai", "DDAI")
-    .then(() => deployer.deploy(MockDharmaPeg, MockDharmaDai.address));
+    .deploy(MockDharmaDai, 5000, "Dharma Dai", "DDAI")
+    .then((deployed) => deployer.deploy(MockDharmaPeg, deployed.address));
 };

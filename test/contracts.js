@@ -14,30 +14,30 @@ async function getContractsFromExternalHost(tester) {
   return { dai, peg };
 }
 
-// function deployFromArtifact(tester, artifact, args) {
-//   const { abi, bytecode } = artifact;
-//   return new web3.eth.Contract(abi).deploy({ data: bytecode, arguments: args || [] }).send({
-//     from: tester.from,
-//     gas: 6e6,
-//   });
-// }
+function deployFromArtifact(tester, artifact, args) {
+  const { abi, bytecode } = artifact;
+  return new tester.web3.eth.Contract(abi).deploy({ data: bytecode, arguments: args || [] }).send({
+    from: tester.from,
+    gas: 6e6,
+  });
+}
 
 async function deployContracts(tester) {
-  const contracts = await compileBaseMock();
-  const dai = await deploy(
-    tester.web3,
-    tester.from,
-    { contracts, name: "MockDharmaDai" },
-    [5000, "DharmaDai", "DDAI"]
-  );
-  const peg = await deploy(
-    tester.web3,
-    tester.from,
-    { contracts, name: "MockDharmaPeg" },
-    [dai.options.address]
-  );
-  // const dai = await deployFromArtifact(tester, MockDaiArtifact, [ 5000, "DharmaDai", "DDAI" ]);
-  // const peg = await deployFromArtifact(tester, MockPegArtifact, [dai.options.address]);
+  // const contracts = await compileBaseMock();
+  // const dai = await deploy(
+  //   tester.web3,
+  //   tester.from,
+  //   { contracts, name: "MockDharmaDai" },
+  //   [5000, "Dharma Dai", "DDAI"]
+  // );
+  // const peg = await deploy(
+  //   tester.web3,
+  //   tester.from,
+  //   { contracts, name: "MockDharmaPeg" },
+  //   [dai.options.address]
+  // );
+  const dai = await deployFromArtifact(tester, MockDaiArtifact, [ 5000, "DharmaDai", "DDAI" ]);
+  const peg = await deployFromArtifact(tester, MockPegArtifact, [dai.options.address]);
   return { dai, peg };
 }
 
