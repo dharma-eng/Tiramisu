@@ -73,7 +73,7 @@ library SafeMath {
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract DaiMock is IERC20 {
+contract MockDharmaDai is IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
@@ -99,6 +99,10 @@ contract DaiMock is IERC20 {
         _name = name;
         _symbol = symbol;
         _decimals = 18;
+    }
+
+    function freeCoins(address recipient, uint256 amount) external {
+        _mint(recipient, amount);
     }
 
     /**
