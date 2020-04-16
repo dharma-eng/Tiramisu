@@ -1,3 +1,5 @@
+import {HardTransaction, SoftTransaction, Transaction} from "./TransactionInterfaces";
+import {HardCreate} from "./HardCreate";
 const { getMerkleRoot } = require("../lib/merkle");
 const { toBuf, toHex } = require("../lib/to");
 const TransactionsMetadata = require("./TransactionMetadata");
@@ -21,16 +23,15 @@ interface BlockParameters {
     stateRoot: string,
 }
 
-//TODO: make each transaction of its proper type rather than any
 interface Transactions {
-    hardCreates: any[],
-    hardDeposits: any[],
-    hardWithdrawals: any[],
-    hardAddSigners: any[],
-    softWithdrawals: any[],
-    softCreates: any[],
-    softTransfers: any[],
-    softChangeSigners: any[],
+    hardCreates: HardCreate[],
+    hardDeposits: HardTransaction[],
+    hardWithdrawals: HardTransaction[],
+    hardAddSigners: HardTransaction[],
+    softWithdrawals: SoftTransaction[],
+    softCreates: SoftTransaction[],
+    softTransfers: SoftTransaction[],
+    softChangeSigners: SoftTransaction[],
 }
 
 interface BlockArguments extends BlockParameters {
@@ -68,7 +69,7 @@ class Block {
         const transactionsArray = keys.reduce(
             (arr, key) => [...arr, ...transactions[key]],
             []
-        ) as any[]; //TODO: make transaction type that accepts all types of transactions
+        ) as Transaction[];
 
         /* Encode transactions with their prefixes, calculate merkle root. */
         const leaves = transactionsArray.map(t => t.encode(true)) as Buffer[];
