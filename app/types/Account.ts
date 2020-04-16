@@ -87,7 +87,7 @@ class Account implements AccountType {
     }
 
     hasSigner(_address: string): boolean {
-        let address = toHex(_address).toLowerCase()
+        let address = toHex(_address).toLowerCase();
         return this.signers.filter(s => s.toLowerCase() == address).length > 0;
     }
 
