@@ -43,7 +43,10 @@ class Tester {
   }
 
   async newBlockchain() {
-    const { dai, peg } = await deployContracts(this);
+    const { dai, peg } = this.usingExternalHost
+      ? await getContractsFromExternalHost()
+      : await deployContracts(this);
+    // await deployContracts(this);
     await dai.methods
       .freeCoins(peg.options.address, 5000)
       .send({ from: this.from, gas: 5e6 });
