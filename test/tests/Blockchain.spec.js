@@ -37,9 +37,9 @@ describe("Blockchain", () => {
         .send({ from, gas: 5e6 });
 
       const hardTx = await retrieveHardTransaction(0, 1, 0);
-      const { contractAddress, signerAddress } = hardTx;
-      compareAddresses(contractAddress, address);
-      compareAddresses(signerAddress, address);
+      const { accountAddress, initialSigningKey } = hardTx;
+      compareAddresses(accountAddress, address);
+      compareAddresses(initialSigningKey, address);
       expect(hardTx.value).to.eql(500);
     });
 

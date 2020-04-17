@@ -14,7 +14,7 @@ async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
     /* Either a hard create or hard deposit */
     const create = HardCreate.fromLayer1(hardTransactionIndex, buf);
     let accountIndex = await state.getAccountIndexByAddress(
-      create.contractAddress
+      create.accountAddress
     );
     if (accountIndex != null)
       return HardDeposit.fromCreate(create, accountIndex);
