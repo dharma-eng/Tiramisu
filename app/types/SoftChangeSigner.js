@@ -1,39 +1,40 @@
-const { toBuf, toHex, toInt, toNonPrefixed } = require('../lib/to');
-const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
-
+const { toBuf, toHex, toInt } = require("../lib/to");
+const {
+  ecrecover,
+  keccak256,
+  ecsign,
+  pubToAddress,
+  fromRpcSig,
+  toRpcSig
+} = require("ethereumjs-utils");
 class SoftChangeSigner {
-  get prefix() {
-    return 7;
-  }
-
-  constructor({
-    fromAccountIndex,
-    nonce,
-    signingAddress,
-    modificationCategory,
-    signature,
-    privateKey
-  }) {
+  constructor(args) {
+    const {
+      fromAccountIndex,
+      nonce,
+      signingAddress,
+      modificationCategory,
+      signature,
+      privateKey
+    } = args;
     this.fromAccountIndex = toInt(fromAccountIndex);
     this.nonce = toInt(nonce);
     this.signingAddress = toHex(signingAddress);
     this.modificationCategory = toInt(modificationCategory);
-    
-    let sig = (privateKey) ? this.sign(privateKey) : signature
-    
-    if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
+    let sig = privateKey ? this.sign(privateKey) : signature;
+    if (typeof sig == "object") this.signature = toRpcSig(sig.v, sig.r, sig.s);
     else this.signature = toHex(sig);
   }
-
+  get prefix() {
+    return 7;
+  }
   assignResolvers(resolve, reject) {
     this.resolve = resolve;
     this.reject = reject;
   }
-
   addOutput(intermediateStateRoot) {
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
-
   encode(prefix = false) {
     const fromIndex = toBuf(this.fromAccountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
@@ -51,7 +52,6 @@ class SoftChangeSigner {
       root
     ]);
   }
-
   toMessageHash() {
     const fromIndex = toBuf(this.fromAccountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
@@ -65,38 +65,42 @@ class SoftChangeSigner {
     ]);
     return keccak256(msg);
   }
-
   sign(privateKey) {
     const msgHash = this.toMessageHash();
     return ecsign(msgHash, privateKey);
   }
-
   getSignerAddress() {
     const msgHash = this.toMessageHash();
-    const { v, r, s } = fromRpcSig(this.signature)
+    const { v, r, s } = fromRpcSig(this.signature);
     try {
       const publicKey = ecrecover(msgHash, v, r, s);
       return toHex(pubToAddress(publicKey, true));
-    } catch(err) {
-      console.log(err)
+    } catch (err) {
+      console.log(err);
       return null;
     }
   }
-
   checkValid(account) {
     const signer = this.getSignerAddress();
-    if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
-    if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;
+    if (!(signer && account.hasSigner(signer))) return "Invalid signature.";
+    if (!account.checkNonce(this.nonce))
+      return `Invalid nonce. Expected ${account.nonce}`;
     if (this.modificationCategory == 0) {
       /* Add signer */
-      if (account.hasSigner(this.signingAddress)) return `Invalid signing address. Account already has signer ${this.signingAddress}`;
+      if (account.hasSigner(this.signingAddress))
+        return `Invalid signing address. Account already has signer ${
+          this.signingAddress
+        }`;
       if (account.signers.length == 10) return `Account signer array full.`;
     } else {
       /* Remove signer */
-      if (!account.hasSigner(this.signingAddress)) return `Invalid signing address. Account does not have signer ${this.signingAddress}`;
-      if (account.signers.length == 1) return `Can not remove last signer from account.`
+      if (!account.hasSigner(this.signingAddress))
+        return `Invalid signing address. Account does not have signer ${
+          this.signingAddress
+        }`;
+      if (account.signers.length == 1)
+        return `Can not remove last signer from account.`;
     }
   }
 }
-
 module.exports = SoftChangeSigner;
