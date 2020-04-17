@@ -17,7 +17,7 @@ class SoftTransfer {
       signature,
       privateKey
     } = args;
-    this.fromAccountIndex = toInt(fromAccountIndex);
+    this.accountIndex = toInt(fromAccountIndex);
     this.toAccountIndex = toInt(toAccountIndex);
     this.nonce = toInt(nonce);
     this.value = toInt(value);
@@ -36,7 +36,7 @@ class SoftTransfer {
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
   encode(prefix = false) {
-    const fromIndex = toBuf(this.fromAccountIndex, 4);
+    const fromIndex = toBuf(this.accountIndex, 4);
     const toIndex = toBuf(this.toAccountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
     const value = toBuf(this.value, 7);
@@ -53,7 +53,7 @@ class SoftTransfer {
     ]);
   }
   toMessageHash() {
-    const fromIndex = toBuf(this.fromAccountIndex, 4);
+    const fromIndex = toBuf(this.accountIndex, 4);
     const toIndex = toBuf(this.toAccountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
     const value = toBuf(this.value, 7);

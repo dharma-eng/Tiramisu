@@ -20,7 +20,6 @@ class SoftTransfer implements SoftTransferTransaction {
     signature: string;
     intermediateStateRoot: string;
     accountIndex: number;
-    fromAccountIndex: number;
     resolve: () => void;
     reject: () => void;
 
@@ -37,7 +36,7 @@ class SoftTransfer implements SoftTransferTransaction {
             signature,
             privateKey
         } = args;
-        this.fromAccountIndex = toInt(fromAccountIndex);
+        this.accountIndex = toInt(fromAccountIndex);
         this.toAccountIndex = toInt(toAccountIndex);
         this.nonce = toInt(nonce);
         this.value = toInt(value);
@@ -58,7 +57,7 @@ class SoftTransfer implements SoftTransferTransaction {
     }
 
     encode(prefix: boolean = false): Buffer {
-        const fromIndex = toBuf(this.fromAccountIndex, 4) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
@@ -76,7 +75,7 @@ class SoftTransfer implements SoftTransferTransaction {
     }
 
     toMessageHash(): string {
-        const fromIndex = toBuf(this.fromAccountIndex, 4) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;

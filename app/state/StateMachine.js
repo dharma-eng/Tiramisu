@@ -118,8 +118,8 @@ class StateMachine {
   }
 
   async softTransfer(transaction) {
-    const { fromAccountIndex, toAccountIndex, value } = transaction;
-    const fromAccount = await this.state.getAccount(fromAccountIndex);
+    const { accountIndex, toAccountIndex, value } = transaction;
+    const fromAccount = await this.state.getAccount(accountIndex);
     const toAccount = await this.state.getAccount(toAccountIndex);
 
     /* Verification */
@@ -136,7 +136,7 @@ class StateMachine {
     /* Update caller account */
     fromAccount.nonce += 1;
     fromAccount.balance -= value;
-    await this.state.updateAccount(fromAccountIndex, fromAccount);
+    await this.state.updateAccount(accountIndex, fromAccount);
 
     /* Update receiver */
     toAccount.balance += value;
