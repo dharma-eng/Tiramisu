@@ -4,13 +4,12 @@ const ganache = require("ganache-core");
 async function getWeb3() {
   let usingExternalHost = true;
   let web3 = new Web3(
-    new Web3.providers.WebsocketProvider("ws://localhost:8545")
+    new Web3.providers.WebsocketProvider("ws://localhost:8555")
   );
-  /* If the provider fails, the function can be undefined */
-  if (!web3.isConnected || !web3.isConnected()) {
+  await web3.eth.net.isListening().catch(() => {
     web3 = new Web3(ganache.provider());
     usingExternalHost = false;
-  }
+  });
   const accounts = await web3.eth.getAccounts();
   const [from] = accounts;
   const networkID = await web3.eth.net.getId();
