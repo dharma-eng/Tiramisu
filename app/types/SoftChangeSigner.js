@@ -17,7 +17,7 @@ class SoftChangeSigner {
       signature,
       privateKey
     } = args;
-    this.fromAccountIndex = toInt(fromAccountIndex);
+    this.accountIndex = toInt(fromAccountIndex);
     this.nonce = toInt(nonce);
     this.signingAddress = toHex(signingAddress);
     this.modificationCategory = toInt(modificationCategory);
@@ -36,7 +36,7 @@ class SoftChangeSigner {
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
   encode(prefix = false) {
-    const fromIndex = toBuf(this.fromAccountIndex, 4);
+    const fromIndex = toBuf(this.accountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
     const signingAddress = toBuf(this.signingAddress, 20);
     const modificationCategory = toBuf(this.modificationCategory, 1);
@@ -53,7 +53,7 @@ class SoftChangeSigner {
     ]);
   }
   toMessageHash() {
-    const fromIndex = toBuf(this.fromAccountIndex, 4);
+    const fromIndex = toBuf(this.accountIndex, 4);
     const nonce = toBuf(this.nonce, 3);
     const signingAddress = toBuf(this.signingAddress, 20);
     const modificationCategory = toBuf(this.modificationCategory, 1);

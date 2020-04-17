@@ -179,12 +179,8 @@ class StateMachine {
   }
 
   async softChangeSigner(transaction) {
-    const {
-      fromAccountIndex,
-      modificationCategory,
-      signingAddress
-    } = transaction;
-    const fromAccount = await this.state.getAccount(fromAccountIndex);
+    const { accountIndex, modificationCategory, signingAddress } = transaction;
+    const fromAccount = await this.state.getAccount(accountIndex);
     /* Verification */
     if (!fromAccount) {
       transaction.reject("Account does not exist.");
@@ -202,7 +198,7 @@ class StateMachine {
     else fromAccount.removeSigner(signingAddress);
 
     /* Update state */
-    await this.state.updateAccount(fromAccountIndex, fromAccount);
+    await this.state.updateAccount(accountIndex, fromAccount);
     const root = await this.state.rootHash();
 
     /* Resolve promise, return success */

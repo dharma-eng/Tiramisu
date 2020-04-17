@@ -18,7 +18,6 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
     modificationCategory: number;
     signature: string;
     intermediateStateRoot: string;
-    fromAccountIndex: number;
     accountIndex: number;
     resolve: () => void;
     reject: () => void;
@@ -36,7 +35,7 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
             signature,
             privateKey
         } = args;
-        this.fromAccountIndex = toInt(fromAccountIndex);
+        this.accountIndex = toInt(fromAccountIndex);
         this.nonce = toInt(nonce);
         this.signingAddress = toHex(signingAddress);
         this.modificationCategory = toInt(modificationCategory);
@@ -57,7 +56,7 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
     }
 
     encode(prefix: boolean = false): Buffer {
-        const fromIndex = toBuf(this.fromAccountIndex, 4) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
         const modificationCategory = toBuf(this.modificationCategory, 1) as Buffer;
@@ -75,7 +74,7 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
     }
 
     toMessageHash(): string {
-        const fromIndex = toBuf(this.fromAccountIndex, 4) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
         const modificationCategory = toBuf(this.modificationCategory, 1) as Buffer;
