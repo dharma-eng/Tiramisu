@@ -1,21 +1,18 @@
 const { toBuf, toHex, toInt } = require("../lib/to");
-
 class HardWithdraw {
-  get prefix() {
-    return 2;
-  }
-
-  constructor({ accountIndex, hardTransactionIndex, callerAddress, value }) {
+  constructor(args) {
+    const { accountIndex, hardTransactionIndex, callerAddress, value } = args;
     this.accountIndex = toInt(accountIndex);
     this.hardTransactionIndex = toInt(hardTransactionIndex);
     this.callerAddress = toHex(callerAddress);
     this.value = toInt(value);
   }
-
+  get prefix() {
+    return 2;
+  }
   addOutput(intermediateStateRoot) {
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }
-
   encode(prefix = false) {
     const txIndex = toBuf(this.hardTransactionIndex, 5);
     const acctIndex = toBuf(this.accountIndex, 4);
@@ -31,16 +28,14 @@ class HardWithdraw {
       root
     ]);
   }
-
   checkValid(account) {
-    if (!account.address == this.callerAddress)
+    if (!(account.address == this.callerAddress))
       return `Caller not approved for withdrawal.`;
     if (!account.hasSufficientBalance(this.value))
       return `Account has insufficient balance for withdrawal.`;
   }
-
   static fromLayer1(hardTransactionIndex, buf) {
-    let accountIndex = toHex(buf.slice(1, 5));
+    let accountIndex = toInt(toHex(buf.slice(1, 5)));
     let callerAddress = toHex(buf.slice(5, 25));
     let value = toInt(toHex(buf.slice(25)));
     return new HardWithdraw({
@@ -51,5 +46,4 @@ class HardWithdraw {
     });
   }
 }
-
 module.exports = HardWithdraw;

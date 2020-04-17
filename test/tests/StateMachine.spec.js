@@ -14,6 +14,9 @@ const {
 const { randomHexBuffer } = require("../../test/utils/random");
 const { toHex } = require("../../app/lib/to");
 
+const accountAddress = "0x" + "aabb".repeat(10);
+const initialSigner = "0x" + "ccdd".repeat(10);
+
 const randomAccount = () => {
   let privateKey = randomHexBuffer(32);
   let address = privateToAddress(privateKey);
@@ -29,10 +32,10 @@ describe("State Machine Test", () => {
     state = await State.create();
     stateMachine = new StateMachine(state);
     account = new Account({
-      address: "0x" + "aabb".repeat(10),
+      address: accountAddress,
       nonce: 0,
       balance: 50,
-      signers: ["0x" + "aabb".repeat(10)]
+      signers: [initialSigner]
     });
     accountIndex = await state.putAccount(account);
   });
@@ -95,7 +98,7 @@ describe("State Machine Test", () => {
     const hardWithdrawal = new HardWithdraw({
       accountIndex: 0,
       hardTransactionIndex: 0,
-      callerAddress: "0x" + "aabb".repeat(10),
+      callerAddress: accountAddress,
       value: 500
     });
 
@@ -119,7 +122,7 @@ describe("State Machine Test", () => {
     const hardAddSigner = new HardAddSigner({
       accountIndex: 0,
       hardTransactionIndex: 0,
-      callerAddress: newAddress,
+      callerAddress: accountAddress,
       signingAddress: newAddress
     });
 

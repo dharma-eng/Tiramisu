@@ -23,6 +23,7 @@
     "build": "./node_modules/.bin/truffle compile",
     "migrate": "./node_modules/.bin/truffle migrate -- --network development",
     "test": "npm run build && npm run test:blockchain && npm run test:state && npm run test:state-machine && npm run test:coverage",
+    "test:no-cov": "npm run build && npm run test:blockchain && npm run test:state && npm run test:state-machine",
     "test:blockchain": "mocha ./test/tests/Blockchain.spec.js",
     "test:state": "mocha ./test/tests/State.spec.js",
     "test:state-machine": "mocha ./test/tests/StateMachine.spec.js",
