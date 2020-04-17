@@ -28,7 +28,7 @@
     "test:state": "mocha ./test/tests/State.spec.js",
     "test:state-machine": "mocha ./test/tests/StateMachine.spec.js",
     "test:app": "npm run build && npm run test:state && npm run test:state-machine",
-    "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/placeholder.js\"",
+    "test:coverage": "./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\"",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli"
   },
