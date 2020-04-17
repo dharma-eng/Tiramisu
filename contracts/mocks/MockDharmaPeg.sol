@@ -19,4 +19,15 @@ contract MockDharmaPeg is DharmaPeg {
   function mockDeposit(address contractAddress, address initialSignerAddress, uint56 value) external {
     _deposit(contractAddress, initialSignerAddress, value);
   }
+
+  function clearTransactions() external {
+    uint256 len = hardTransactions.length;
+    for (uint256 i = 0; i < len; i++) delete hardTransactions[i];
+    assembly {
+      sstore(
+        hardTransactions_slot,
+        0
+      )
+    }
+  }
 }
