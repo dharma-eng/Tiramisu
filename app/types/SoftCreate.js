@@ -30,7 +30,7 @@ class SoftCreate {
     else this.signature = toHex(sig);
   }
   get prefix() {
-    return 6;
+    return 5;
   }
   assignResolvers(resolve, reject) {
     this.resolve = resolve;

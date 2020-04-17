@@ -35,7 +35,7 @@ class SoftCreate implements SoftCreateTransaction {
     reject: () => void;
 
     get prefix(): number {
-        return 6;
+        return 5;
     }
 
     constructor(args: SoftCreateArguments) {
