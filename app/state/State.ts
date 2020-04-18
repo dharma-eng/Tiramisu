@@ -5,10 +5,16 @@ const getTree = require('./state-tree');
 const Account = require('../types/Account');
 const SimpleMemdown = require('../lib/simple-memdown');
 
-interface StateType {
+export interface StateType {
     tree: any;
     accountMap: any; //TODO: make this more specific than "any"
     size: number;
+    getAccountIndexByAddress(address: string): Promise<number>;
+    getAccount(_accountIndex: any): Promise<AccountType>;
+    putAccount(account: AccountType): Promise<number>;
+    rootHash(): Promise<string>;
+    updateAccount(_accountIndex: any, account: AccountType): Promise<void>;
+
 }
 class State implements StateType {
     tree: any;
@@ -33,7 +39,7 @@ class State implements StateType {
     }
 
     /* takes number or big number, outputs account */
-    async getAccount(_accountIndex): Promise<AccountType> {
+    async getAccount(_accountIndex: any): Promise<AccountType> {
         const accountIndex = BigNumber.isBigNumber(_accountIndex) ? _accountIndex : new BigNumber(_accountIndex);
         if (accountIndex.gt(new BigNumber(this.size))) return null;
         const leaf = await this.tree.getLeaf(accountIndex) as Buffer;
@@ -59,7 +65,7 @@ class State implements StateType {
     }
 
     /* takes BN or number for index and Account object */
-    async updateAccount(_accountIndex, account: AccountType): Promise<void> {
+    async updateAccount(_accountIndex: any, account: AccountType): Promise<void> {
         const accountIndex = BigNumber.isBigNumber(_accountIndex) ? _accountIndex : new BigNumber(_accountIndex);
         const leaf = account.encode() as Buffer;
         await this.tree.update(accountIndex, leaf);

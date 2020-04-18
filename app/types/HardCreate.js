@@ -15,7 +15,7 @@ class HardCreate {
   get prefix() {
     return 0;
   }
-  addOutput(accountIndex, intermediateStateRoot) {
+  addOutput(intermediateStateRoot, accountIndex) {
     this.accountIndex = toInt(accountIndex);
     this.intermediateStateRoot = toHex(intermediateStateRoot);
   }

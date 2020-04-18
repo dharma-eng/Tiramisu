@@ -10,6 +10,8 @@ export interface AccountType {
     checkNonce(nonce: number): boolean;
     hasSigner(address: string): boolean;
     encode(): Buffer;
+    addSigner(address: string): void;
+    removeSigner(address: string): void;
 }
 
 interface AccountArguments {

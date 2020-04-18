@@ -1,13 +1,6 @@
 import {
-    HardAddSignerTransaction,
-    HardCreateTransaction,
-    HardDepositTransaction,
-    HardWithdrawTransaction,
-    SoftChangeSignerTransaction,
-    SoftCreateTransaction,
-    SoftTransferTransaction,
-    SoftWithdrawTransaction,
-    Transaction
+    Transaction,
+    Transactions
 } from "./TransactionInterfaces";
 const { getMerkleRoot } = require("../lib/merkle");
 const { toBuf, toHex } = require("../lib/to");
@@ -30,17 +23,6 @@ interface BlockParameters {
     blockNumber: number,
     stateSize: number,
     stateRoot: string,
-}
-
-interface Transactions {
-    hardCreates: HardCreateTransaction[],
-    hardDeposits: HardDepositTransaction[],
-    hardWithdrawals: HardWithdrawTransaction[],
-    hardAddSigners: HardAddSignerTransaction[],
-    softWithdrawals: SoftWithdrawTransaction[],
-    softCreates: SoftCreateTransaction[],
-    softTransfers: SoftTransferTransaction[],
-    softChangeSigners: SoftChangeSignerTransaction[],
 }
 
 interface BlockArguments extends BlockParameters {

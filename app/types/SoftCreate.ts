@@ -32,7 +32,7 @@ class SoftCreate implements SoftCreateTransaction {
     signature: string;
     intermediateStateRoot: string;
     resolve: () => void;
-    reject: () => void;
+    reject: (errorMessage: string) => void;
 
     get prefix(): number {
         return 5;
@@ -61,7 +61,7 @@ class SoftCreate implements SoftCreateTransaction {
         else this.signature = toHex(sig);
     }
 
-    assignResolvers(resolve: () => void, reject: () => void): void {
+    assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {
         this.resolve = resolve;
         this.reject = reject;
     }
