@@ -33,7 +33,7 @@ class HardCreate implements HardCreateTransaction {
         this.value = toInt(value);
     }
 
-    addOutput(accountIndex: number, intermediateStateRoot: string): void {
+    addOutput(intermediateStateRoot: string, accountIndex: number): void {
         this.accountIndex = toInt(accountIndex);
         this.intermediateStateRoot = toHex(intermediateStateRoot);
     }

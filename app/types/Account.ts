@@ -9,6 +9,9 @@ export interface AccountType {
     hasSufficientBalance(value: number): boolean;
     checkNonce(nonce: number): boolean;
     hasSigner(address: string): boolean;
+    encode(): Buffer;
+    addSigner(address: string): void;
+    removeSigner(address: string): void;
 }
 
 interface AccountArguments {
