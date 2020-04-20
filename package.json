@@ -29,6 +29,8 @@
     "test:state-machine": "mocha ./test/tests/StateMachine.spec.js",
     "test:app": "npm run build && npm run test:state && npm run test:state-machine",
     "test:coverage": "NODE_ENV=coverage ./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\"",
+    "test-cov": "istanbul cover _mocha",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli"
   },
@@ -44,11 +46,13 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.0.11",
     "ganache-cli": "^6.9.1",
     "ganache-core": "^2.10.2",
     "husky": "^4.2.1",
     "lint-staged": "^9.2.1",
     "mocha": "^7.1.1",
+    "mocha-lcov-reporter": "^1.3.0",
     "prettier": "1.16.4",
     "pretty-quick": "^2.0.1"
   }
