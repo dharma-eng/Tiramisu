@@ -9,6 +9,7 @@ describe("Hard Create", () => {
   let state, account, initialAccount, initialStateSize;
 
   before(async () => {
+    // SET UP INITIAL STATE
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
@@ -25,6 +26,7 @@ describe("Hard Create", () => {
 
     initialStateSize = state.size;
 
+    // EXECUTE TRANSACTION
     const contract = randomAccount();
     const signer = randomAccount();
     const initialAccountBalance = 50;

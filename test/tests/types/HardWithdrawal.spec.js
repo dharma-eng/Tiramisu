@@ -11,6 +11,7 @@ describe("Hard Withdraw", () => {
   const withdrawalAmount = 25;
 
   before(async () => {
+    // SET UP INITIAL STATE
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
@@ -26,6 +27,7 @@ describe("Hard Withdraw", () => {
 
     initialStateSize = state.size;
 
+    // EXECUTE TRANSACTION
     const hardWithdrawal = new HardWithdraw({
       accountIndex,
       hardTransactionIndex: 0,

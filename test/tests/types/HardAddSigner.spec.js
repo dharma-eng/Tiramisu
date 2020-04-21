@@ -9,6 +9,7 @@ describe("Hard Add Signer", () => {
   let state, account, initialAccount, initialStateSize, newSigner;
 
   before(async () => {
+    // SET UP INITIAL STATE
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
@@ -25,6 +26,7 @@ describe("Hard Add Signer", () => {
 
     initialStateSize = state.size;
 
+    // EXECUTE TRANSACTION
     newSigner = randomAccount();
 
     const hardAddSigner = new HardAddSigner({
