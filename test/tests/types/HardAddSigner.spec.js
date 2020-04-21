@@ -2,20 +2,19 @@ const { expect } = require("chai");
 const State = require("../../../app/state/State");
 const StateMachine = require("../../../app/state/StateMachine");
 const { toHex } = require("../../../app/lib/to");
-const { Account, HardWithdraw } = require("../../../app/types");
+const { Account, HardAddSigner } = require("../../../app/types");
 const { randomAccount } = require("../../utils/random");
 
-describe("Hard Withdraw", () => {
-  let account, state, contract, signer, initialAccount, initialStateSize;
-  const initialAccountBalance = 50;
-  const withdrawalAmount = 25;
+describe("Hard Add Signer", () => {
+  let state, account, initialAccount, initialStateSize, newSigner;
 
   before(async () => {
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
-    contract = randomAccount();
-    signer = randomAccount();
+    const contract = randomAccount();
+    const signer = randomAccount();
+    const initialAccountBalance = 100;
     initialAccount = new Account({
       address: contract.address,
       nonce: 0,
@@ -26,14 +25,17 @@ describe("Hard Withdraw", () => {
 
     initialStateSize = state.size;
 
-    const hardWithdrawal = new HardWithdraw({
+    newSigner = randomAccount();
+
+    const hardAddSigner = new HardAddSigner({
       accountIndex,
       hardTransactionIndex: 0,
       callerAddress: initialAccount.address,
-      value: withdrawalAmount
+      signingAddress: newSigner.address
     });
 
-    await stateMachine.hardWithdraw(hardWithdrawal);
+    await stateMachine.hardAddSigner(hardAddSigner);
+
     account = await state.getAccount(accountIndex);
   });
 
@@ -41,13 +43,22 @@ describe("Hard Withdraw", () => {
     expect(account.address).to.eql(initialAccount.address);
   });
 
-  it("Should not have modified the signers", async () => {
-    expect(account.signers.length).to.eql(initialAccount.signers.length);
-    expect(account.hasSigner(toHex(signer.address))).to.be.true;
+  it("Should have added one signer", async () => {
+    expect(account.signers.length).to.eql(initialAccount.signers.length + 1);
   });
 
-  it("Should have withdrawn the amount from the account", async () => {
-    expect(account.balance).to.eql(initialAccount.balance - withdrawalAmount);
+  it("Should have added the expected signer", async () => {
+    expect(account.hasSigner(toHex(newSigner.address))).to.be.true;
+  });
+
+  it("Should have all of the signers that the initial account had", async () => {
+    for (let signer of initialAccount.signers) {
+      expect(account.hasSigner(toHex(signer))).to.be.true;
+    }
+  });
+
+  it("Should not have modified the account balance", async () => {
+    expect(account.balance).to.eql(initialAccount.balance);
   });
 
   it("Should not have updated the account nonce", async () => {
