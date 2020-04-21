@@ -71,15 +71,8 @@ describe("Soft Transfer", () => {
     expect(sender.nonce).to.eql(initialSender.nonce + 1);
   });
 
-  it("Should not have changed the receivers's account nonce", async () => {
-    expect(receiver.nonce).to.eql(initialReceiver.nonce);
-  });
-
   it("Should have debited the transfer amount from the sender's balance", async () =>
     expect(sender.balance).to.eql(initialSender.balance - transferAmount));
-
-  it("Should have credited the transfer amount to the receiver's balance", async () =>
-    expect(receiver.balance).to.eql(initialReceiver.balance + transferAmount));
 
   it("Should not have modified the sender's signers", async () => {
     expect(sender.signers.length).to.eql(initialSender.signers.length);
@@ -87,6 +80,13 @@ describe("Soft Transfer", () => {
       expect(sender.hasSigner(toHex(signer))).to.be.true;
     }
   });
+
+  it("Should not have changed the receivers's account nonce", async () => {
+    expect(receiver.nonce).to.eql(initialReceiver.nonce);
+  });
+
+  it("Should have credited the transfer amount to the receiver's balance", async () =>
+    expect(receiver.balance).to.eql(initialReceiver.balance + transferAmount));
 
   it("Should not have modified the receivers's signers", async () => {
     expect(receiver.signers.length).to.eql(initialReceiver.signers.length);
