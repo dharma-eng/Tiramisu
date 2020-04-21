@@ -3,11 +3,14 @@ import {
     HardAddSignerTransaction,
     HardCreateTransaction,
     HardDepositTransaction,
-    HardWithdrawTransaction, SoftChangeSignerTransaction, SoftTransferTransaction, SoftWithdrawTransaction,
+    HardWithdrawTransaction,
+    SoftChangeSignerTransaction,
+    SoftCreateTransaction,
+    SoftTransferTransaction,
+    SoftWithdrawTransaction,
     Transactions
 } from "../types/TransactionInterfaces";
 import {AccountType} from "../types/Account";
-
 const Account = require("../types/Account");
 const { toHex } = require("../lib/to");
 
@@ -52,7 +55,6 @@ class StateMachine {
             const res = await this.softTransfer(transaction);
             if (!res) {
                 softTransfers.splice(i, 1);
-                continue;
             }
         }
 
@@ -62,7 +64,6 @@ class StateMachine {
             const res = await this.softWithdrawal(transaction);
             if (!res) {
                 softWithdrawals.splice(i, 1);
-                continue;
             }
         }
 
@@ -72,7 +73,15 @@ class StateMachine {
             const res = await this.softChangeSigner(transaction);
             if (!res) {
                 softChangeSigners.splice(i, 1);
-                continue;
+            }
+        }
+
+        /* Execute soft creates, remove any that are invalid. */
+        for (let i = 0; i < softCreates.length; i++) {
+            const transaction = softCreates[i];
+            const res = await this.softCreate(transaction);
+            if (!res) {
+                softCreates.splice(i, 1);
             }
         }
     }
@@ -215,6 +224,42 @@ class StateMachine {
 
         /* Update state */
         await this.state.updateAccount(accountIndex, fromAccount);
+        const root = await this.state.rootHash() as string;
+
+        /* Resolve promise, return success */
+        transaction.resolve(root);
+        transaction.addOutput(root);
+        return true;
+    }
+
+    async softCreate(transaction: SoftCreateTransaction): Promise<boolean> {
+        const { accountIndex, accountAddress, initialSigningKey, value } = transaction;
+        const fromAccount = await this.state.getAccount(accountIndex) as AccountType;
+        /* Verification */
+        if (!fromAccount) {
+            transaction.reject("Account does not exist.");
+            return false;
+        }
+        const errorMessage = transaction.checkValid(fromAccount) as string;
+        if (errorMessage) {
+            transaction.reject(errorMessage);
+            return false;
+        }
+
+        /* Update caller account */
+        fromAccount.nonce += 1;
+        fromAccount.balance -= value;
+        await this.state.updateAccount(accountIndex, fromAccount);
+
+        /* Create receiver */
+        const account = new Account({
+            address: accountAddress,
+            nonce: 0,
+            balance: value,
+            signers: [initialSigningKey]
+        }) as AccountType;
+        const index = await this.state.putAccount(account) as number;
+
         const root = await this.state.rootHash() as string;
 
         /* Resolve promise, return success */
