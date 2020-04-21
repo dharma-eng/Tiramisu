@@ -6,21 +6,15 @@ const { Account, HardWithdraw } = require("../../../app/types");
 const { randomAccount } = require("../../utils/random");
 
 describe("Hard Withdraw", () => {
-  let account,
-    state,
-    contract,
-    signer,
-    initialAccount,
-    initialStateSize,
-    withdrawalAmount;
+  let state, account, initialAccount, initialStateSize, withdrawalAmount;
 
   before(async () => {
     // SET UP INITIAL STATE
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
-    contract = randomAccount();
-    signer = randomAccount();
+    const contract = randomAccount();
+    const signer = randomAccount();
     const initialAccountBalance = 50;
     initialAccount = new Account({
       address: contract.address,
@@ -50,7 +44,7 @@ describe("Hard Withdraw", () => {
     expect(account.address).to.eql(initialAccount.address);
   });
 
-  it("Should not have modified the sender's signers", async () => {
+  it("Should not have modified the account's signers", async () => {
     expect(account.signers.length).to.eql(initialAccount.signers.length);
     for (let signer of initialAccount.signers) {
       expect(account.hasSigner(toHex(signer))).to.be.true;

@@ -6,21 +6,15 @@ const { Account, HardDeposit } = require("../../../app/types");
 const { randomAccount } = require("../../utils/random");
 
 describe("Hard Deposit", () => {
-  let account,
-    state,
-    contract,
-    signer,
-    initialAccount,
-    initialStateSize,
-    depositAmount;
+  let state, account, initialAccount, initialStateSize, depositAmount;
 
   before(async () => {
     // SET UP INITIAL STATE
     state = await State.create();
     const stateMachine = new StateMachine(state);
 
-    contract = randomAccount();
-    signer = randomAccount();
+    const contract = randomAccount();
+    const signer = randomAccount();
     const initialAccountBalance = 50;
     initialAccount = new Account({
       address: contract.address,

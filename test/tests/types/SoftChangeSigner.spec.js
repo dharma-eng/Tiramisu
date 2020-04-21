@@ -13,7 +13,6 @@ describe("Soft Change Signer", () => {
     initialAccount,
     initialStateSize,
     signer,
-    contract,
     newSigner;
 
   before(async () => {
@@ -21,7 +20,7 @@ describe("Soft Change Signer", () => {
     state = await State.create();
     stateMachine = new StateMachine(state);
 
-    contract = randomAccount();
+    const contract = randomAccount();
     signer = randomAccount();
     const initialAccountBalance = 100;
     initialAccount = new Account({
