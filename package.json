@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/dharmaprotocol/L2.git"
   },
+  "mocha": {
+    "enableTimeouts": false
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
