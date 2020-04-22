@@ -66,12 +66,6 @@ class State {
       return Account.decode(leaf);
     });
   }
-  getAccountByAddress(accountAddress) {
-    return __awaiter(this, void 0, void 0, function*() {
-      const accountIndex = yield this.getAccountIndexByAddress(accountAddress);
-      return this.getAccount(accountIndex);
-    });
-  }
   /* takes Account */
   putAccount(account) {
     return __awaiter(this, void 0, void 0, function*() {

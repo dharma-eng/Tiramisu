@@ -40,7 +40,15 @@ interface Commitment extends Header {
     submittedAt: number,
 }
 
-class Block {
+export interface BlockType {
+    transactionsData: Buffer;
+    header: Header;
+    commitment: Commitment;
+    transactions: Transactions;
+    addOutput(submittedAt: number): void;
+}
+
+class Block implements BlockType {
     transactionsData: Buffer;
     header: Header;
     commitment: Commitment;
