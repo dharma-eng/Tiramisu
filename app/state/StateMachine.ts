@@ -15,7 +15,7 @@ const Account = require("../types/Account");
 const { toHex } = require("../lib/to");
 
 interface StateMachine {
-    state: StateType;
+    state: StateType; 
 }
 
 class StateMachine {
