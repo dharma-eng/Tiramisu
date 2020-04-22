@@ -1,4 +1,36 @@
-// const { deploy } = require('../utils/test-utils/web3');
+var __awaiter =
+  (this && this.__awaiter) ||
+  function(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function(resolve) {
+            resolve(value);
+          });
+    }
+    return new (P || (P = Promise))(function(resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
 const {
   decodeHardTransactions,
   sortTransactions,
@@ -6,7 +38,6 @@ const {
 } = require("./lib");
 const { Block } = require("./types");
 const StateMachine = require("./state/StateMachine");
-
 class Blockchain {
   constructor({ web3, fromAddress, dai, peg, state }) {
     this.queue = [];
@@ -21,83 +52,86 @@ class Blockchain {
     this.version = 0;
     this.blockNumber = 0;
   }
-
-  async getHardTransactions() {
-    /* only deposits and creates supported for now */
-    const hardTransactions = await this.peg.methods
-      .getHardTransactionsFrom(
+  getHardTransactions() {
+    return __awaiter(this, void 0, void 0, function*() {
+      /* only deposits and creates supported for now */
+      const hardTransactions = yield this.peg.methods
+        .getHardTransactionsFrom(
+          this.hardTransactionsIndex,
+          this.maxHardTransactions
+        )
+        .call();
+      const arr = yield decodeHardTransactions(
+        this.state,
         this.hardTransactionsIndex,
-        this.maxHardTransactions
-      )
-      .call();
-    const arr = await decodeHardTransactions(
-      this.state,
-      this.hardTransactionsIndex,
-      hardTransactions
-    );
-    return arr;
+        hardTransactions
+      );
+      return arr;
+    });
   }
-
-  async getTransactions() {
-    const hardTransactions = await this.getHardTransactions();
-    let softTransactions;
-    if (this.queue.length) {
-      softTransactions = [...this.queue];
-      this.queue = [];
-    } else softTransactions = [];
-    const transactions = sortTransactions([
-      ...hardTransactions,
-      ...softTransactions
-    ]);
-    return transactions;
+  getTransactions() {
+    return __awaiter(this, void 0, void 0, function*() {
+      const hardTransactions = yield this.getHardTransactions();
+      let softTransactions;
+      if (this.queue.length) {
+        softTransactions = [...this.queue];
+        this.queue = [];
+      } else softTransactions = [];
+      const transactions = sortTransactions([
+        ...hardTransactions,
+        ...softTransactions
+      ]);
+      return transactions;
+    });
   }
-
   queueTransaction(transaction) {
-    return new Promise(async (resolve, reject) => {
-      transaction.assignResolvers(resolve, reject);
-      this.queue.push(transaction);
+    return new Promise((resolve, reject) =>
+      __awaiter(this, void 0, void 0, function*() {
+        transaction.assignResolvers(resolve, reject);
+        this.queue.push(transaction);
+      })
+    );
+  }
+  processBlock() {
+    return __awaiter(this, void 0, void 0, function*() {
+      const { hardTransactionsIndex, version } = this;
+      const transactions = yield this.getTransactions();
+      yield this.stateMachine.execute(transactions);
+      const stateSize = this.state.size;
+      const stateRoot = yield this.state.rootHash();
+      const block = new Block({
+        version,
+        blockNumber: this.blockNumber,
+        stateSize,
+        stateRoot,
+        hardTransactionsIndex,
+        transactions
+      });
+      this.blockNumber += 1;
+      this.hardTransactionsIndex = block.header.hardTransactionsCount;
+      return block;
     });
   }
-
-  async processBlock() {
-    const { hardTransactionsIndex, version } = this;
-    const transactions = await this.getTransactions();
-    await this.stateMachine.execute(transactions);
-    const stateSize = this.state.size;
-    const stateRoot = await this.state.rootHash();
-
-    const block = new Block({
-      version,
-      blockNumber: this.blockNumber,
-      stateSize,
-      stateRoot,
-      hardTransactionsIndex,
-      transactions
+  submitBlock(block) {
+    return __awaiter(this, void 0, void 0, function*() {
+      const receipt = yield this.peg.methods
+        .submitBlock(block)
+        .send({ gas: 5e6, from: this.address });
+      const {
+        events: {
+          BlockSubmitted: { blockNumber }
+        }
+      } = receipt;
+      block.addOutput(blockNumber);
     });
-
-    this.blockNumber += 1;
-    this.hardTransactionsIndex = block.header.hardTransactionsCount;
-    return block;
   }
-
-  async submitBlock(block) {
-    const receipt = await this.peg.methods
-      .submitBlock(block)
-      .send({ gas: 5e6, from: this.address });
-    const {
-      events: {
-        BlockSubmitted: { blockNumber }
-      }
-    } = receipt;
-    block.addOutput(blockNumber);
-  }
-
-  async confirmBlock(block) {
-    const header = block.commitment;
-    await this.peg.methods
-      .confirmBlock(header)
-      .send({ gas: 5e6, from: this.address });
+  confirmBlock(block) {
+    return __awaiter(this, void 0, void 0, function*() {
+      const header = block.commitment;
+      yield this.peg.methods
+        .confirmBlock(header)
+        .send({ gas: 5e6, from: this.address });
+    });
   }
 }
-
 module.exports = Blockchain;

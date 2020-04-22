@@ -7,6 +7,7 @@ export interface Transaction {
     encode(prefix: boolean): Buffer;
     addOutput(intermediateStateRoot: string, accountIndex?: number): void;
     checkValid?(account: AccountType): string;
+    assignResolvers?(resolve: () => void, reject: (errorMessage: string) => void): void;
 }
 
 export interface CreateTransaction {
