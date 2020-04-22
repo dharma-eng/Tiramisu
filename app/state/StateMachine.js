@@ -65,7 +65,6 @@ class StateMachine {
         const res = yield this.softTransfer(transaction);
         if (!res) {
           softTransfers.splice(i, 1);
-          continue;
         }
       }
       /* Execute soft withdrawals, remove any that are invalid. */
@@ -74,7 +73,6 @@ class StateMachine {
         const res = yield this.softWithdrawal(transaction);
         if (!res) {
           softWithdrawals.splice(i, 1);
-          continue;
         }
       }
       /* Execute soft withdrawals, remove any that are invalid. */
@@ -83,7 +81,14 @@ class StateMachine {
         const res = yield this.softChangeSigner(transaction);
         if (!res) {
           softChangeSigners.splice(i, 1);
-          continue;
+        }
+      }
+      /* Execute soft creates, remove any that are invalid. */
+      for (let i = 0; i < softCreates.length; i++) {
+        const transaction = softCreates[i];
+        const res = yield this.softCreate(transaction);
+        if (!res) {
+          softCreates.splice(i, 1);
         }
       }
     });
@@ -225,6 +230,44 @@ class StateMachine {
       else fromAccount.removeSigner(signingAddress);
       /* Update state */
       yield this.state.updateAccount(accountIndex, fromAccount);
+      const root = yield this.state.rootHash();
+      /* Resolve promise, return success */
+      transaction.resolve(root);
+      transaction.addOutput(root);
+      return true;
+    });
+  }
+  softCreate(transaction) {
+    return __awaiter(this, void 0, void 0, function*() {
+      const {
+        accountIndex,
+        accountAddress,
+        initialSigningKey,
+        value
+      } = transaction;
+      const fromAccount = yield this.state.getAccount(accountIndex);
+      /* Verification */
+      if (!fromAccount) {
+        transaction.reject("Account does not exist.");
+        return false;
+      }
+      const errorMessage = transaction.checkValid(fromAccount);
+      if (errorMessage) {
+        transaction.reject(errorMessage);
+        return false;
+      }
+      /* Update caller account */
+      fromAccount.nonce += 1;
+      fromAccount.balance -= value;
+      yield this.state.updateAccount(accountIndex, fromAccount);
+      /* Create receiver */
+      const account = new Account({
+        address: accountAddress,
+        nonce: 0,
+        balance: value,
+        signers: [initialSigningKey]
+      });
+      const index = yield this.state.putAccount(account);
       const root = yield this.state.rootHash();
       /* Resolve promise, return success */
       transaction.resolve(root);
