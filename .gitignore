@@ -4,4 +4,5 @@ coverage/
 coverage.json
 .DS_Store
 dist/
+dist-test/
 .nyc_output
