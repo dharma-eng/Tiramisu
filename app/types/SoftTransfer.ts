@@ -28,6 +28,10 @@ export class SoftTransfer implements SoftTransferTransaction {
         return 6;
     }
 
+    get bytesWithoutPrefix():number {
+        return 115;
+    }
+
     constructor(args: SoftTransferArguments) {
         const {
             fromAccountIndex,
