@@ -1,7 +1,7 @@
 const Web3 = require("web3");
 const ganache = require("ganache-core");
 
-async function getWeb3() {
+export async function getWeb3() {
   let usingExternalHost = true;
   let web3 = new Web3(
     new Web3.providers.WebsocketProvider("ws://localhost:8555")
@@ -36,57 +36,10 @@ const toLinkKey = (fileRef, contractRef) => `${fileRef}:${contractRef}`;
 const fromLinkKey = key => key.split(":");
 
 const linker = require("solc/linker");
-// function getLinkContract(contracts, linkKey) {
-//   const [fileRef, contractRef] = fromLinkKey(linkKey);
-//   return contractFields(contracts[fileRef][contractRef]);
-// }
 
-// function parseLinkReferences(linkReferences) {
-//   const fileRefKeys = Object.keys(linkReferences);
-//   return fileRefKeys.map(fileRef =>
-//     Object.keys(linkReferences[fileRef]).map(contractRef =>
-//       toLinkKey(fileRef, contractRef)
-//     )
-//   )
-// }
-
-// function getLinkReferencesRecursive(linkReferences, contracts) {
-//   /* fileRef/contractRef -> [fileRef/contractRef, ...] */
-//   const linkRefsCode = {
-//     /* linkKey: {abi, bytecode} */
-//   }
-//   const linkRefsMap = {
-//     /* linkKey: [linkKey, linkKey] */
-//   }
-//   const links = parseLinkReferences(linkReferences);
-//   for (let linkKey of links) {
-//     const { abi, bytecode, linkReferences } = getLinkContract(contracts, linkKey);
-//   }
-
-//   if (linkReferences) {
-//     const fileRefKeys = Object.keys(linkReferences);
-//     let addrMap = {};
-//     for (let fileRef of fileRefKeys) {
-//       const contractRefKeys = Object.keys(contracts[fileRef])
-//       for (let contractRef of contractRefKeys) {
-//         const key = toLinkKey(fileRef, contractRef);
-//         const { linkReferences } =
-//         linkRefsMap[key] =
-//         if (deployments[fileRef][contractRef]) addrMap[fileRef][contractRef] = deployments[fileRef][contractRef];
-//         else {
-//           let addr = await deployAndLinkRecursive({ web3, from, deployments, file: fileRef, contract: contractRef, options })
-//           if (typeof addr == 'object') addr = addr.options.address;
-//           // await deploy(web3, from, options)
-//           deployments[fileRef][contractRef] = addr;
-//           addrMap[fileRef][contractRef] = addr;
-//         }
-//       }
-//     }
-//   }
-// }
 async function deployAndLinkRecursive(
-  { web3, from, deployments, file, contract, options },
-  returnData
+  { web3, from, deployments, file, contract, options }: any,
+  returnData?: boolean
 ) {
   deployments = deployments || {};
 
@@ -127,7 +80,7 @@ async function deployAndLinkRecursive(
   return deploy(web3, from, { abi, bytecode });
 }
 
-async function deploy(web3, from, options, _arguments = null) {
+export async function deploy(web3, from, options, _arguments = null) {
   let abi, bytecode, value, args;
 
   value = options.value || 0;
@@ -182,8 +135,3 @@ async function deploy(web3, from, options, _arguments = null) {
   });
   return contractAddress;
 }
-
-module.exports = {
-  getWeb3,
-  deploy
-};

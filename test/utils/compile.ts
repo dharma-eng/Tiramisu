@@ -11,7 +11,7 @@ function toSource(dir, fileName) {
   };
 }
 
-function compile(dir, fileName, importPath) {
+export function compile(dir, fileName, importPath) {
   if (!importPath) importPath = dir;
   function findImports(_path) {
     let fP = _path.match(/\//g)
@@ -54,5 +54,3 @@ function compile(dir, fileName, importPath) {
   }
   return output.contracts;
 }
-
-module.exports = compile;
