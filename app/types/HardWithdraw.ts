@@ -20,6 +20,10 @@ export class HardWithdraw implements HardWithdrawTransaction {
         return 2;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 68;
+    }
+
     constructor(args: HardWithdrawArguments) {
         const { accountIndex, hardTransactionIndex, callerAddress, value } = args;
         this.accountIndex = toInt(accountIndex);
