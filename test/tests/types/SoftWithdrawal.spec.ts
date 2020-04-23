@@ -1,9 +1,6 @@
-const { expect } = require("chai");
-const State = require("../../../app/state/State");
-const StateMachine = require("../../../app/state/StateMachine");
-const { toHex } = require("../../../app/lib/to");
-const { Account, HardWithdraw } = require("../../../app/types");
-const { randomAccount } = require("../../utils/random");
+import { expect } from 'chai';
+import { State, StateMachine, Account, SoftWithdrawal, toHex } from '../../../app';
+import { randomAccount } from '../../utils';
 
 describe("Hard Withdraw", () => {
   let state, account, initialAccount, initialStateSize, withdrawalAmount;
@@ -27,16 +24,20 @@ describe("Hard Withdraw", () => {
     initialStateSize = state.size;
 
     // EXECUTE TRANSACTION
-    withdrawalAmount = 25;
+    withdrawalAmount = 19;
+    const withdrawalAccount = randomAccount();
 
-    const hardWithdrawal = new HardWithdraw({
-      accountIndex,
-      hardTransactionIndex: 0,
-      callerAddress: initialAccount.address,
-      value: withdrawalAmount
+    const softWithdrawal = new SoftWithdrawal({
+      fromAccountIndex: accountIndex,
+      withdrawalAddress: withdrawalAccount.address,
+      nonce: initialAccount.nonce,
+      value: withdrawalAmount,
+      privateKey: signer.privateKey
     });
 
-    await stateMachine.hardWithdraw(hardWithdrawal);
+    softWithdrawal.assignResolvers(() => {}, () => {});
+
+    await stateMachine.softWithdrawal(softWithdrawal);
     account = await state.getAccount(accountIndex);
   });
 
@@ -56,8 +57,8 @@ describe("Hard Withdraw", () => {
     expect(account.balance).to.eql(initialAccount.balance - withdrawalAmount);
   });
 
-  it("Should not have updated the account nonce", async () => {
-    expect(account.nonce).to.eql(initialAccount.nonce);
+  it("Should have incremented the account's account nonce", async () => {
+    expect(account.nonce).to.eql(initialAccount.nonce + 1);
   });
 
   it("Should not have updated the state size", async () => {

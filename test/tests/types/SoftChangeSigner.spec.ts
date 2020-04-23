@@ -1,9 +1,6 @@
-const { expect } = require("chai");
-const State = require("../../../app/state/State");
-const StateMachine = require("../../../app/state/StateMachine");
-const { toHex } = require("../../../app/lib/to");
-const { Account, SoftChangeSigner } = require("../../../app/types");
-const { randomAccount } = require("../../utils/random");
+import { expect } from 'chai';
+import { State, StateMachine, Account, SoftChangeSigner, toHex } from '../../../app';
+import { randomAccount } from '../../utils';
 
 describe("Soft Change Signer", () => {
   let state,

@@ -1,9 +1,6 @@
-const { expect } = require("chai");
-const State = require("../../../app/state/State");
-const StateMachine = require("../../../app/state/StateMachine");
-const { toHex } = require("../../../app/lib/to");
-const { Account, HardDeposit } = require("../../../app/types");
-const { randomAccount } = require("../../utils/random");
+import { expect } from 'chai';
+import { State, StateMachine, Account, HardDeposit, toHex } from '../../../app';
+import { randomAccount } from '../../utils';
 
 describe("Hard Deposit", () => {
   let state, account, initialAccount, initialStateSize, depositAmount;
