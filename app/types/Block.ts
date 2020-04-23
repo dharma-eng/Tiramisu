@@ -2,10 +2,8 @@ import {
     Transaction,
     Transactions
 } from "./TransactionInterfaces";
-const { getMerkleRoot } = require("../lib/merkle");
-const { toBuf, toHex } = require("../lib/to");
-const TransactionsMetadata = require("./TransactionMetadata");
-const { keccak256 } = require("ethereumjs-utils");
+import TransactionsMetadata from './TransactionMetadata'
+import { getMerkleRoot, toBuf, toHex, keccak256 } from '../lib';
 
 const keys = [
     "hardCreates",
@@ -48,7 +46,7 @@ export interface BlockType {
     addOutput(submittedAt: number): void;
 }
 
-class Block implements BlockType {
+export class Block implements BlockType {
     transactionsData: Buffer;
     header: Header;
     commitment: Commitment;
@@ -134,4 +132,4 @@ class Block implements BlockType {
     }
 }
 
-module.exports = Block;
+export default Block;

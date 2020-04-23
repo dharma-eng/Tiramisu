@@ -7,7 +7,7 @@ interface HardDepositArguments {
     value: number
 }
 
-class HardDeposit implements HardDepositTransaction {
+export class HardDeposit implements HardDepositTransaction {
     accountIndex: number;
     hardTransactionIndex: number;
     value: number;
@@ -47,4 +47,4 @@ class HardDeposit implements HardDepositTransaction {
     }
 }
 
-module.exports = HardDeposit;
+export default HardDeposit;

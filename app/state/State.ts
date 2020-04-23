@@ -1,9 +1,8 @@
-import {AccountType} from "../types/Account";
-const { BigNumber } = require('sparse-merkle-tree');
-const { toBuffer, setLength, bufferToHex } = require('ethereumjs-utils');
-const getTree = require('./state-tree');
-const Account = require('../types/Account');
-const SimpleMemdown = require('../lib/simple-memdown');
+import { BigNumber } from 'sparse-merkle-tree';
+import { bufferToHex } from 'ethereumjs-util';
+import {AccountType, Account} from "../types/Account";
+import getTree from './state-tree';
+import SimpleMemdown from '../lib/simple-memdown';
 
 export interface StateType {
     tree: any;
@@ -16,7 +15,7 @@ export interface StateType {
     updateAccount(_accountIndex: any, account: AccountType): Promise<void>;
 
 }
-class State implements StateType {
+export class State implements StateType {
     tree: any;
     size: number;
     accountMap: any;
@@ -72,4 +71,4 @@ class State implements StateType {
     }
 }
 
-module.exports = State;
+export default State;

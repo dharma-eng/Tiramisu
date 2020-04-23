@@ -1,19 +1,20 @@
 import {SoftTransferTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
+import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util'
 
 const { toBuf, toHex, toInt } = require('../lib/to');
-const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
+// const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
 
 interface SoftTransferArguments {
     fromAccountIndex: number;
     toAccountIndex: number;
     nonce: number;
     value: number;
-    signature?: string;
+    signature?: ECDSASignature | string;
     privateKey?: Buffer;
 }
 
-class SoftTransfer implements SoftTransferTransaction {
+export class SoftTransfer implements SoftTransferTransaction {
     toAccountIndex: number;
     nonce: number;
     value: number;
@@ -74,7 +75,7 @@ class SoftTransfer implements SoftTransferTransaction {
         ]);
     }
 
-    toMessageHash(): string {
+    toMessageHash(): Buffer {
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
@@ -88,13 +89,13 @@ class SoftTransfer implements SoftTransferTransaction {
         return keccak256(msg);
     }
 
-    sign(privateKey: Buffer): string {
+    sign(privateKey: Buffer): ECDSASignature {
         const msgHash = this.toMessageHash();
         return ecsign(msgHash, privateKey);
     }
 
     getSignerAddress(): string {
-        const msgHash = this.toMessageHash() as string;
+        const msgHash = this.toMessageHash();
         const { v, r, s } = fromRpcSig(this.signature);
         try {
             const publicKey = ecrecover(msgHash, v, r, s);
@@ -113,4 +114,4 @@ class SoftTransfer implements SoftTransferTransaction {
     }
 }
 
-module.exports = SoftTransfer;
+export default SoftTransfer;

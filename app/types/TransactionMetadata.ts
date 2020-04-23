@@ -21,7 +21,7 @@ interface TransactionMetadataType {
     metadata: object;
 }
 
-class TransactionMetadata implements TransactionMetadataType {
+export class TransactionMetadata implements TransactionMetadataType {
     metadata: object;
     constructor(metadata: any) {
         this.metadata =
@@ -39,11 +39,11 @@ class TransactionMetadata implements TransactionMetadataType {
         return arrToBuffer(objToArray(this.metadata));
     }
 
-    static decode(str: string): TransactionMetadataType {
+    static decode(str: string): TransactionMetadata {
         return new TransactionMetadata(str);
     }
 
-    static fromTransactions(transactions: Transactions): TransactionMetadataType {
+    static fromTransactions(transactions: Transactions): TransactionMetadata {
         return new TransactionMetadata(
             keys.reduce((o, k) => ({
                 ...o,
@@ -53,4 +53,4 @@ class TransactionMetadata implements TransactionMetadataType {
     }
 }
 
-module.exports = TransactionMetadata;
+export default TransactionMetadata;

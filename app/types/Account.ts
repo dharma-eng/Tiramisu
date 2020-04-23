@@ -21,11 +21,13 @@ interface AccountArguments {
     signers: string[];
 }
 
-class Account implements AccountType {
+export class Account implements AccountType {
     address: string;
     nonce: number;
     balance: number;
     signers: string [];
+    privateKey?: Buffer;
+    
     constructor(args: AccountArguments) {
         const {
             address, /* hex string */
@@ -103,4 +105,4 @@ class Account implements AccountType {
     }
 }
 
-module.exports = Account;
+export default Account;

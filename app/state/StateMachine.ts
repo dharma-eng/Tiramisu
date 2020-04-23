@@ -10,15 +10,14 @@ import {
     SoftWithdrawTransaction,
     Transactions
 } from "../types/TransactionInterfaces";
-import {AccountType} from "../types/Account";
-const Account = require("../types/Account");
-const { toHex } = require("../lib/to");
+import {AccountType, Account} from "../types/Account";
+import { toHex } from "../lib/to";
 
-interface StateMachine {
+export interface StateMachine {
     state: StateType; 
 }
 
-class StateMachine {
+export class StateMachine {
     constructor(state: StateType) {
         this.state = state;
     }
@@ -269,4 +268,4 @@ class StateMachine {
     }
 }
 
-module.exports = StateMachine;
+export default StateMachine;

@@ -8,7 +8,7 @@ interface HardCreateArguments {
     value: number
 }
 
-class HardCreate implements HardCreateTransaction {
+export class HardCreate implements HardCreateTransaction {
     hardTransactionIndex: number;
     accountAddress: string;
     initialSigningKey: string;
@@ -69,4 +69,4 @@ class HardCreate implements HardCreateTransaction {
     }
 }
 
-module.exports = HardCreate;
+export default HardCreate;

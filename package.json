@@ -23,17 +23,18 @@
     ]
   },
   "scripts": {
-    "build": "./node_modules/.bin/truffle compile",
+    "build:ts": "tsc",
+    "build:sol": "./node_modules/.bin/truffle compile",
+    "build:ts:tests": "tsc --project ./tsconfig.test.json",
     "migrate": "./node_modules/.bin/truffle migrate -- --network development",
-    "test": "npm run build && npm run test:blockchain && npm run test:state && npm run test:state-machine && npm run test:coverage",
-    "test:no-cov": "npm run build && npm run test:blockchain && npm run test:state && npm run test:state-machine",
-    "test:blockchain": "mocha ./test/tests/Blockchain.spec.js",
-    "test:state": "mocha ./test/tests/State.spec.js",
-    "test:types": "mocha ./test/tests/types/*",
-    "test:state-machine": "mocha ./test/tests/types/*",
-    "test:app": "npm run build && npm run test:state && npm run test:state-machine",
-    "test:coverage": "NODE_ENV=coverage ./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\"",
-    "test-cov": "istanbul cover _mocha",
+    "mocha:ts": "mocha -r ts-node/register",
+    "test:blockchain": "npm run mocha:ts -- ./test/tests/Blockchain.spec.ts",
+    "test:state": "npm run mocha:ts -- ./test/tests/State.spec.ts",
+    "test:transactions": "NODE_ENV=all npm run mocha:ts -- ./test/tests/transactions/index.spec.ts",
+    "test:app": "npm run build:sol && NODE_ENV=all npm run mocha:ts -- \"./test/tests/**/*.spec.ts\"",
+    "test:coverage:sol": "npm run build:ts:tests && NODE_ENV=coverage ./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\" && rm -rf ./dist-test",
+    "test:coverage:app": "nyc npm run test:app",
+    "test:coverage": "npm run test:coverage:app && npm run test:coverage:sol",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli"
@@ -48,6 +49,10 @@
     "web3": "^1.2.6"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/chai-as-promised": "^7.1.2",
+    "@types/mocha": "^7.0.2",
+    "@types/web3": "^1.2.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.0.11",
@@ -57,7 +62,28 @@
     "lint-staged": "^9.2.1",
     "mocha": "^7.1.1",
     "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^15.0.1",
     "prettier": "1.16.4",
-    "pretty-quick": "^2.0.1"
+    "pretty-quick": "^2.0.1",
+    "source-map-support": "^0.5.18",
+    "truffle-typings": "^1.0.8",
+    "ts-node": "^8.9.0",
+    "typescript": "^3.8.3"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "html",
+      "lcov"
+    ],
+    "sourceMap": true
   }
 }

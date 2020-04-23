@@ -1,32 +1,12 @@
-// const MockDaiArtifact = require("../build/contracts/MockDharmaDai.json");
-// const MockPegArtifact = require("../build/contracts/MockDharmaPeg.json");
-// const { compileBaseMock } = require("../app/lib");
-// const { deploy } = require("./utils/web3");
-
-// async function getContract(web3, artifact, networkID) {
-//   const { address } = artifact.networks[networkID];
-//   return new web3.eth.Contract(artifact.abi, address);
-// }
-
-// const contracts = await compileBaseMock();
-// const dai = await deploy(
-//   tester.web3,
-//   tester.from,
-//   { contracts, name: "MockDharmaDai" },
-//   [5000, "Dharma Dai", "DDAI"]
-// );
-// const peg = await deploy(
-//   tester.web3,
-//   tester.from,
-//   { contracts, name: "MockDharmaPeg" },
-//   [dai.options.address]
-// );
+async function getContractFromExternalHost(contractName, ...args) {
+  const Contract = artifacts.require(contractName);
+  const contract = await Contract.deployed(...args);
+  return contract;
+}
 
 async function getContractsFromExternalHost() {
-  const MockDharmaDai = artifacts.require("MockDharmaDai");
-  const MockDharmaPeg = artifacts.require("MockDharmaPeg");
-  const dai = await MockDharmaDai.deployed();
-  const peg = await MockDharmaPeg.deployed(dai.address);
+  const dai = await getContractFromExternalHost("MockDharmaDai");
+  const peg = await getContractFromExternalHost("MockDharmaPeg", dai.address);
   return {
     dai: dai.contract,
     peg: peg.contract
@@ -43,21 +23,27 @@ function deployFromArtifact(tester, artifact, args) {
     });
 }
 
+async function deployContract(tester, contractName, args) {
+  const artifact = require(`../build/contracts/${contractName}.json`);
+  const contract = await deployFromArtifact(tester, artifact, args);
+  return contract;
+}
+
 async function deployContracts(tester) {
-  const MockDaiArtifact = require("../build/contracts/MockDharmaDai.json");
-  const MockPegArtifact = require("../build/contracts/MockDharmaPeg.json");
-  const dai = await deployFromArtifact(tester, MockDaiArtifact, [
+  const dai = await deployContract(tester, "MockDharmaDai", [
     5000,
     "DharmaDai",
     "DDAI"
   ]);
-  const peg = await deployFromArtifact(tester, MockPegArtifact, [
+  const peg = await deployContract(tester, "MockDharmaPeg", [
     dai.options.address
   ]);
   return { dai, peg };
 }
 
 module.exports = {
+  getContractFromExternalHost,
   getContractsFromExternalHost,
-  deployContracts
+  deployContracts,
+  deployContract
 };

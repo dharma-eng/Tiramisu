@@ -1,15 +1,16 @@
 import {SoftCreateTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
-
-const { toBuf, toHex, toInt } = require("../lib/to");
-const {
+import {
     ecrecover,
     keccak256,
     ecsign,
     pubToAddress,
     fromRpcSig,
-    toRpcSig
-} = require("ethereumjs-utils");
+    toRpcSig,
+    ECDSASignature
+} from 'ethereumjs-util'
+
+const { toBuf, toHex, toInt } = require("../lib/to");
 
 interface SoftCreateArguments {
     fromAccountIndex: number;
@@ -22,7 +23,7 @@ interface SoftCreateArguments {
     privateKey?: Buffer;
 }
 
-class SoftCreate implements SoftCreateTransaction {
+export class SoftCreate implements SoftCreateTransaction {
     accountIndex: number;
     toAccountIndex: number;
     nonce: number;
@@ -92,7 +93,7 @@ class SoftCreate implements SoftCreateTransaction {
         ]);
     }
 
-    toMessageHash(): string {
+    toMessageHash(): Buffer {
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
@@ -101,16 +102,16 @@ class SoftCreate implements SoftCreateTransaction {
         return keccak256(msg);
     }
 
-    sign(privateKey: Buffer): string {
-        const msgHash = this.toMessageHash() as string;
+    sign(privateKey: Buffer): ECDSASignature {
+        const msgHash = this.toMessageHash();
         return ecsign(msgHash, privateKey);
     }
 
     getSignerAddress(): string {
-        const msgHash = this.toMessageHash() as string;
+        const msgHash = this.toMessageHash();
         const { v, r, s } = fromRpcSig(this.signature);
         try {
-            const publicKey = ecrecover(msgHash, v, r, s) as string;
+            const publicKey = ecrecover(msgHash, v, r, s);
             return toHex(pubToAddress(publicKey, true));
         } catch (err) {
             console.log(err);
@@ -128,4 +129,4 @@ class SoftCreate implements SoftCreateTransaction {
     }
 }
 
-module.exports = SoftCreate;
+export default SoftCreate;
