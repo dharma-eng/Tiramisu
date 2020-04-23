@@ -1,9 +1,6 @@
-const chai = require("chai");
-const chaiAsPromised = require("chai-as-promised");
-
-const State = require("../../app/state/State");
-const Account = require("../../app/types/Account");
-const Tester = require("../Tester");
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import Tester from '../Tester';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
