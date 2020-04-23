@@ -125,12 +125,12 @@ const test = () =>describe("Hard Withdraw", () => {
       // EXECUTE TRANSACTION
       withdrawalAmount = initialAccount.balance / 2;
 
-      const caller = randomAccount();
+      const badCaller = randomAccount();
 
       hardWithdrawal = new HardWithdraw({
         accountIndex,
         hardTransactionIndex: 0,
-        callerAddress: caller.address,
+        callerAddress: badCaller.address,
         value: withdrawalAmount
       });
     });
