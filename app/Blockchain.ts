@@ -25,7 +25,7 @@ interface BlockchainType {
     blockNumber: number;
 }
 
-class Blockchain implements BlockchainType {
+export class Blockchain implements BlockchainType {
     queue: Transaction[];
     hardTransactionsIndex: number;
     maxHardTransactions: number;
@@ -130,4 +130,4 @@ class Blockchain implements BlockchainType {
     }
 }
 
-module.exports = Blockchain;
+export default Blockchain;
