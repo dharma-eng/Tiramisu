@@ -48,7 +48,7 @@ export interface BlockType {
     addOutput(submittedAt: number): void;
 }
 
-class Block implements BlockType {
+export class Block implements BlockType {
     transactionsData: Buffer;
     header: Header;
     commitment: Commitment;
@@ -134,4 +134,4 @@ class Block implements BlockType {
     }
 }
 
-module.exports = Block;
+export default Block;

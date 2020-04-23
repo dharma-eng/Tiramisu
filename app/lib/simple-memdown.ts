@@ -16,6 +16,8 @@ const isNotFound = (err) => {
 }
 
 class SimpleMemdown {
+  db: any;
+
   constructor() {
     this.db = new MemDown();
   }
@@ -45,4 +47,4 @@ class SimpleMemdown {
   }
 }
 
-module.exports = SimpleMemdown;
+export default SimpleMemdown;

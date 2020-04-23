@@ -4,7 +4,7 @@ function getParent(a, b) {
   return keccak256(Buffer.concat([a, b]));
 }
 
-function getMerkleRoot(leaves) {
+export function getMerkleRoot(leaves: Buffer[]): Buffer {
   if (leaves.length == 0) return Buffer.alloc(32, 0);
   let nextLevelLength = leaves.length;
   let currentLevel = 0;
@@ -38,7 +38,7 @@ function getMerkleRoot(leaves) {
 
 const isOdd = n => n % 2 == 1;
 
-function getMerkleProof(leaves, index) {
+export function getMerkleProof(leaves: Buffer[], index: number) {
   let levels = [];
   const putInLevel = (l, n) => {
     if (!levels[l]) levels[l] = [];
@@ -99,5 +99,3 @@ function getMerkleProof(leaves, index) {
   }
   return { root, siblings };
 }
-
-module.exports = { getMerkleRoot, getMerkleProof };

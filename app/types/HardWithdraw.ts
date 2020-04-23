@@ -9,7 +9,7 @@ interface HardWithdrawArguments {
     value: number;
 }
 
-class HardWithdraw implements HardWithdrawTransaction {
+export class HardWithdraw implements HardWithdrawTransaction {
     accountIndex: number;
     hardTransactionIndex: number;
     callerAddress: string;
@@ -68,4 +68,4 @@ class HardWithdraw implements HardWithdrawTransaction {
     }
 }
 
-module.exports = HardWithdraw;
+export default HardWithdraw;

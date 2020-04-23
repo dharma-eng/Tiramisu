@@ -27,4 +27,4 @@ function sortTransactions(transactions) {
   }
 }
 
-module.exports = sortTransactions;
+export default sortTransactions;

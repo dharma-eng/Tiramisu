@@ -1,7 +1,15 @@
 import {SoftChangeSignerTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
+import {
+    ecrecover,
+    keccak256,
+    ecsign,
+    pubToAddress,
+    fromRpcSig,
+    toRpcSig,
+    ECDSASignature
+} from 'ethereumjs-util'
 const { toBuf, toHex, toInt } = require('../lib/to');
-const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
 
 interface SoftChangeSignerArguments {
     fromAccountIndex: number;
@@ -73,7 +81,7 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
         ]);
     }
 
-    toMessageHash(): string {
+    toMessageHash(): Buffer {
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
@@ -87,16 +95,16 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
         return keccak256(msg);
     }
 
-    sign(privateKey: Buffer): string {
-        const msgHash = this.toMessageHash() as string;
+    sign(privateKey: Buffer): ECDSASignature {
+        const msgHash = this.toMessageHash();
         return ecsign(msgHash, privateKey);
     }
 
     getSignerAddress(): string {
-        const msgHash = this.toMessageHash() as string;
+        const msgHash = this.toMessageHash();
         const { v, r, s } = fromRpcSig(this.signature);
         try {
-            const publicKey = ecrecover(msgHash, v, r, s) as string;
+            const publicKey = ecrecover(msgHash, v, r, s);
             return toHex(pubToAddress(publicKey, true));
         } catch(err) {
             console.log(err);
@@ -120,4 +128,4 @@ class SoftChangeSigner implements SoftChangeSignerTransaction {
     }
 }
 
-module.exports = SoftChangeSigner;
+export default SoftChangeSigner;

@@ -269,4 +269,4 @@ class StateMachine {
     }
 }
 
-module.exports = StateMachine;
+export default StateMachine;

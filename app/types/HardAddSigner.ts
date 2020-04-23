@@ -9,7 +9,7 @@ interface HardAddSignerArguments {
     signingAddress: string;
 }
 
-class HardAddSigner implements HardAddSignerTransaction{
+export class HardAddSigner implements HardAddSignerTransaction{
     accountIndex: number;
     hardTransactionIndex: number;
     callerAddress: string;
@@ -74,4 +74,4 @@ class HardAddSigner implements HardAddSignerTransaction{
     }
 }
 
-module.exports = HardAddSigner;
+export default HardAddSigner;

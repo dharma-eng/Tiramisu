@@ -19,13 +19,13 @@ class SoftWithdrawal implements SoftWithdrawTransaction{
     }
 
     constructor({
-                    fromAccountIndex,
-                    withdrawalAddress,
-                    nonce,
-                    value,
-                    signature,
-                    privateKey
-                }) {
+        fromAccountIndex,
+        withdrawalAddress,
+        nonce,
+        value,
+        signature,
+        privateKey
+    }) {
         this.accountIndex = toInt(fromAccountIndex);
         this.withdrawalAddress = toHex(withdrawalAddress);
         this.nonce = toInt(nonce);
@@ -104,4 +104,4 @@ class SoftWithdrawal implements SoftWithdrawTransaction{
     }
 }
 
-module.exports = SoftWithdrawal;
+export default SoftWithdrawal;

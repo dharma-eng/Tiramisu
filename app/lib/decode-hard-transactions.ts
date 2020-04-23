@@ -39,4 +39,4 @@ async function decodeHardTransactions(state, startIndex, hardTransactions) {
   return arr;
 }
 
-module.exports = decodeHardTransactions;
+export default decodeHardTransactions;

@@ -21,7 +21,7 @@ interface TransactionMetadataType {
     metadata: object;
 }
 
-class TransactionMetadata implements TransactionMetadataType {
+export class TransactionMetadata implements TransactionMetadataType {
     metadata: object;
     constructor(metadata: any) {
         this.metadata =
@@ -53,4 +53,4 @@ class TransactionMetadata implements TransactionMetadataType {
     }
 }
 
-module.exports = TransactionMetadata;
+export default TransactionMetadata;

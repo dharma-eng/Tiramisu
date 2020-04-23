@@ -17,9 +17,11 @@ const depth = 32;
 const memdown = new MemDown();
 const db = new BaseDB(memdown, 256);
 
-module.exports = () => SparseMerkleTreeImpl.create(
+const getTree = () => SparseMerkleTreeImpl.create(
   db,
   undefined,
   depth,
   hashFunction
 );
+
+export default getTree;

@@ -16,7 +16,7 @@ export interface StateType {
     updateAccount(_accountIndex: any, account: AccountType): Promise<void>;
 
 }
-class State implements StateType {
+export class State implements StateType {
     tree: any;
     size: number;
     accountMap: any;
@@ -72,4 +72,4 @@ class State implements StateType {
     }
 }
 
-module.exports = State;
+export default State;
