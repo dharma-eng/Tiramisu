@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, SoftTransfer, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-export default () => describe("Soft Transfer", () => {
+const test = () =>describe("Soft Transfer", () => {
   let state,
     sender,
     initialSender,
@@ -96,3 +96,6 @@ export default () => describe("Soft Transfer", () => {
     expect(state.size).to.eql(initialStateSize);
   });
 });
+
+export default test;
+if (process.env.NODE_ENV != "all") test();

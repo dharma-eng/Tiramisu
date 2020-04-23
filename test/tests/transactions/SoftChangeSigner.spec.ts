@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, SoftChangeSigner, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-export default () => describe("Soft Change Signer", () => {
+const test = () =>describe("Soft Change Signer", () => {
   let state,
     stateMachine,
     accountIndex,
@@ -145,3 +145,6 @@ export default () => describe("Soft Change Signer", () => {
     });
   });
 });
+
+export default test;
+if (process.env.NODE_ENV != "all") test();

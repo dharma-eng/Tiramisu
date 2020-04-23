@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, HardCreate, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-export default () => describe("Hard Create", () => {
+const test = () =>describe("Hard Create", () => {
   let state, account, initialAccount, initialStateSize;
 
   before(async () => {
@@ -67,3 +67,6 @@ export default () => describe("Hard Create", () => {
     expect(state.size).to.eql(initialStateSize + 1);
   });
 });
+
+export default test;
+if (process.env.NODE_ENV != "all") test();

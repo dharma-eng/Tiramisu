@@ -7,7 +7,7 @@ import testSoftCreate from './SoftCreate.spec'
 import testSoftTransfer from './SoftTransfer.spec'
 import testSoftWithdraw from './SoftWithdrawal.spec'
 
-describe('Transaction Execution', () => {
+const test = () => describe('Transaction Execution', () => {
   testHardSigner()
   testHardCreate()
   testHardDeposit()
@@ -16,4 +16,7 @@ describe('Transaction Execution', () => {
   testSoftCreate()
   testSoftTransfer()
   testSoftWithdraw()
-})
+});
+
+export default test;
+if (process.env.NODE_ENV == "all") test();

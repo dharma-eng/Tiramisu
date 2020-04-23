@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, SoftCreate, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-export default () => describe("Soft Create", () => {
+const test = () =>describe("Soft Create", () => {
   let state,
     account,
     initialAccount,
@@ -94,3 +94,6 @@ export default () => describe("Soft Create", () => {
     }
   });
 });
+
+export default test;
+if (process.env.NODE_ENV != "all") test();
