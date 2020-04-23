@@ -39,11 +39,11 @@ export class TransactionMetadata implements TransactionMetadataType {
         return arrToBuffer(objToArray(this.metadata));
     }
 
-    static decode(str: string): TransactionMetadataType {
+    static decode(str: string): TransactionMetadata {
         return new TransactionMetadata(str);
     }
 
-    static fromTransactions(transactions: Transactions): TransactionMetadataType {
+    static fromTransactions(transactions: Transactions): TransactionMetadata {
         return new TransactionMetadata(
             keys.reduce((o, k) => ({
                 ...o,
