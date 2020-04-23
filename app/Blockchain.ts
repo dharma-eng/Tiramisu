@@ -1,15 +1,11 @@
 // const { deploy } = require('../utils/test-utils/web3');
 import {Transaction, Transactions} from "./types/TransactionInterfaces";
-import {StateType} from "./state/State";
-import {BlockType} from "./types/Block";
-
-const {
+import {StateType, StateMachine} from "./state";
+import { Block, BlockType } from './types/Block'
+import {
     decodeHardTransactions,
     sortTransactions,
-    compileBaseMock
-} = require("./lib");
-const { Block } = require("./types");
-const StateMachine = require("./state/StateMachine");
+} from "./lib";
 
 interface BlockchainType {
     queue: Transaction[];
