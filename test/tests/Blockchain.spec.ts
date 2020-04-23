@@ -1,9 +1,10 @@
-const { expect } = require("chai");
-const { Account, SoftWithdrawal } = require("../../app/types");
-const { getMerkleProof } = require("../../app/lib/merkle");
-const Tester = require("../Tester");
+import chai from 'chai';
+import Tester from '../Tester';
+import { getMerkleProof, Account, SoftWithdrawal } from '../../app';
 
-module.exports = () =>
+const { expect } = chai;
+
+const test = () =>
   describe("Blockchain", () => {
     let tester, web3, from, accounts, blockchain;
 
@@ -225,7 +226,7 @@ module.exports = () =>
           });
 
           it(`Should have sent the DAI from the withdrawal to the withdrawal address`, async () => {
-            const daiContract = await blockchain.dai;
+            const daiContract = blockchain.dai;
             const balance = await daiContract.methods
               .balanceOf(account1.address)
               .call();
@@ -286,4 +287,6 @@ module.exports = () =>
     });
   });
 
-if (process.env.NODE_ENV != "coverage") module.exports();
+export default test;
+
+if (process.env.NODE_ENV != "coverage") test();
