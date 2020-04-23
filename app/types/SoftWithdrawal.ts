@@ -1,8 +1,16 @@
 import {SoftWithdrawTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
+import { toBuf, toHex, toInt } from '../lib/to';
+import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
 
-const { toBuf, toHex, toInt } = require('../lib/to');
-const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
+export interface SoftWithdrawalArguments {
+    fromAccountIndex: number;
+    withdrawalAddress: string;
+    nonce: number;
+    value: number;
+    signature?: string;
+    privateKey?: Buffer;
+}
 
 export class SoftWithdrawal implements SoftWithdrawTransaction {
     accountIndex: number;
@@ -25,7 +33,7 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         value,
         signature,
         privateKey
-    }) {
+    }: SoftWithdrawalArguments) {
         this.accountIndex = toInt(fromAccountIndex);
         this.withdrawalAddress = toHex(withdrawalAddress);
         this.nonce = toInt(nonce);
@@ -64,7 +72,7 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         ]);
     }
 
-    toMessageHash(): string {
+    toMessageHash(): Buffer {
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const withdrawalAddress = toBuf(this.withdrawalAddress, 20) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
@@ -78,16 +86,16 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         return keccak256(msg);
     }
 
-    sign(privateKey: Buffer): string {
-        const msgHash = this.toMessageHash() as string;
+    sign(privateKey: Buffer): ECDSASignature {
+        const msgHash = this.toMessageHash();
         return ecsign(msgHash, privateKey);
     }
 
     getSignerAddress(): string {
-        const msgHash = this.toMessageHash() as string;
+        const msgHash = this.toMessageHash();
         const { v, r, s } = fromRpcSig(this.signature);
         try {
-            const publicKey = ecrecover(msgHash, v, r, s) as string;
+            const publicKey = ecrecover(msgHash, v, r, s);
             return toHex(pubToAddress(publicKey, true));
         } catch(err) {
             console.log(err)
