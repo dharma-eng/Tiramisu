@@ -3,7 +3,7 @@ import { State, StateMachine, Account, HardDeposit, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
 const test = () =>describe("Hard Deposit", () => {
-  let state, account, initialAccount, initialStateSize, depositAmount;
+  let state, account, initialAccount, initialStateSize, depositAmount, hardDeposit;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -26,7 +26,7 @@ const test = () =>describe("Hard Deposit", () => {
     // EXECUTE TRANSACTION
     depositAmount = 25;
 
-    const hardDeposit = new HardDeposit({
+    hardDeposit = new HardDeposit({
       accountIndex,
       hardTransactionIndex: 0,
       value: depositAmount
@@ -58,6 +58,14 @@ const test = () =>describe("Hard Deposit", () => {
 
   it("Should not have updated the state size", async () => {
     expect(state.size).to.eql(initialStateSize);
+  });
+
+  it("Should encode the transaction to the correct number of byes", async () => {
+    let encoded = hardDeposit.encode(true);
+    expect(encoded.length).to.eql(hardDeposit.bytesWithoutPrefix + 1);
+
+    encoded = hardDeposit.encode(false);
+    expect(encoded.length).to.eql(hardDeposit.bytesWithoutPrefix);
   });
 });
 

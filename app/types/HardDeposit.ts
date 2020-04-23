@@ -17,6 +17,10 @@ export class HardDeposit implements HardDepositTransaction {
         return 1;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 48;
+    }
+
     constructor(args: HardDepositArguments) {
         const { accountIndex, hardTransactionIndex, value } = args;
         this.accountIndex = toInt(accountIndex);
