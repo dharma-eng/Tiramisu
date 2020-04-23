@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, SoftCreate, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-describe("Soft Create", () => {
+export default () => describe("Soft Create", () => {
   let state,
     account,
     initialAccount,

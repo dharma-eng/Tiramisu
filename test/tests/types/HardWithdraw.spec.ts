@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, HardWithdraw, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-describe("Hard Withdraw", () => {
+export default () => describe("Hard Withdraw", () => {
   let state, account, initialAccount, initialStateSize, withdrawalAmount;
 
   before(async () => {
