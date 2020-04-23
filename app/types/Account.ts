@@ -26,6 +26,8 @@ export class Account implements AccountType {
     nonce: number;
     balance: number;
     signers: string [];
+    privateKey?: Buffer;
+    
     constructor(args: AccountArguments) {
         const {
             address, /* hex string */
