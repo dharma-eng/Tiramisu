@@ -1,4 +1,4 @@
-const keccak256 = require("./keccak256");
+import {keccak256} from './keccak256';
 
 function getParent(a, b) {
   return keccak256(Buffer.concat([a, b]));

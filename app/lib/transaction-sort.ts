@@ -1,5 +1,5 @@
 /* Takes an array of transaction objects -- must be of the types defined in app/types */
-function sortTransactions(transactions) {
+export function sortTransactions(transactions) {
   const arrays = new Array(8).fill(null).map(() => []);
   for (let tx of transactions) arrays[tx.prefix].push(tx);
   const [

@@ -1,10 +1,10 @@
-const { toBuf, toInt, toHex, toNonPrefixed } = require("./to");
-const {
+import { toBuf, toInt, toHex, toNonPrefixed } from "./to";
+import {
   HardCreate,
   HardDeposit,
   HardWithdraw,
   HardAddSigner
-} = require("../types");
+} from "../types";
 
 async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
   let encoded = toNonPrefixed(_encoded);
@@ -24,7 +24,7 @@ async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
   if (prefix == 3) return HardAddSigner.fromLayer1(hardTransactionIndex, buf);
 }
 
-async function decodeHardTransactions(state, startIndex, hardTransactions) {
+export async function decodeHardTransactions(state, startIndex, hardTransactions) {
   const arr = [];
   for (let i = 0; i < hardTransactions.length; i++) {
     const hardTransactionIndex = startIndex + i;
