@@ -40,7 +40,7 @@ export class State implements StateType {
     /* takes number or big number, outputs account */
     async getAccount(_accountIndex: any): Promise<AccountType> {
         const accountIndex = BigNumber.isBigNumber(_accountIndex) ? _accountIndex : new BigNumber(_accountIndex);
-        if (accountIndex.gt(new BigNumber(this.size))) return null;
+        if (accountIndex.gte(new BigNumber(this.size))) return null;
         const leaf = await this.tree.getLeaf(accountIndex) as Buffer;
         return Account.decode(leaf);
     }
