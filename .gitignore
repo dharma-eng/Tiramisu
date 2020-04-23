@@ -3,3 +3,5 @@ build/
 coverage/
 coverage.json
 .DS_Store
+dist/
+.nyc_output
