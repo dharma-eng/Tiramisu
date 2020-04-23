@@ -5,7 +5,7 @@ import { getMerkleProof, Account, SoftWithdrawal } from '../../app';
 const { expect } = chai;
 
 const test = () =>
-  describe("Blockchain", () => {
+  describe("Blockchain Tests", () => {
     let tester, web3, from, accounts, blockchain;
 
     async function resetBlockchain() {
