@@ -1,7 +1,9 @@
-const { toBuffer, setLength, bufferToHex, bufferToInt } = require('ethereumjs-utils');
-const { BigNumber } = require('sparse-merkle-tree');
+import { BigNumber } from 'sparse-merkle-tree';
+import { toBuffer, setLength, bufferToHex, bufferToInt } from 'ethereumjs-utils';
 
-export const toInt = (value): number => {
+export type BufferLike = string | number | Buffer | BigNumber;
+
+export const toInt = (value: BufferLike): number => {
   if (typeof value == 'number') return value;
   if (typeof value == 'string') {
     if (value.slice(0, 2) == '0x') return parseInt(value, 16);
@@ -12,7 +14,7 @@ export const toInt = (value): number => {
   throw new Error('Did not recognize type.');
 }
 
-export const toHex = (value): string => {
+export const toHex = (value: BufferLike): string => {
   if (typeof value == 'number') return value.toString(16);
   if (typeof value == 'string') {
     if (value.slice(0, 2) == '0x') return value;
@@ -23,12 +25,12 @@ export const toHex = (value): string => {
   throw new Error('Did not recognize type.');
 }
 
-export const toBuf = (value, length): Buffer => {
+export const toBuf = (value: BufferLike, length?: number): Buffer => {
   const buf = toBuffer(value);
   return (length) ? setLength(buf, length) : buf;
 }
 
-export const toNonPrefixed = (str) => {
+export const toNonPrefixed = (str: string) => {
   if (str.slice(0, 2) == '0x') return str.slice(2);
   return str;
 }
