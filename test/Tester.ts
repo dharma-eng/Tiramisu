@@ -1,9 +1,11 @@
+import { Account, State, Blockchain, StateMachine } from '../app';
 const { getWeb3, randomAccount } = require("./utils");
 const {
+  getContractFromExternalHost,
   getContractsFromExternalHost,
+  deployContract,
   deployContracts
 } = require("./contracts");
-const { Account, State, Blockchain, StateMachine } = require("../app");
 
 const defaultOptions = {
   state: false,
@@ -12,8 +14,21 @@ const defaultOptions = {
   stateMachine: false
 };
 
-class Tester {
-  constructor({ accounts, from, web3, usingExternalHost, networkID } = {}) {
+export interface TesterInput {
+  accounts?: string[];
+  from?: string;
+  web3?: any;
+  usingExternalHost?: boolean;
+  networkID?: string | number;
+}
+
+export class Tester {
+  accounts: string[];
+  from: string;
+  web3: any;
+  usingExternalHost: boolean;
+  networkID: string | number;
+  constructor({ accounts, from, web3, usingExternalHost, networkID }: TesterInput = {}) {
     this.accounts = accounts;
     this.from = from;
     this.web3 = web3;
@@ -33,13 +48,19 @@ class Tester {
     return account;
   }
 
-  newState() {
+  newState(): Promise<State> {
     return State.create();
   }
 
   async newStateMachine() {
     const state = await this.newState();
     return new StateMachine(state);
+  }
+
+  deployContract(name, args = []) {
+    return this.usingExternalHost
+      ? getContractFromExternalHost(name, args)
+      : deployContract(this, name, args);
   }
 
   async newBlockchain() {
@@ -61,11 +82,11 @@ class Tester {
   }
 
   static async create(opts = {}) {
-    let { state, blockchain, web3, stateMachine } = {
+    let { state, blockchain, web3, stateMachine }: any = {
       ...defaultOptions,
       ...opts
     };
-    let res = {};
+    let res: any = {};
     let tester = new Tester();
     if (web3 || blockchain) {
       res = await getWeb3();
@@ -89,4 +110,4 @@ class Tester {
   }
 }
 
-module.exports = Tester;
+export default Tester;
