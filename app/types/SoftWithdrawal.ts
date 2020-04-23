@@ -4,7 +4,7 @@ import {AccountType} from "./Account";
 const { toBuf, toHex, toInt } = require('../lib/to');
 const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
 
-class SoftWithdrawal implements SoftWithdrawTransaction{
+export class SoftWithdrawal implements SoftWithdrawTransaction {
     accountIndex: number;
     withdrawalAddress: string;
     nonce: number;

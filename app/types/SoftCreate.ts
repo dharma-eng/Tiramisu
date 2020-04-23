@@ -23,7 +23,7 @@ interface SoftCreateArguments {
     privateKey?: Buffer;
 }
 
-class SoftCreate implements SoftCreateTransaction {
+export class SoftCreate implements SoftCreateTransaction {
     accountIndex: number;
     toAccountIndex: number;
     nonce: number;

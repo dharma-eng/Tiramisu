@@ -20,7 +20,7 @@ interface SoftChangeSignerArguments {
     privateKey?: Buffer;
 }
 
-class SoftChangeSigner implements SoftChangeSignerTransaction {
+export class SoftChangeSigner implements SoftChangeSignerTransaction {
     nonce: number;
     signingAddress: string;
     modificationCategory: number;

@@ -14,7 +14,7 @@ interface SoftTransferArguments {
     privateKey?: Buffer;
 }
 
-class SoftTransfer implements SoftTransferTransaction {
+export class SoftTransfer implements SoftTransferTransaction {
     toAccountIndex: number;
     nonce: number;
     value: number;
