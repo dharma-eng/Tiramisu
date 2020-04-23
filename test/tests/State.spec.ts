@@ -13,6 +13,20 @@ describe("State Class Test", () => {
     account = tester.randomAccount(50);
   });
 
+  describe("State Creation", async () => {
+    it("Should begin with state size  0", () => expect(state.size).to.eql(0));
+
+    it("Should return null when attempting to retrieve an index for an account that hasn't been added to state", async () => {
+      const index = await state.getAccountIndexByAddress(account.address);
+      expect(index).to.eql(null);
+    });
+
+    it("Should return null when attempting to retrieve an account by index", async () => {
+      const retrievedAccount = await state.getAccount(0);
+      expect(retrievedAccount).to.eql(null);
+    });
+  });
+
   describe("Account Creation", async () => {
     it("Should put an account in the state.", async () => {
       await state.putAccount(account);
