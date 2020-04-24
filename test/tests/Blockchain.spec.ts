@@ -4,8 +4,7 @@ import { getMerkleProof, Account, SoftWithdrawal } from '../../app';
 
 const { expect } = chai;
 
-const test = () =>
-  describe("Blockchain Tests", () => {
+const test = () => describe("Blockchain Tests", () => {
     let tester, web3, from, accounts, blockchain;
 
     async function resetBlockchain() {
@@ -176,7 +175,7 @@ const test = () =>
         it("Should locally calculate the correct block hash", async () => {
           const blockHash = block.blockHash(blockchain.web3);
           const committedHash = await blockchain.peg.methods
-            .blockHashes(0)
+            .getBlockHash(0)
             .call();
           expect(blockHash).to.eql(committedHash);
         });
@@ -184,7 +183,7 @@ const test = () =>
         it("Should confirm a block", async () => {
           await blockchain.confirmBlock(block);
           const lastConfirmedBlock = await blockchain.peg.methods
-            .confirmedBlocks()
+            .getConfirmedBlockCount()
             .call();
           expect(lastConfirmedBlock).to.eql("1");
         });
@@ -226,7 +225,7 @@ const test = () =>
           });
 
           it(`Should have sent the DAI from the withdrawal to the withdrawal address`, async () => {
-            const daiContract = blockchain.dai;
+            const daiContract = await blockchain.dai;
             const balance = await daiContract.methods
               .balanceOf(account1.address)
               .call();
@@ -245,6 +244,7 @@ const test = () =>
               signers: [hardAddress]
             });
           });
+
           it("Should execute a hard withdrawal transaction.", async () => {
             const accountIndex = await blockchain.state.putAccount(account);
             await blockchain.peg.methods
@@ -261,7 +261,7 @@ const test = () =>
             await blockchain.confirmBlock(block);
           });
 
-          it("Should produce a merkle proof of the withdrawal transaction", () => {
+          it("Should produce a merkle proof of the withdrawal transaction", async () => {
             expect(block.transactionsData.length).to.eql(
               withdrawal.encode(false).length + 16
             );

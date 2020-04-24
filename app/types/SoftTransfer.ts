@@ -70,9 +70,9 @@ export class SoftTransfer implements SoftTransferTransaction {
         const root = toBuf(this.intermediateStateRoot, 32) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
+            nonce,
             fromIndex,
             toIndex,
-            nonce,
             value,
             sig,
             root
@@ -85,9 +85,9 @@ export class SoftTransfer implements SoftTransferTransaction {
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
         const msg = Buffer.concat([
+            nonce,
             fromIndex,
             toIndex,
-            nonce,
             value
         ]);
         return keccak256(msg);

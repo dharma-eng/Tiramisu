@@ -35,6 +35,7 @@
     "test:coverage:sol": "npm run build:ts:tests && NODE_ENV=coverage ./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\" && rm -rf ./dist-test",
     "test:coverage:app": "nyc npm run test:app",
     "test:coverage": "npm run test:coverage:app && npm run test:coverage:sol",
+    "test": "test:app && test:coverage",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli"

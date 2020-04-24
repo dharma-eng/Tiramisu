@@ -21,8 +21,9 @@ contract MockDharmaPeg is DharmaPeg {
   }
 
   function clearTransactions() external {
-    uint256 len = hardTransactions.length;
-    for (uint256 i = 0; i < len; i++) delete hardTransactions[i];
+    uint256 len = state.hardTransactions.length;
+    for (uint256 i = 0; i < len; i++) delete state.hardTransactions[i];
+    bytes[] storage hardTransactions = state.hardTransactions;
     assembly {
       sstore(
         hardTransactions_slot,

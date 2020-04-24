@@ -67,9 +67,9 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         const root = toBuf(this.intermediateStateRoot) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
+            nonce,
             fromIndex,
             withdrawalAddress,
-            nonce,
             value,
             sig,
             root
@@ -82,9 +82,9 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
         const msg = Buffer.concat([
+            nonce,
             fromIndex,
             withdrawalAddress,
-            nonce,
             value
         ]);
         return keccak256(msg);
