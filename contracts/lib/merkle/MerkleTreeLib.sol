@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 library MerkleTreeLib {
-  function getMerkleRoot(bytes[] calldata leaves) external pure returns(bytes32 root) {
+  function getMerkleRoot(bytes[] memory leaves) internal pure returns(bytes32 root) {
     if (leaves.length == 0) return bytes32(0);
     uint256 nextLevelLength = leaves.length;
     uint256 currentLevel = 0;
@@ -50,7 +50,7 @@ library MerkleTreeLib {
    * @param _index The index of the bit we want to extract
    * @return The bit (1 or 0) in a uint8
    */
-  function getNthBitFromRight(uint256 _intVal, uint256 _index) public pure returns (uint8) {
+  function getNthBitFromRight(uint256 _intVal, uint256 _index) internal pure returns (uint8) {
     return uint8(_intVal >> _index & 1);
   }
 }
