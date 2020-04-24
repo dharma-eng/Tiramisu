@@ -6,6 +6,7 @@ import { IDharmaAddressGetter as DharmaAddress } from "./interfaces/IDharmaAddre
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
+import { HeaderFraudProofs as HeaderFraud } from "./fraud-proofs/HeaderFraudProofs.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 
@@ -26,6 +27,14 @@ contract DharmaPeg is Owned, StateManager {
     changeDelay = _changeDelay;
     addressHandler = _addressHandler;
     daiContract = _daiContract;
+  }
+
+  function proveStateSizeError(
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) public {
+    HeaderFraud.proveStateSizeError(state, previousHeader, badHeader, transactionsData);
   }
 
   function getHardTransactionsFrom(uint256 start, uint256 max)
@@ -135,6 +144,10 @@ contract DharmaPeg is Owned, StateManager {
 
   function getBlockHash(uint256 height) external view returns (bytes32) {
     return state.blockHashes[height];
+  }
+
+  function getBlockCount() external view returns (uint256) {
+    return state.blockHashes.length;
   }
 
   function getConfirmedBlockCount() external view returns (uint256) {
