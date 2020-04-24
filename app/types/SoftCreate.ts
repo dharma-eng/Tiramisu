@@ -39,6 +39,10 @@ export class SoftCreate implements SoftCreateTransaction {
         return 5;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 155;
+    }
+
     constructor(args: SoftCreateArguments) {
         const {
             fromAccountIndex,

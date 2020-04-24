@@ -20,6 +20,10 @@ export class HardAddSigner implements HardAddSignerTransaction{
         return 3;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 61;
+    }
+
     constructor(args: HardAddSignerArguments) {
         const {
             accountIndex,

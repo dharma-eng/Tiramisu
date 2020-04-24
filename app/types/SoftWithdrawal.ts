@@ -26,6 +26,10 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         return 4;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 131;
+    }
+
     constructor({
         fromAccountIndex,
         withdrawalAddress,
