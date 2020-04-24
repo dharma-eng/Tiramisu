@@ -72,8 +72,8 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
         const root = toBuf(this.intermediateStateRoot, 32) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
-            fromIndex,
             nonce,
+            fromIndex,
             signingAddress,
             modificationCategory,
             sig,
@@ -87,8 +87,8 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
         const modificationCategory = toBuf(this.modificationCategory, 1) as Buffer;
         const msg = Buffer.concat([
-            fromIndex,
             nonce,
+            fromIndex,
             signingAddress,
             modificationCategory
         ]);

@@ -82,9 +82,9 @@ export class SoftCreate implements SoftCreateTransaction {
         const root = toBuf(this.intermediateStateRoot, 32) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
+            nonce,
             fromIndex,
             toIndex,
-            nonce,
             value,
             contractAddress,
             signingAddress,
