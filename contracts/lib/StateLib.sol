@@ -57,9 +57,16 @@ library StateLib {
    */
   function revertBlock(State storage state, Block.BlockHeader memory header) internal {
     /* Works backwards through the block hash array, deleting descendands */
-    for (uint256 i = state.blockHashes.length; i >= header.blockNumber; i--) {
+    bytes32[] storage blockHashes = state.blockHashes;
+    uint256 len = blockHashes.length;
+    delete blockHashes[header.blockNumber];
+    for (uint256 i = header.blockNumber; i < len; i++) {
       emit BlockReverted(i, state.blockHashes[i]);
       delete state.blockHashes[i];
+    }
+    uint256 num = header.blockNumber;
+    assembly {
+      sstore(blockHashes_slot, num)
     }
   }
 }
