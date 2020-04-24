@@ -12,7 +12,8 @@ const test = () => describe("Soft Transfer", () => {
     receiver,
     receiverAccountIndex,
     initialReceiver,
-    initialStateSize;
+    initialStateSize,
+    transactions;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -62,11 +63,14 @@ const test = () => describe("Soft Transfer", () => {
       });
 
       softTransfer.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softTransfers: [softTransfer]
+      };
     });
 
     it("Should execute the soft transfer", async () => {
-      const res = await stateMachine.softTransfer(softTransfer);
-      expect(res).to.be.true;
+      await stateMachine.execute(transactions);
     });
 
     it("Should not have moved the sender or receiver accounts from their initial index", async () => {
@@ -137,11 +141,14 @@ const test = () => describe("Soft Transfer", () => {
       });
 
       softTransfer.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softTransfers: [softTransfer]
+      };
     });
 
     it("Should not execute the soft transfer", async () => {
-      const res = await stateMachine.softTransfer(softTransfer);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softTransfer.checkValid(initialSender);
       expect(valid).to.eql("Invalid signature.");
@@ -206,11 +213,14 @@ const test = () => describe("Soft Transfer", () => {
       });
 
       softTransfer.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softTransfers: [softTransfer]
+      };
     });
 
     it("Should not execute the soft transfer", async () => {
-      const res = await stateMachine.softTransfer(softTransfer);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softTransfer.checkValid(initialSender);
       expect(valid).to.eql(`Invalid nonce. Expected ${initialSender.nonce}`);
@@ -275,11 +285,14 @@ const test = () => describe("Soft Transfer", () => {
       });
 
       softTransfer.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softTransfers: [softTransfer]
+      };
     });
 
     it("Should not execute the soft transfer", async () => {
-      const res = await stateMachine.softTransfer(softTransfer);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softTransfer.checkValid(initialSender);
       expect(valid).to.eql(`Insufficient balance. Account has ${initialSender.balance}.`);

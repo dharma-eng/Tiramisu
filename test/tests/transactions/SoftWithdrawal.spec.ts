@@ -3,7 +3,7 @@ import { State, StateMachine, Account, SoftWithdrawal, toHex } from '../../../ap
 import { randomAccount } from '../../utils';
 
 const test = () => describe("Soft Withdraw", () => {
-  let state, stateMachine, account, accountIndex, initialAccount, signer, initialStateSize;
+  let state, stateMachine, account, accountIndex, initialAccount, signer, initialStateSize, transactions;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -42,11 +42,14 @@ const test = () => describe("Soft Withdraw", () => {
       });
 
       softWithdrawal.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softWithdrawals: [softWithdrawal]
+      };
     });
 
     it("Should execute the soft withdrawal", async () => {
-      const res = await stateMachine.softWithdrawal(softWithdrawal);
-      expect(res).to.be.true;
+      await stateMachine.execute(transactions);
     });
 
     it("Should have kept the account at the same index", async () => {
@@ -102,11 +105,14 @@ const test = () => describe("Soft Withdraw", () => {
       });
 
       softWithdrawal.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softWithdrawals: [softWithdrawal]
+      };
     });
 
     it("Should not execute the soft withdrawal", async () => {
-      const res = await stateMachine.softWithdrawal(softWithdrawal);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softWithdrawal.checkValid(initialAccount);
       expect(valid).to.eql("Invalid signature.");
@@ -156,11 +162,14 @@ const test = () => describe("Soft Withdraw", () => {
       });
 
       softWithdrawal.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softWithdrawals: [softWithdrawal]
+      };
     });
 
     it("Should not execute the soft withdrawal", async () => {
-      const res = await stateMachine.softWithdrawal(softWithdrawal);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softWithdrawal.checkValid(initialAccount);
       expect(valid).to.eql(`Invalid nonce. Expected ${initialAccount.nonce}`);
@@ -210,11 +219,14 @@ const test = () => describe("Soft Withdraw", () => {
       });
 
       softWithdrawal.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softWithdrawals: [softWithdrawal]
+      };
     });
 
     it("Should not execute the soft withdrawal", async () => {
-      const res = await stateMachine.softWithdrawal(softWithdrawal);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softWithdrawal.checkValid(initialAccount);
       expect(valid).to.eql(`Insufficient balance. Account has ${initialAccount.balance}.`);

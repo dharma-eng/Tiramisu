@@ -9,7 +9,8 @@ const test = () => describe("Soft Change Signer", () => {
     account,
     initialAccount,
     initialStateSize,
-    signer;
+    signer,
+    transactions;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -51,11 +52,14 @@ const test = () => describe("Soft Change Signer", () => {
           console.log(`ERR-ERR  ${err}  ERR-ERR`);
         }
       );
+
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
     });
 
     it("Should add the signer", async () => {
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.true;
+      await stateMachine.execute(transactions);
     });
 
     it("Should have kept the account at the same index", async () => {
@@ -119,11 +123,14 @@ const test = () => describe("Soft Change Signer", () => {
           console.log(`ERR-ERR  ${err}  ERR-ERR`);
         }
       );
+
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
     });
 
     it("Should not add the signer", async () => {
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softChangeSigner.checkValid(initialAccount);
       expect(valid).to.eql("Invalid signature.");
@@ -182,11 +189,14 @@ const test = () => describe("Soft Change Signer", () => {
           console.log(`ERR-ERR  ${err}  ERR-ERR`);
         }
       );
+
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
     });
 
     it("Should not add the signer", async () => {
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softChangeSigner.checkValid(initialAccount);
       expect(valid).to.eql(`Invalid nonce. Expected ${initialAccount.nonce}`);
@@ -245,11 +255,14 @@ const test = () => describe("Soft Change Signer", () => {
           console.log(`ERR-ERR  ${err}  ERR-ERR`);
         }
       );
+
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
     });
 
     it("Should add the signer once", async () => {
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.true;
+      await stateMachine.execute(transactions);
 
       account = await state.getAccount(accountIndex);
     });
@@ -270,8 +283,11 @@ const test = () => describe("Soft Change Signer", () => {
         }
       );
 
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
+
+      await stateMachine.execute(transactions);
 
       const valid = softChangeSigner.checkValid(account);
       expect(valid).to.eql(`Invalid signing address. Account already has signer ${newSigner.address}`);
@@ -338,8 +354,11 @@ const test = () => describe("Soft Change Signer", () => {
           }
         );
 
-        const res = await stateMachine.softChangeSigner(softChangeSigner);
-        expect(res).to.be.true;
+        transactions = {
+          softChangeSigners: [softChangeSigner]
+        };
+
+        await stateMachine.execute(transactions);
 
         account = await state.getAccount(accountIndex);
         expect(account.hasSigner(toHex(newSigner.address))).to.be.true;
@@ -369,8 +388,11 @@ const test = () => describe("Soft Change Signer", () => {
         }
       );
 
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
+
+      await stateMachine.execute(transactions);
 
       account = await state.getAccount(accountIndex);
       const valid = softChangeSigner.checkValid(account);
@@ -403,7 +425,11 @@ const test = () => describe("Soft Change Signer", () => {
         }
       );
 
-      await stateMachine.softChangeSigner(softChangeSigner);
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
+
+      await stateMachine.execute(transactions);
 
       account = await state.getAccount(accountIndex);
     });
@@ -465,9 +491,12 @@ const test = () => describe("Soft Change Signer", () => {
       );
     });
 
+    transactions = {
+      softChangeSigners: [softChangeSigner]
+    };
+
     it("Should not remove the signer", async () => {
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       const valid = softChangeSigner.checkValid(initialAccount);
       expect(valid).to.eql(`Invalid signing address. Account does not have signer ${newSignerAddress}`);
@@ -534,8 +563,11 @@ const test = () => describe("Soft Change Signer", () => {
           }
         );
 
-        const res = await stateMachine.softChangeSigner(softChangeSigner);
-        expect(res).to.be.true;
+        transactions = {
+          softChangeSigners: [softChangeSigner]
+        };
+
+        await stateMachine.execute(transactions);
 
         account = await state.getAccount(accountIndex);
         expect(initialAccount.hasSigner(toHex(removeSignerAddress))).to.be.true;
@@ -566,8 +598,11 @@ const test = () => describe("Soft Change Signer", () => {
         }
       );
 
-      const res = await stateMachine.softChangeSigner(softChangeSigner);
-      expect(res).to.be.false;
+      transactions = {
+        softChangeSigners: [softChangeSigner]
+      };
+
+      await stateMachine.execute(transactions);
 
       account = await state.getAccount(accountIndex);
       const valid = softChangeSigner.checkValid(account);

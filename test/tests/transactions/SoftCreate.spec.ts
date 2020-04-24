@@ -12,7 +12,8 @@ const test = () => describe("Soft Create", () => {
     senderSigner,
     initialSender,
     initialStateSize,
-    transferAmount;
+    transferAmount,
+    transactions;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -61,11 +62,14 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softCreates: [softCreate]
+      }
     });
 
     it("Should execute the transaction", async () => {
-      const res = await stateMachine.softCreate(softCreate);
-      expect(res).to.be.true;
+      await stateMachine.execute(transactions);
     });
 
     it("Should create an account with the expected address", async () => {
@@ -148,11 +152,14 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softCreates: [softCreate]
+      }
     });
 
     it("Should not execute the transaction", async () => {
-      const res = await stateMachine.softCreate(softCreate);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       sender = await state.getAccount(senderAccountIndex);
 
@@ -212,11 +219,14 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softCreates: [softCreate]
+      }
     });
 
     it("Should not execute the transaction", async () => {
-      const res = await stateMachine.softCreate(softCreate);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       sender = await state.getAccount(senderAccountIndex);
 
@@ -276,11 +286,14 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate.assignResolvers(() => {}, () => {});
+
+      transactions = {
+        softCreates: [softCreate]
+      }
     });
 
     it("Should not execute the transaction", async () => {
-      const res = await stateMachine.softCreate(softCreate);
-      expect(res).to.be.false;
+      await stateMachine.execute(transactions);
 
       sender = await state.getAccount(senderAccountIndex);
 
