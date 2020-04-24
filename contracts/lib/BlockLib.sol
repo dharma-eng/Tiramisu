@@ -54,7 +54,16 @@ library BlockLib {
     );
   }
 
+  function decodeBlockHeader(bytes memory data) internal pure returns (BlockHeader memory) {
+    return abi.decode((data), (BlockHeader));
+  }
+
   function blockHash(BlockHeader memory header) internal pure returns (bytes32) {
     return keccak256(abi.encode(header));
+  }
+
+  function hasTransactionsData(BlockHeader memory header, bytes memory txData)
+  internal pure returns (bool) {
+    return header.transactionsHash == keccak256(txData);
   }
 }
