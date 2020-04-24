@@ -28,12 +28,12 @@ interface BlockArguments extends BlockParameters {
     transactions: Transactions,
 }
 
-interface Header extends BlockParameters {
+export interface Header extends BlockParameters {
     hardTransactionsCount: number,
     transactionsRoot: Buffer
 }
 
-interface Commitment extends Header {
+export interface Commitment extends Header {
     transactionsHash: string,
     submittedAt: number,
 }
@@ -44,6 +44,7 @@ export interface BlockType {
     commitment: Commitment;
     transactions: Transactions;
     addOutput(submittedAt: number): void;
+    blockHash(web3): string;
 }
 
 export class Block implements BlockType {
