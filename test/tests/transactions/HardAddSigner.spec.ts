@@ -25,7 +25,7 @@ const test = () => describe("Hard Add Signer", () => {
   });
 
   describe("Simple Add Signer", async () => {
-    let newSigner, account, hardAddSigner;
+    let newSigner, account, hardAddSigner, transactions;
 
     before(async () => {
       // EXECUTE TRANSACTION
@@ -37,11 +37,14 @@ const test = () => describe("Hard Add Signer", () => {
         callerAddress: initialAccount.address,
         signingAddress: newSigner.address
       });
+
+      transactions = {
+        hardAddSigners: [hardAddSigner]
+      };
     });
 
     it("Should be able to add a signer", async () => {
-      const res = await stateMachine.hardAddSigner(hardAddSigner);
-      expect(res).to.eql(true);
+      await stateMachine.execute(transactions);
     });
 
     it("Should be able to retrieve the account at accountIndex", async () => {
@@ -85,7 +88,7 @@ const test = () => describe("Hard Add Signer", () => {
   });
 
   describe("Double-Add The Same Signer", async () => {
-    let newSigner, account, hardAddSigner;
+    let newSigner, account, hardAddSigner, transactions;
 
     before(async () => {
       initialAccount = await state.getAccount(accountIndex);
@@ -99,19 +102,21 @@ const test = () => describe("Hard Add Signer", () => {
         callerAddress: initialAccount.address,
         signingAddress: newSigner.address
       });
+
+      transactions = {
+        hardAddSigners: [hardAddSigner]
+      };
     });
 
-    it("Should be only be able to add the signer once", async () => {
-      let res = await stateMachine.hardAddSigner(hardAddSigner);
-      expect(res).to.eql(true);
+    it("Should be able to add the signer once", async () => {
+      await stateMachine.execute(transactions);
+    });
 
+    it("Should not be able to add the signer again", async () => {
+      await stateMachine.execute(transactions);
       account = await state.getAccount(accountIndex);
-
       const valid = hardAddSigner.checkValid(account);
       expect(valid).to.eql(`Invalid signing address. Account already has signer ${newSigner.address}`);
-
-      res = await stateMachine.hardAddSigner(hardAddSigner);
-      expect(res).to.eql(false);
     });
 
     it("Should be able to retrieve the account at accountIndex", async () => {
@@ -138,7 +143,7 @@ const test = () => describe("Hard Add Signer", () => {
   });
 
   describe("Add Signer from Incorrect Caller", async () => {
-    let newSigner, account, hardAddSigner;
+    let newSigner, account, hardAddSigner, transactions;
 
     before(async () => {
       initialAccount = await state.getAccount(accountIndex);
@@ -152,11 +157,14 @@ const test = () => describe("Hard Add Signer", () => {
         callerAddress: newSigner.address,
         signingAddress: newSigner.address
       });
+
+      transactions = {
+        hardAddSigners: [hardAddSigner]
+      };
     });
 
     it("Should not be able to add the signer", async () => {
-      let res = await stateMachine.hardAddSigner(hardAddSigner);
-      expect(res).to.eql(false);
+      await stateMachine.execute(transactions); //TODO: figure out how to confirm that this didn't execute from return results
 
       const valid = hardAddSigner.checkValid(initialAccount);
       expect(valid).to.eql("Caller not approved.");
@@ -184,7 +192,7 @@ const test = () => describe("Hard Add Signer", () => {
   });
 
   describe("Add more than 10 signers ", async () => {
-    let newSigner, account, hardAddSigner;
+    let newSigner, account, hardAddSigner, transactions;
 
     before(async () => {
       initialAccount = await state.getAccount(accountIndex);
@@ -205,8 +213,11 @@ const test = () => describe("Hard Add Signer", () => {
           signingAddress: newSigner.address
         });
 
-        let res = await stateMachine.hardAddSigner(hardAddSigner);
-        expect(res).to.eql(true);
+        transactions = {
+          hardAddSigners: [hardAddSigner]
+        };
+
+        await stateMachine.execute(transactions);
 
         account = await state.getAccount(accountIndex);
         expect(account.hasSigner(toHex(newSigner.address))).to.be.true;
@@ -227,8 +238,11 @@ const test = () => describe("Hard Add Signer", () => {
         signingAddress: newSigner.address
       });
 
-      let res = await stateMachine.hardAddSigner(hardAddSigner);
-      expect(res).to.eql(false);
+      transactions = {
+        hardAddSigners: [hardAddSigner]
+      };
+
+      await stateMachine.execute(transactions);
 
       account = await state.getAccount(accountIndex);
       expect(account.hasSigner(toHex(newSigner.address))).to.be.false;
