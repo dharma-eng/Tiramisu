@@ -78,13 +78,13 @@ export interface SoftChangeSignerTransaction extends SoftTransaction {
 
 //Interface for object containing each type of Transaction
 export interface Transactions {
-    hardCreates: HardCreateTransaction[],
-    hardDeposits: HardDepositTransaction[],
-    hardWithdrawals: HardWithdrawTransaction[],
-    hardAddSigners: HardAddSignerTransaction[],
-    softWithdrawals: SoftWithdrawTransaction[],
-    softCreates: SoftCreateTransaction[],
-    softTransfers: SoftTransferTransaction[],
-    softChangeSigners: SoftChangeSignerTransaction[],
+    hardCreates?: HardCreateTransaction[],
+    hardDeposits?: HardDepositTransaction[],
+    hardWithdrawals?: HardWithdrawTransaction[],
+    hardAddSigners?: HardAddSignerTransaction[],
+    softWithdrawals?: SoftWithdrawTransaction[],
+    softCreates?: SoftCreateTransaction[],
+    softTransfers?: SoftTransferTransaction[],
+    softChangeSigners?: SoftChangeSignerTransaction[],
 }
 
