@@ -2,27 +2,17 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "./lib/BlockLib.sol";
+import { StateLib as State } from "./lib/StateLib.sol";
 import "./Configurable.sol";
 
 contract StateManager is Configurable {
-  uint32 public confirmedBlocks;
-  bytes32[] public blockHashes;
+  using Block for Block.BlockHeader;
+  using State for State.State;
+
+  State.State public state;
   
   /* <-- Events --> */
   event BlockSubmitted(uint32 blockNumber, bytes32 blockHash);
-
-  /* State Query Functions */
-  function blockIsPending(uint32 blockNumber, bytes32 blockHash) public view returns (bool) {
-    bool validHash = blockHashes[blockNumber] == blockHash;
-    if (!validHash) return false;
-    return blockNumber >= confirmedBlocks;
-  }
-
-  function blockIsConfirmed(uint32 blockNumber, bytes32 blockHash) public view returns (bool) {
-    bool validHash = blockHashes[blockNumber] == blockHash;
-    if (!validHash) return false;
-    return blockNumber < confirmedBlocks;
-  }
 
   /* State Utility Functions */
   /**
@@ -35,10 +25,10 @@ contract StateManager is Configurable {
    */
   function _putPendingBlock(Block.BlockInput memory input) internal {
     Block.BlockHeader memory header = Block.toCommitment(input);
-    require(header.blockNumber == blockHashes.length, "Invalid block number.");
+    require(header.blockNumber == state.blockHashes.length, "Invalid block number.");
     require(header.version == version, "Version mismatch.");
     bytes32 blockHash = Block.blockHash(header);
-    blockHashes.push(blockHash);
+    state.blockHashes.push(blockHash);
     emit BlockSubmitted(header.blockNumber, blockHash);
   }
 
@@ -52,27 +42,9 @@ contract StateManager is Configurable {
    * @param header Block header to confirm.
    */
   function _confirmBlock(Block.BlockHeader memory header) internal {
-    require(blockIsPending(header.blockNumber, Block.blockHash(header)), "Only pending blocks can be confirmed.");
+    require(state.blockIsPending(header.blockNumber, Block.blockHash(header)), "Only pending blocks can be confirmed.");
     require(header.submittedAt + challengePeriod <= block.number, "Challenge period still in progress.");
-    require(header.blockNumber == confirmedBlocks, "Blocks must be confirmed in order.");
-    confirmedBlocks += 1;
-  }
-
-  /**
-   * @dev revertBlock
-   * @notice Reverts a block and its descendants by removing them from the blocks array.
-   * The block must currently be pending in order to be reverted.
-   * This function does not execute any reward logic.
-   * @param blockNumber Number of the block to revert
-   * @param blockHash Hash of the block to revert
-   * @return reverted Number of blocks reverted.
-   */
-  function revertBlock(uint32 blockNumber, bytes32 blockHash) internal returns (uint256 reverted) {
-    require(blockIsPending(blockNumber, blockHash), "Block must be pending to be reverted.");
-    /* Works backwards through the block hash array, deleting descendands */
-    for (uint256 i = blockHashes.length; i >= blockNumber; i--) {
-      reverted++;
-      delete blockHashes[i];
-    }
+    require(header.blockNumber == state.confirmedBlocks, "Blocks must be confirmed in order.");
+    state.confirmedBlocks += 1;
   }
 }

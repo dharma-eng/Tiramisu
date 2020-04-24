@@ -11,7 +11,6 @@ import "./StateManager.sol";
 
 contract DharmaPeg is Owned, StateManager {
   using HardTx for *;
-  bytes[] internal hardTransactions;
 
   constructor(
     uint256 _challengePeriod,
@@ -31,12 +30,12 @@ contract DharmaPeg is Owned, StateManager {
 
   function getHardTransactionsFrom(uint256 start, uint256 max)
   external view returns (bytes[] memory _hardTransactions) {
-    uint256 len = hardTransactions.length;
+    uint256 len = state.hardTransactions.length;
     uint256 stopAt = start+max;
     if (stopAt > len) stopAt = len;
     len = stopAt - start;
     _hardTransactions = new bytes[](len);
-    for (uint256 i = 0; i < len; i++) _hardTransactions[i] = hardTransactions[i + start];
+    for (uint256 i = 0; i < len; i++) _hardTransactions[i] = state.hardTransactions[i + start];
   }
 
   event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
@@ -44,8 +43,8 @@ contract DharmaPeg is Owned, StateManager {
   function _deposit(address contractAddress, address signerAddress, uint56 value) internal {
     /* TODO - replace storage of full data with storage of a hash, and emit the data in the event */
     HardTx.HardDeposit memory deposit = HardTx.HardDeposit(contractAddress, signerAddress, value);
-    emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(deposit.encode());
+    emit NewHardTransaction(state.hardTransactions.length);
+    state.hardTransactions.push(deposit.encode());
   }
 
   function deposit(uint56 value) external {
@@ -68,14 +67,14 @@ contract DharmaPeg is Owned, StateManager {
 
   function forceAddSigner(uint32 accountIndex, address signingAddress) external {
     HardTx.HardAddSigner memory hardTx = HardTx.HardAddSigner(accountIndex, msg.sender, signingAddress);
-    emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(hardTx.encode());
+    emit NewHardTransaction(state.hardTransactions.length);
+    state.hardTransactions.push(hardTx.encode());
   }
 
   function forceWithdrawal(uint32 accountIndex, uint56 value) external {
     HardTx.HardWithdrawal memory hardTx = HardTx.HardWithdrawal(accountIndex, msg.sender, value);
-    emit NewHardTransaction(hardTransactions.length);
-    hardTransactions.push(hardTx.encode());
+    emit NewHardTransaction(state.hardTransactions.length);
+    state.hardTransactions.push(hardTx.encode());
   }
   
   /**
@@ -107,7 +106,7 @@ contract DharmaPeg is Owned, StateManager {
     } else revert("Transaction not of a withdrawal type.");
     /* Verify that the block is confirmed. */
     bytes32 blockHash = Block.blockHash(header);
-    require(blockIsConfirmed(header.blockNumber, blockHash), "Block is not confirmed.");
+    require(state.blockIsConfirmed(header.blockNumber, blockHash), "Block is not confirmed.");
     /* Verify the inclusion proof for the transaction and replace it with a null leaf. */
     (bool included, bytes32 newRoot) = Merkle.verifyAndUpdate(
       header.transactionsRoot,
@@ -120,7 +119,7 @@ contract DharmaPeg is Owned, StateManager {
     /* Update header with new transactions root. */
     header.transactionsRoot = newRoot;
     /* Update block hash with new header. */
-    blockHashes[header.blockNumber] = Block.blockHash(header);
+    state.blockHashes[header.blockNumber] = Block.blockHash(header);
     /* Transfer DAI to the recipient. */
     /* TODO - Add decimal conversion */
     daiContract.transfer(receiver, value);
@@ -132,5 +131,13 @@ contract DharmaPeg is Owned, StateManager {
 
   function confirmBlock(Block.BlockHeader calldata header) external {
     _confirmBlock(header);
+  }
+
+  function getBlockHash(uint256 height) external view returns (bytes32) {
+    return state.blockHashes[height];
+  }
+
+  function getConfirmedBlockCount() external view returns (uint256) {
+    return state.confirmedBlocks;
   }
 }
