@@ -34,6 +34,10 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
         return 7;
     }
 
+    get bytesWithoutPrefix(): number {
+        return 125;
+    }
+
     constructor(args: SoftChangeSignerArguments) {
         const {
             fromAccountIndex,
