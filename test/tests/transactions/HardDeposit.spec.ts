@@ -32,7 +32,11 @@ const test = () =>describe("Hard Deposit", () => {
       value: depositAmount
     });
 
-    await stateMachine.hardDeposit(hardDeposit);
+    const transactions = {
+      hardDeposits: [hardDeposit]
+    };
+
+    await stateMachine.execute(transactions);
     account = await state.getAccount(accountIndex);
   });
 

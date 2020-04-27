@@ -3,7 +3,7 @@ import { State, StateMachine, Account, HardWithdraw, toHex } from '../../../app'
 import { randomAccount } from '../../utils';
 
 const test = () =>describe("Hard Withdraw", () => {
-  let state, stateMachine, account, accountIndex, initialAccount, initialStateSize, withdrawalAmount;
+  let state, stateMachine, account, accountIndex, initialAccount, initialStateSize, withdrawalAmount, transactions;
 
   before(async () => {
     // SET UP INITIAL STATE
@@ -38,11 +38,14 @@ const test = () =>describe("Hard Withdraw", () => {
         callerAddress: initialAccount.address,
         value: withdrawalAmount
       });
+
+      transactions = {
+        hardWithdrawals: [hardWithdrawal]
+      };
     });
 
     it("Should execute a hard withdrawal", async () => {
-      const res = await stateMachine.hardWithdraw(hardWithdrawal);
-      expect(res).to.eql(true);
+      await stateMachine.execute(transactions);
     });
 
     it("Should have kept the account at the same index", async () => {
@@ -93,14 +96,17 @@ const test = () =>describe("Hard Withdraw", () => {
         callerAddress: initialAccount.address,
         value: withdrawalAmount
       });
+
+      transactions = {
+        hardWithdrawals: [hardWithdrawal]
+      };
     });
 
     it("Should not execute the hard withdrawal", async () => {
-      const res = await stateMachine.hardWithdraw(hardWithdrawal);
-      expect(res).to.eql(false);
-
       const valid = hardWithdrawal.checkValid(initialAccount);
       expect(valid).to.eql("Account has insufficient balance for withdrawal.");
+
+      await stateMachine.execute(transactions);
     });
 
     it("Should have kept the account at the same index", async () => {
@@ -133,14 +139,17 @@ const test = () =>describe("Hard Withdraw", () => {
         callerAddress: badCaller.address,
         value: withdrawalAmount
       });
+
+      transactions = {
+        hardWithdrawals: [hardWithdrawal]
+      };
     });
 
     it("Should not execute the hard withdrawal", async () => {
-      const res = await stateMachine.hardWithdraw(hardWithdrawal);
-      expect(res).to.eql(false);
-
       const valid = hardWithdrawal.checkValid(initialAccount);
       expect(valid).to.eql("Caller not approved for withdrawal.");
+
+      await stateMachine.execute(transactions);
     });
 
     it("Should have kept the account at the same index", async () => {

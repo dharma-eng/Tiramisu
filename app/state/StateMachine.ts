@@ -35,52 +35,66 @@ export class StateMachine {
         } = transactions;
 
         /* Execute hard deposits. */
-        for (let transaction of hardCreates) await this.hardCreate(transaction);
+        if (hardCreates) {
+            for (let transaction of hardCreates) await this.hardCreate(transaction);
+        }
 
         /* Execute hard deposits. */
-        for (let transaction of hardDeposits) await this.hardDeposit(transaction);
+        if (hardDeposits) {
+            for (let transaction of hardDeposits) await this.hardDeposit(transaction);
+        }
 
         /* Execute hard withdrawals. */
-        for (let transaction of hardWithdrawals)
-            await this.hardWithdraw(transaction);
+        if (hardWithdrawals) {
+            for (let transaction of hardWithdrawals) await this.hardWithdraw(transaction);
+        }
 
         /* Execute hard add signers. */
-        for (let transaction of hardAddSigners)
-            await this.hardAddSigner(transaction);
+        if (hardAddSigners) {
+            for (let transaction of hardAddSigners) await this.hardAddSigner(transaction);
+        }
 
         /* Execute soft withdrawals, remove any that are invalid. */
-        for (let i = 0; i < softTransfers.length; i++) {
-            const transaction = softTransfers[i];
-            const res = await this.softTransfer(transaction);
-            if (!res) {
-                softTransfers.splice(i, 1);
+        if (softTransfers) {
+            for (let i = 0; i < softTransfers.length; i++) {
+                const transaction = softTransfers[i];
+                const res = await this.softTransfer(transaction);
+                if (!res) {
+                    softTransfers.splice(i, 1);
+                }
             }
         }
 
         /* Execute soft withdrawals, remove any that are invalid. */
-        for (let i = 0; i < softWithdrawals.length; i++) {
-            const transaction = softWithdrawals[i];
-            const res = await this.softWithdrawal(transaction);
-            if (!res) {
-                softWithdrawals.splice(i, 1);
+        if (softWithdrawals) {
+            for (let i = 0; i < softWithdrawals.length; i++) {
+                const transaction = softWithdrawals[i];
+                const res = await this.softWithdrawal(transaction);
+                if (!res) {
+                    softWithdrawals.splice(i, 1);
+                }
             }
         }
 
         /* Execute soft withdrawals, remove any that are invalid. */
-        for (let i = 0; i < softChangeSigners.length; i++) {
-            const transaction = softChangeSigners[i];
-            const res = await this.softChangeSigner(transaction);
-            if (!res) {
-                softChangeSigners.splice(i, 1);
+        if (softChangeSigners) {
+            for (let i = 0; i < softChangeSigners.length; i++) {
+                const transaction = softChangeSigners[i];
+                const res = await this.softChangeSigner(transaction);
+                if (!res) {
+                    softChangeSigners.splice(i, 1);
+                }
             }
         }
 
         /* Execute soft creates, remove any that are invalid. */
-        for (let i = 0; i < softCreates.length; i++) {
-            const transaction = softCreates[i];
-            const res = await this.softCreate(transaction);
-            if (!res) {
-                softCreates.splice(i, 1);
+        if (softCreates) {
+            for (let i = 0; i < softCreates.length; i++) {
+                const transaction = softCreates[i];
+                const res = await this.softCreate(transaction);
+                if (!res) {
+                    softCreates.splice(i, 1);
+                }
             }
         }
     }

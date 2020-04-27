@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { State, StateMachine, Account, HardCreate, toHex } from '../../../app';
 import { randomAccount } from '../../utils';
 
-const test = () =>describe("Hard Create", () => {
+const test = () => describe("Hard Create", () => {
   let state, account, initialAccount, initialStateSize;
 
   before(async () => {
@@ -41,7 +41,11 @@ const test = () =>describe("Hard Create", () => {
       value: initialAccount.balance
     });
 
-    await stateMachine.hardCreate(hardCreate);
+    const transactions = {
+      hardCreates: [hardCreate]
+    };
+
+    await stateMachine.execute(transactions);
 
     account = await state.getAccount(initialStateSize);
   });
