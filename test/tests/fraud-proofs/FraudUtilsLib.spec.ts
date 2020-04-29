@@ -12,8 +12,7 @@ export const test = () => describe('FraudUtilsLib', async () => {
   let tester: Tester, web3: any, from: string, accounts: string[], blockchain: Blockchain;
 
   before(async () => {
-    ({ tester, web3, from, accounts } = await Tester.create());
-    blockchain = await tester.newBlockchain();
+    ({ tester, web3, from, accounts, blockchain } = await Tester.create({ blockchain: true }));
   });
 
   async function hardDeposit(account, value) {

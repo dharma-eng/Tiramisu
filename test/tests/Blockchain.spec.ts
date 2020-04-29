@@ -23,7 +23,7 @@ const test = () => describe("Blockchain Tests", () => {
     describe("Hard Transaction Retrieval", async () => {
       after(async () => {
         await blockchain.peg.methods
-          .clearTransactions()
+          .resetChain()
           .send({ from, gas: 5e6 });
       });
 

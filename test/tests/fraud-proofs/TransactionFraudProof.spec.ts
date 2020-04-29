@@ -43,7 +43,6 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     return blockchain.peg.methods.getBlockCount().call().then(x => +x);
   }
 
-
   describe('Hard Transaction Source Error', async () => {
     let previousHeader: Commitment;
     let badBlock: BlockType;
@@ -59,7 +58,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     it('Should prove hard tx index is greater than hard tx length', async () => {
       await hardDeposit(account1, 50);
       const block = await blockchain.processBlock();
-      await blockchain.peg.methods.clearTransactions().send({ from });
+      await blockchain.peg.methods.resetChain().send({ from });
       await blockchain.submitBlock(block);
       expect(await getBlockCount()).to.eql(1);
       const transaction = block.transactions.hardCreates[0];

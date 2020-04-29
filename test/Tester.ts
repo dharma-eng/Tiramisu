@@ -68,7 +68,7 @@ export class Tester {
     const { dai, peg } = this.usingExternalHost
       ? await getContractsFromExternalHost()
       : await deployContracts(this);
-    // await deployContracts(this);
+    if (this.usingExternalHost) await peg.methods.resetChain().send({ from: this.from, gas: 5e6 });
     await dai.methods
       .freeCoins(peg.options.address, 5000)
       .send({ from: this.from, gas: 5e6 });
@@ -86,10 +86,10 @@ export class Tester {
     const { dai, peg } = this.usingExternalHost
       ? await getContractsFromExternalHost()
       : await deployContracts(this);
-    // await deployContracts(this);
+    if (this.usingExternalHost) await peg.methods.resetChain().send({ from: this.from, gas: 6e6 });
     await dai.methods
       .freeCoins(peg.options.address, 5000)
-      .send({ from: this.from, gas: 5e6 });
+      .send({ from: this.from, gas: 6e6 });
     const state = await this.newState();
     return new ProofBlockchain({
       web3: this.web3,

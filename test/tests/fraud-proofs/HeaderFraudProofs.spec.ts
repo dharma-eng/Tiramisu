@@ -8,10 +8,13 @@ import { randomHexBuffer } from '../../utils';
 const { expect } = chai;
 
 export const test = () => describe("Header Fraud Proof Tests", () => {
-  let tester: Tester, from: string, blockchain: Blockchain;
+  let web3: any, tester: Tester, from: string, blockchain: Blockchain;
 
   async function resetBlockchain() {
-    blockchain = await tester.newBlockchain();
+    const { dai, peg } = blockchain;
+    await peg.methods.resetChain().send({ from, gas: 5e6 });
+    const state = await tester.newState();
+    blockchain = new Blockchain({ web3, fromAddress: from, dai, peg, state });
   }
 
   async function hardDeposit(account, value) {
@@ -21,8 +24,7 @@ export const test = () => describe("Header Fraud Proof Tests", () => {
   }
 
   before(async () => {
-    ({ tester, from } = await Tester.create());
-    blockchain = await tester.newBlockchain();
+    ({ blockchain, web3, tester, from } = await Tester.create({ blockchain: true }));
   });
 
   describe('State Size Error', async () => {
