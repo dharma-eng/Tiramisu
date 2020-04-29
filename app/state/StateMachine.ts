@@ -12,7 +12,6 @@ import {
     Transaction
 } from "../types/TransactionInterfaces";
 import {AccountType, Account} from "../types/Account";
-import { toHex } from "../lib/to";
 
 export interface StateMachine {
     state: StateType; 
