@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "../lib/BlockLib.sol";
 import { StateLib as State } from "../lib/StateLib.sol";
+import { AccountLib as Account } from "../lib/AccountLib.sol";
 import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 
 
@@ -54,5 +55,16 @@ library FraudUtilsLib {
       add(add(data, 32), sub(mload(data), 32))
     ) }
     return root;
+  }
+
+  function verifyPreviousAccountState(
+    State.State storage state,
+    Block.BlockHeader memory badHeader,
+    uint256 transactionIndex,
+    bytes memory previousStateProof,
+    bytes memory stateProof
+  ) internal view returns (bool empty, uint256 accountIndex, Account.Account memory account) {
+    bytes32 previousStateRoot = transactionHadPreviousState(state, previousStateProof, badHeader, transactionIndex);
+    (empty, accountIndex, account) = Account.verifyAccountInState(previousStateRoot, stateProof);
   }
 }
