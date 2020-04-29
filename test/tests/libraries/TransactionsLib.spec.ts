@@ -11,8 +11,8 @@ import {
   SoftChangeSigner,
   SoftCreate,
 } from '../../../app/types';
-import { toBuf, toHex } from '../../../app/lib';
-import { randomAccount, randomInt, randomHexBuffer } from '../../utils/random';
+import { toHex } from '../../../app/lib';
+import { randomAccount, randomHexBuffer } from '../../utils/random';
 
 const { expect } = chai;
 
@@ -102,6 +102,6 @@ export const test = () => describe('TransactionsLib', () => {
       expect(txRoot).to.eql(`0x${block.header.transactionsRoot.toString('hex')}`)
     })
   })
-})
+});
 
-if (process.env.NODE_ENV != "coverage") test();
+if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();
