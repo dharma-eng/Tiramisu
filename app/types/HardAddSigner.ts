@@ -1,6 +1,6 @@
 import {HardAddSignerTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
-const { toBuf, toHex, toInt } = require("../lib/to");
+import { toBuf, toHex, toInt } from "../lib/to";
 
 interface HardAddSignerArguments {
     accountIndex: number;
@@ -9,16 +9,13 @@ interface HardAddSignerArguments {
     signingAddress: string;
 }
 
-export class HardAddSigner implements HardAddSignerTransaction{
+export class HardAddSigner implements HardAddSignerTransaction {
+    prefix: 3;
     accountIndex: number;
     hardTransactionIndex: number;
     callerAddress: string;
     signingAddress: string;
     intermediateStateRoot: string;
-
-    get prefix(): number {
-        return 3;
-    }
 
     get bytesWithoutPrefix(): number {
         return 61;
@@ -35,6 +32,7 @@ export class HardAddSigner implements HardAddSignerTransaction{
         this.hardTransactionIndex = toInt(hardTransactionIndex);
         this.callerAddress = toHex(callerAddress);
         this.signingAddress = toHex(signingAddress);
+        this.prefix = 3;
     }
 
     addOutput(intermediateStateRoot: string): void{
