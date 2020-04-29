@@ -256,4 +256,4 @@ const test = () => describe("Hard Add Signer", () => {
 });
 
 export default test;
-if (process.env.NODE_ENV != "all") test();
+if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();

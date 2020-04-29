@@ -74,4 +74,4 @@ const test = () =>describe("Hard Deposit", () => {
 });
 
 export default test;
-if (process.env.NODE_ENV != "all") test();
+if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();
