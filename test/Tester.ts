@@ -1,5 +1,5 @@
 import { Account, State, Blockchain, StateMachine } from '../app';
-import { ProofBlockchain } from './utils/proofEngine';
+import { ProofBlockchain } from './utils/ProofBlockchain';
 const { getWeb3, randomAccount } = require("./utils");
 const {
   getContractFromExternalHost,
