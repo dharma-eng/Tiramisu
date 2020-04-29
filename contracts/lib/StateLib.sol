@@ -20,7 +20,7 @@ library StateLib {
   }
 
   /* State Query Functions */
-  function _blockIsPending(
+  function blockIsPending(
     State storage state, uint32 blockNumber, bytes32 blockHash
   ) internal view returns (bool) {
     bool validHash = state.blockHashes[blockNumber] == blockHash;
@@ -28,7 +28,7 @@ library StateLib {
     return blockNumber >= state.confirmedBlocks;
   }
 
-  function _blockIsConfirmed(
+  function blockIsConfirmed(
     State storage state, uint32 blockNumber, bytes32 blockHash
   ) internal view returns (bool) {
     bool validHash = state.blockHashes[blockNumber] == blockHash;
@@ -36,7 +36,7 @@ library StateLib {
     return blockNumber < state.confirmedBlocks;
   }
 
-  function _blockIsPendingAndHasParent(
+  function blockIsPendingAndHasParent(
     State storage state,
     Block.BlockHeader memory header,
     Block.BlockHeader memory previousHeader
@@ -45,10 +45,10 @@ library StateLib {
       header.blockNumber == previousHeader.blockNumber + 1,
       "Invalid block header."
     );
-    bytes32 _hash = header._blockHash();
-    bytes32 _prevHash = previousHeader._blockHash();
+    bytes32 _hash = header.blockHash();
+    bytes32 _prevHash = previousHeader.blockHash();
     require(
-      _blockIsPending(state, header.blockNumber, _hash) &&
+      blockIsPending(state, header.blockNumber, _hash) &&
       state.blockHashes[previousHeader.blockNumber] == _prevHash,
       "Blocks do not match."
     );
@@ -63,7 +63,7 @@ library StateLib {
    * This function does not execute any reward logic.
    * @param header Header of the block to revert
    */
-  function _revertBlock(
+  function revertBlock(
     State storage state, Block.BlockHeader memory header
   ) internal {
     /* Works backwards through the block hash array, deleting descendands */

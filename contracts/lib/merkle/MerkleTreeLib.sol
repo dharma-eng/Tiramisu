@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 
 library MerkleTreeLib {
-  function _getMerkleRoot(
+  function getMerkleRoot(
     bytes[] memory leaves
   ) internal pure returns (bytes32 root) {
     if (leaves.length == 0) return bytes32(0);

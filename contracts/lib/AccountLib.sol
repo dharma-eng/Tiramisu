@@ -18,11 +18,11 @@ library AccountLib {
     bytes32[] siblings;
   }
 
-  function _verifyAccountInState(
+  function verifyAccountInState(
     bytes32 stateRoot,
     StateProof memory proof
   ) internal pure returns (bool valid, bool empty, Account memory account) {
-    valid = Merkle._verify(
+    valid = Merkle.verify(
       stateRoot,
       proof.data,
       // (account.contractAddress == address(0)) ? bytes("") : encode(proof.data),
@@ -34,11 +34,11 @@ library AccountLib {
       address[] memory signers = new address[](0);
       account = Account(address(0), 0, 0, signers);
     } else {
-      account = _decode(proof.data);
+      account = decode(proof.data);
     }
   }
 
-  function _hasSigner(
+  function hasSigner(
     Account memory account, address signer
   ) internal pure returns (bool) {
     for (uint256 i = 0; i < account.signers.length; i++) {
@@ -50,7 +50,7 @@ library AccountLib {
     return false;
   }
 
-  function _encode(
+  function encode(
     Account memory account
   ) internal pure returns (bytes memory ret) {
     uint256 len = account.signers.length;
@@ -69,7 +69,7 @@ library AccountLib {
     }
   }
 
-  function _decode(
+  function decode(
     bytes memory data
   ) internal pure returns (Account memory account) {
     uint256 remainder = (data.length - 30);

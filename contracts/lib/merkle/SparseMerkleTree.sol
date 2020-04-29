@@ -22,7 +22,7 @@ contract RollupMerkleUtils {
   function getMerkleRoot(bytes[] calldata dataBlocks) external view returns (bytes32) {
     uint256 nextLevelLength = dataBlocks.length;
     uint256 currentLevel = 0;
-    bytes32[160] memory defaultHashes = _getDefaultHashes();
+    bytes32[160] memory defaultHashes = getDefaultHashes();
 
     // Note: Add one in case we have an odd number of leaves
     bytes32[] memory nodes = new bytes32[](nextLevelLength + 1);
@@ -62,7 +62,7 @@ contract RollupMerkleUtils {
     return nodes[0];
   }
 
-  function _getDefaultHashes() internal view returns (
+  function getDefaultHashes() internal view returns (
     bytes32[160] memory defaultHashes
   ) {
     assembly {
@@ -75,7 +75,7 @@ contract RollupMerkleUtils {
     }
   }
 
-  function _getDefaultHash(
+  function getDefaultHash(
     uint256 index
   ) internal view returns (bytes32 defaultHash) {
     bytes memory defaultHashMemory = new bytes(32);

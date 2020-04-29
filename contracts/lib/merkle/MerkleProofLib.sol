@@ -20,7 +20,7 @@ library MerkleProofLib {
    * @return valid Boolean stating whether the proof was valid.
    * @return updatedRoot Merkle root with oldLeaf set to newLeaf.
    */
-  function _verifyAndUpdate(
+  function verifyAndUpdate(
     bytes32 root,
     bytes memory oldLeaf,
     bytes memory newLeaf,
@@ -33,13 +33,13 @@ library MerkleProofLib {
     bytes32 computedNode = keccak256(oldLeaf);
     for (uint256 i = 0; i < siblings.length; i++) {
       bytes32 sibling = siblings[i];
-      uint8 isComputedRightSibling = _getNthBitFromRight(path, i);
+      uint8 isComputedRightSibling = getNthBitFromRight(path, i);
       if (isComputedRightSibling == 0) {
-        computedNode = _getParent(computedNode, sibling);
-        updatedRoot = _getParent(updatedRoot, sibling);
+        computedNode = getParent(computedNode, sibling);
+        updatedRoot = getParent(updatedRoot, sibling);
       } else {
-        computedNode = _getParent(sibling, computedNode);
-        updatedRoot = _getParent(sibling, updatedRoot);
+        computedNode = getParent(sibling, computedNode);
+        updatedRoot = getParent(sibling, updatedRoot);
       }
     }
     // Check if the computed node (root) is equal to the provided root
@@ -55,7 +55,7 @@ library MerkleProofLib {
    * @param siblings The sibling nodes along the way.
    * @return Boolean stating whether the proof was valid.
    */
-  function _verify(
+  function verify(
     bytes32 root, bytes memory leaf, uint256 path, bytes32[] memory siblings
   ) internal pure returns (bool) {
     if (leaf.length == 32) return false;
@@ -63,21 +63,21 @@ library MerkleProofLib {
     bytes32 computedNode = keccak256(leaf);
     for (uint256 i = 0; i < siblings.length; i++) {
       bytes32 sibling = siblings[i];
-      uint8 isComputedRightSibling = _getNthBitFromRight(path, i);
+      uint8 isComputedRightSibling = getNthBitFromRight(path, i);
       if (isComputedRightSibling == 0) {
-        computedNode = _getParent(computedNode, sibling);
+        computedNode = getParent(computedNode, sibling);
       } else {
-        computedNode = _getParent(sibling, computedNode);
+        computedNode = getParent(sibling, computedNode);
       }
     }
     // Check if the computed node (root) is equal to the provided root
     return computedNode == root;
   }
 
-  function _verify(
+  function verify(
     bytes memory leaf, MerkleProof memory proof
   ) internal pure returns (bool) {
-    return _verify(proof.root, leaf, proof.index, proof.siblings);
+    return verify(proof.root, leaf, proof.index, proof.siblings);
   }
 
   /**
@@ -86,7 +86,7 @@ library MerkleProofLib {
    * @param right The right child
    * @return The parent node
    */
-  function _getParent(bytes32 left, bytes32 right) internal pure returns (bytes32) {
+  function getParent(bytes32 left, bytes32 right) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(left, right));
   }
 
@@ -97,7 +97,7 @@ library MerkleProofLib {
    * @param index The index of the bit we want to extract
    * @return The bit (1 or 0) in a uint8
    */
-  function _getNthBitFromRight(uint256 intVal, uint256 index) internal pure returns (uint8) {
+  function getNthBitFromRight(uint256 intVal, uint256 index) internal pure returns (uint8) {
     return uint8(intVal >> index & 1);
   }
 }

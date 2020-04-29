@@ -15,16 +15,16 @@ library FraudUtilsLib {
     bytes32[] siblings;
   }
 
-  function _transactionHadPreviousState(
+  function transactionHadPreviousState(
     State.State storage state,
     bytes memory previousSource,
     Block.BlockHeader memory blockHeader,
     uint256 transactionIndex
   ) internal view returns (bytes32) {
     if (transactionIndex == 0) {
-      Block.BlockHeader memory previousHeader = Block._decodeBlockHeader(previousSource);
+      Block.BlockHeader memory previousHeader = Block.decodeBlockHeader(previousSource);
       require(
-        state.blockHashes[previousHeader.blockNumber] == Block._blockHash(previousHeader),
+        state.blockHashes[previousHeader.blockNumber] == Block.blockHash(previousHeader),
         "Header not in array."
       );
       require(
@@ -39,7 +39,7 @@ library FraudUtilsLib {
     );
 
     require(
-      Merkle._verify(
+      Merkle.verify(
         blockHeader.transactionsRoot,
         proof.transactionData,
         transactionIndex - 1,

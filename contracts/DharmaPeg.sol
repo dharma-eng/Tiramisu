@@ -67,7 +67,7 @@ contract DharmaPeg is Owned, StateManager {
       accountIndex, msg.sender, signingAddress
     );
 
-    _state.hardTransactions.push(hardTx._encode());
+    _state.hardTransactions.push(hardTx.encode());
 
     emit NewHardTransaction(_state.hardTransactions.length);
   }
@@ -77,7 +77,7 @@ contract DharmaPeg is Owned, StateManager {
       accountIndex, msg.sender, value
     );
 
-    _state.hardTransactions.push(hardTx._encode());
+    _state.hardTransactions.push(hardTx.encode());
 
     emit NewHardTransaction(_state.hardTransactions.length);
   }
@@ -133,23 +133,23 @@ contract DharmaPeg is Owned, StateManager {
     address receiver;
     /* Ensure transaction is the correct type and get withdrawal parameters. */
     if (txPrefix == 0x02) {
-      TX.HardWithdrawal memory withdrawal = TX._decodeHardWithdrawal(transaction);
+      TX.HardWithdrawal memory withdrawal = TX.decodeHardWithdrawal(transaction);
       value = withdrawal.value;
       receiver = withdrawal.withdrawalAddress;
     } else if (txPrefix == 0x04) {
-      TX.SoftWithdrawal memory withdrawal = TX._decodeSoftWithdrawal(transaction);
+      TX.SoftWithdrawal memory withdrawal = TX.decodeSoftWithdrawal(transaction);
       value = withdrawal.value;
       receiver = withdrawal.withdrawalAddress;
     } else revert("Transaction not of a withdrawal type.");
     /* Verify that the block is confirmed. */
-    bytes32 blockHash = Block._blockHash(header);
+    bytes32 blockHash = Block.blockHash(header);
     require(
-      _state._blockIsConfirmed(header.blockNumber, blockHash),
+      _state.blockIsConfirmed(header.blockNumber, blockHash),
       "Block is not confirmed."
     );
 
     /* Verify transaction's inclusion proof and replace it with a null leaf. */
-    (bool included, bytes32 newRoot) = Merkle._verifyAndUpdate(
+    (bool included, bytes32 newRoot) = Merkle.verifyAndUpdate(
       header.transactionsRoot,
       transaction,
       bytes(""),
@@ -160,7 +160,7 @@ contract DharmaPeg is Owned, StateManager {
     /* Update header with new transactions root. */
     header.transactionsRoot = newRoot;
     /* Update block hash with new header. */
-    _state.blockHashes[header.blockNumber] = Block._blockHash(header);
+    _state.blockHashes[header.blockNumber] = Block.blockHash(header);
     /* Transfer DAI to the recipient. */
     /* TODO - Add decimal conversion */
     daiContract.transfer(receiver, value);
@@ -168,16 +168,6 @@ contract DharmaPeg is Owned, StateManager {
 
   function submitBlock(Block.BlockInput memory input) public onlyOwner {
     _putPendingBlock(input);
-  }
-
-  function proveStateSizeError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    HeaderFraud._proveStateSizeError(
-      _state, previousHeader, badHeader, transactionsData
-    );
   }
 
   function _deposit(
@@ -189,6 +179,6 @@ contract DharmaPeg is Owned, StateManager {
       contractAddress, signerAddress, value
     );
     emit NewHardTransaction(_state.hardTransactions.length);
-    _state.hardTransactions.push(hardDeposit._encode());
+    _state.hardTransactions.push(hardDeposit.encode());
   }
 }
