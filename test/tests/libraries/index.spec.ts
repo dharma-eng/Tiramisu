@@ -7,4 +7,4 @@ const test = () => describe('Library Tests', () => {
 });
 
 export default test;
-if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();
+if (process.env.NODE_ENV == 'all') test();
