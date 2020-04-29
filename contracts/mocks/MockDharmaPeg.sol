@@ -26,19 +26,10 @@ contract MockDharmaPeg is DharmaPeg {
     _deposit(contractAddress, initialSignerAddress, value);
   }
 
-  function clearTransactions() external {
-    uint256 len = _state.hardTransactions.length;
-    for (uint256 i = 0; i < len; i++) {
-      delete _state.hardTransactions[i];
-    }
-
-    bytes[] storage hardTransactions = _state.hardTransactions;
-    assembly {
-      sstore(
-        hardTransactions_slot,
-        0
-      )
-    }
+  function resetChain() external {
+    delete _state.hardTransactions;
+    delete _state.blockHashes;
+    delete _state.confirmedBlocks;
   }
 
   /* Fraud Proofs */
@@ -47,7 +38,7 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory blockHeader,
     uint256 transactionIndex
   ) public view returns(bytes32) {
-    return FraudUtils.transactionHadPreviousState(state, previousSource, blockHeader, transactionIndex);
+    return FraudUtils.transactionHadPreviousState(_state, previousSource, blockHeader, transactionIndex);
   }
 
   function proveStateSizeError(
@@ -55,14 +46,14 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveStateSizeError(state, previousHeader, badHeader, transactionsData);
+    HeaderFraud.proveStateSizeError(_state, previousHeader, badHeader, transactionsData);
   }
 
   function proveTransactionsRootError(
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveTransactionsRootError(state, badHeader, transactionsData);
+    HeaderFraud.proveTransactionsRootError(_state, badHeader, transactionsData);
   }
 
   function proveHardTransactionRangeError(
@@ -70,7 +61,7 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveHardTransactionRangeError(state, previousHeader, badHeader, transactionsData);
+    HeaderFraud.proveHardTransactionRangeError(_state, previousHeader, badHeader, transactionsData);
   }
 
   function proveHardTransactionSourceError(
@@ -82,7 +73,7 @@ contract MockDharmaPeg is DharmaPeg {
     bytes memory stateProof
   ) public {
     TransactionFraud.proveHardTransactionSourceError(
-      state,
+      _state,
       badHeader,
       transaction,
       transactionIndex,
