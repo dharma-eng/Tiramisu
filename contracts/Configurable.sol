@@ -52,10 +52,10 @@ contract Configurable {
   IERC20 public daiContract;
 
   /**
-   * @dev pendingChanges
-   * @notice A mapping which has the value `true` for a pending change which has been recorded.
+   * @dev _pendingChanges
+   * @notice An internal mapping which has the value `true` for a pending change which has been recorded.
    */
-  mapping(bytes32 => bool) internal pendingChanges;
+  mapping(bytes32 => bool) internal _pendingChanges;
 
   /* <-- Data Structures --> */
   /**
@@ -81,16 +81,16 @@ contract Configurable {
     uint256 readyAfter;
   }
 
-  function queueChange(ConfigField field, uint256 value) internal {
+  function _queueChange(ConfigField field, uint256 value) internal {
     PendingModification memory pending = PendingModification(field, value, block.number + changeDelay);
     bytes32 changeHash = keccak256(abi.encode(pending));
-    require(!pendingChanges[changeHash], "Change already queued.");
-    pendingChanges[changeHash] = true;
+    require(!_pendingChanges[changeHash], "Change already queued.");
+    _pendingChanges[changeHash] = true;
   }
 
-  function executeChange(PendingModification memory pending) internal {
+  function _executeChange(PendingModification memory pending) internal {
     bytes32 changeHash = keccak256(abi.encode(pending));
-    require(pendingChanges[changeHash], "Change not queued.");
+    require(_pendingChanges[changeHash], "Change not queued.");
     require(pending.readyAfter < block.number, "Change not ready.");
     if (pending.field == ConfigField.CHALLENGE_PERIOD) challengePeriod = pending.value;
     else if (pending.field == ConfigField.COMMITMENT_BOND) commitmentBond = pending.value;
@@ -105,6 +105,6 @@ contract Configurable {
       assembly { handler := mload(add(pending, 0x20)) }
       daiContract = IERC20(handler);
     }
-    pendingChanges[changeHash] = false;
+    _pendingChanges[changeHash] = false;
   }
 }

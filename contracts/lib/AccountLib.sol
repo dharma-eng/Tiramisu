@@ -18,11 +18,11 @@ library AccountLib {
     bytes32[] siblings;
   }
 
-  function verifyAccountInState(
+  function _verifyAccountInState(
     bytes32 stateRoot,
     StateProof memory proof
   ) internal pure returns (bool valid, bool empty, Account memory account) {
-    valid = Merkle.verify(
+    valid = Merkle._verify(
       stateRoot,
       proof.data,
       // (account.contractAddress == address(0)) ? bytes("") : encode(proof.data),
@@ -34,16 +34,25 @@ library AccountLib {
       address[] memory signers = new address[](0);
       account = Account(address(0), 0, 0, signers);
     } else {
-      account = decode(proof.data);
+      account = _decode(proof.data);
     }
   }
 
-  function hasSigner(Account memory account, address signer) internal pure returns (bool) {
-    for (uint256 i = 0; i < account.signers.length; i++) if (account.signers[i] == signer) return true;
+  function _hasSigner(
+    Account memory account, address signer
+  ) internal pure returns (bool) {
+    for (uint256 i = 0; i < account.signers.length; i++) {
+      if (account.signers[i] == signer) {
+        return true;
+      }
+    }
+
     return false;
   }
 
-  function encode(Account memory account) internal pure returns(bytes memory ret) {
+  function _encode(
+    Account memory account
+  ) internal pure returns (bytes memory ret) {
     uint256 len = account.signers.length;
     ret = new bytes(30 + len * 20);
     assembly {
@@ -60,7 +69,9 @@ library AccountLib {
     }
   }
 
-  function decode(bytes memory data) internal pure returns(Account memory account) {
+  function _decode(
+    bytes memory data
+  ) internal pure returns (Account memory account) {
     uint256 remainder = (data.length - 30);
     if (remainder % 20 != 0) revert("Invalid account encoding.");
     uint256 signerCount = remainder / 20;

@@ -20,28 +20,35 @@ library StateLib {
   }
 
   /* State Query Functions */
-  function blockIsPending(State storage state, uint32 blockNumber, bytes32 blockHash) internal view returns (bool) {
+  function _blockIsPending(
+    State storage state, uint32 blockNumber, bytes32 blockHash
+  ) internal view returns (bool) {
     bool validHash = state.blockHashes[blockNumber] == blockHash;
     if (!validHash) return false;
     return blockNumber >= state.confirmedBlocks;
   }
 
-  function blockIsConfirmed(State storage state, uint32 blockNumber, bytes32 blockHash) internal view returns (bool) {
+  function _blockIsConfirmed(
+    State storage state, uint32 blockNumber, bytes32 blockHash
+  ) internal view returns (bool) {
     bool validHash = state.blockHashes[blockNumber] == blockHash;
     if (!validHash) return false;
     return blockNumber < state.confirmedBlocks;
   }
 
-  function blockIsPendingAndHasParent(
+  function _blockIsPendingAndHasParent(
     State storage state,
     Block.BlockHeader memory header,
     Block.BlockHeader memory previousHeader
   ) internal view {
-    require(header.blockNumber == previousHeader.blockNumber + 1, "Invalid block header.");
-    bytes32 _hash = header.blockHash();
-    bytes32 _prevHash = previousHeader.blockHash();
     require(
-      blockIsPending(state, header.blockNumber, _hash) &&
+      header.blockNumber == previousHeader.blockNumber + 1,
+      "Invalid block header."
+    );
+    bytes32 _hash = header._blockHash();
+    bytes32 _prevHash = previousHeader._blockHash();
+    require(
+      _blockIsPending(state, header.blockNumber, _hash) &&
       state.blockHashes[previousHeader.blockNumber] == _prevHash,
       "Blocks do not match."
     );
@@ -56,7 +63,9 @@ library StateLib {
    * This function does not execute any reward logic.
    * @param header Header of the block to revert
    */
-  function revertBlock(State storage state, Block.BlockHeader memory header) internal {
+  function _revertBlock(
+    State storage state, Block.BlockHeader memory header
+  ) internal {
     /* Works backwards through the block hash array, deleting descendands */
     bytes32[] storage blockHashes = state.blockHashes;
     uint256 len = blockHashes.length;
