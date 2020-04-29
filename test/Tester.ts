@@ -1,4 +1,5 @@
 import { Account, State, Blockchain, StateMachine } from '../app';
+import { ProofBlockchain } from './utils/proofEngine';
 const { getWeb3, randomAccount } = require("./utils");
 const {
   getContractFromExternalHost,
@@ -81,6 +82,24 @@ export class Tester {
     });
   }
 
+  async newProofBlockchain() {
+    const { dai, peg } = this.usingExternalHost
+      ? await getContractsFromExternalHost()
+      : await deployContracts(this);
+    // await deployContracts(this);
+    await dai.methods
+      .freeCoins(peg.options.address, 5000)
+      .send({ from: this.from, gas: 5e6 });
+    const state = await this.newState();
+    return new ProofBlockchain({
+      web3: this.web3,
+      fromAddress: this.from,
+      dai,
+      peg,
+      state
+    });
+  }
+
   static async create(opts = {}) {
     let { state, blockchain, web3, stateMachine }: any = {
       ...defaultOptions,
@@ -99,7 +118,7 @@ export class Tester {
 
     if (state) state = await tester.newState();
     if (stateMachine) stateMachine = await tester.newStateMachine();
-    if (blockchain) blockchain = await tester.newBlockchain();
+    if (blockchain) blockchain = await tester.newProofBlockchain();
     return {
       blockchain,
       state,
