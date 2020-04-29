@@ -10,7 +10,7 @@ contract StateManager is Configurable {
   using Block for Block.BlockHeader;
   using State for State.State;
 
-  State.State public state;
+  State.State internal _state;
 
   /* <-- Events --> */
   event BlockSubmitted(uint32 blockNumber, bytes32 blockHash);
@@ -25,11 +25,13 @@ contract StateManager is Configurable {
    * @param input Block input data, including a header and transactions buffer.
    */
   function _putPendingBlock(Block.BlockInput memory input) internal {
-    Block.BlockHeader memory header = Block.toCommitment(input);
-    require(header.blockNumber == state.blockHashes.length, "Invalid block number.");
+    Block.BlockHeader memory header = Block._toCommitment(input);
+    require(
+      header.blockNumber == _state.blockHashes.length, "Invalid block number."
+    );
     require(header.version == version, "Version mismatch.");
-    bytes32 blockHash = Block.blockHash(header);
-    state.blockHashes.push(blockHash);
+    bytes32 blockHash = Block._blockHash(header);
+    _state.blockHashes.push(blockHash);
     emit BlockSubmitted(header.blockNumber, blockHash);
   }
 
@@ -43,9 +45,21 @@ contract StateManager is Configurable {
    * @param header Block header to confirm.
    */
   function _confirmBlock(Block.BlockHeader memory header) internal {
-    require(state.blockIsPending(header.blockNumber, Block.blockHash(header)), "Only pending blocks can be confirmed.");
-    require(header.submittedAt + challengePeriod <= block.number, "Challenge period still in progress.");
-    require(header.blockNumber == state.confirmedBlocks, "Blocks must be confirmed in order.");
-    state.confirmedBlocks += 1;
+    require(
+      _state._blockIsPending(header.blockNumber, Block._blockHash(header)),
+      "Only pending blocks can be confirmed."
+    );
+
+    require(
+      header.submittedAt + challengePeriod <= block.number,
+      "Challenge period still in progress."
+    );
+
+    require(
+      header.blockNumber == _state.confirmedBlocks,
+      "Blocks must be confirmed in order."
+    );
+
+    _state.confirmedBlocks += 1;
   }
 }

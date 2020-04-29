@@ -37,12 +37,15 @@ library BlockLib {
 
   /* <-- Utility Functions --> */
   /**
-    * @dev toCommitment
-    * @notice This function takes a submitted block input and converts it to a committed block.
-    * The transaction bytes are hashed and the hash is placed in the committed header.
+    * @dev _toCommitment
+    * @notice This function takes a submitted block input and converts it to a
+    * committed block. The transaction bytes are hashed and the hash is placed
+    * in the committed header.
     * @param blockInput - Block input data submitted with a block submission.
     */
-  function toCommitment(BlockInput memory blockInput) internal view returns (BlockHeader memory) {
+  function _toCommitment(
+    BlockInput memory blockInput
+  ) internal view returns (BlockHeader memory) {
     return BlockHeader(
       blockInput.header.version,
       blockInput.header.blockNumber,
@@ -55,16 +58,21 @@ library BlockLib {
     );
   }
 
-  function decodeBlockHeader(bytes memory data) internal pure returns (BlockHeader memory) {
+  function _decodeBlockHeader(
+    bytes memory data
+  ) internal pure returns (BlockHeader memory) {
     return abi.decode((data), (BlockHeader));
   }
 
-  function blockHash(BlockHeader memory header) internal pure returns (bytes32) {
+  function _blockHash(
+    BlockHeader memory header
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encode(header));
   }
 
-  function hasTransactionsData(BlockHeader memory header, bytes memory txData)
-  internal pure returns (bool) {
+  function _hasTransactionsData(
+    BlockHeader memory header, bytes memory txData
+  ) internal pure returns (bool) {
     return header.transactionsHash == keccak256(txData);
   }
 }
