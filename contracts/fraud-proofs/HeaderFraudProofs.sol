@@ -6,6 +6,7 @@ import { TransactionsLib as Tx } from "../lib/TransactionsLib.sol";
 import { MerkleTreeLib as Merkle } from "../lib/merkle/MerkleTreeLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
+
 library HeaderFraudProofs {
   using Block for bytes;
   using Block for Block.BlockHeader;

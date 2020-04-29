@@ -10,8 +10,11 @@ import { HeaderFraudProofs as HeaderFraud } from "./fraud-proofs/HeaderFraudProo
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 
+
 contract DharmaPeg is Owned, StateManager {
   using HardTx for *;
+
+  event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
 
   constructor(
     uint256 _challengePeriod,
@@ -27,33 +30,6 @@ contract DharmaPeg is Owned, StateManager {
     changeDelay = _changeDelay;
     addressHandler = _addressHandler;
     daiContract = _daiContract;
-  }
-
-  function proveStateSizeError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    HeaderFraud.proveStateSizeError(state, previousHeader, badHeader, transactionsData);
-  }
-
-  function getHardTransactionsFrom(uint256 start, uint256 max)
-  external view returns (bytes[] memory _hardTransactions) {
-    uint256 len = state.hardTransactions.length;
-    uint256 stopAt = start+max;
-    if (stopAt > len) stopAt = len;
-    len = stopAt - start;
-    _hardTransactions = new bytes[](len);
-    for (uint256 i = 0; i < len; i++) _hardTransactions[i] = state.hardTransactions[i + start];
-  }
-
-  event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
-
-  function _deposit(address contractAddress, address signerAddress, uint56 value) internal {
-    /* TODO - replace storage of full data with storage of a hash, and emit the data in the event */
-    HardTx.HardDeposit memory deposit = HardTx.HardDeposit(contractAddress, signerAddress, value);
-    emit NewHardTransaction(state.hardTransactions.length);
-    state.hardTransactions.push(deposit.encode());
   }
 
   function deposit(uint56 value) external {
@@ -85,7 +61,33 @@ contract DharmaPeg is Owned, StateManager {
     emit NewHardTransaction(state.hardTransactions.length);
     state.hardTransactions.push(hardTx.encode());
   }
-  
+
+  function confirmBlock(Block.BlockHeader calldata header) external {
+    _confirmBlock(header);
+  }
+
+  function getHardTransactionsFrom(uint256 start, uint256 max)
+  external view returns (bytes[] memory _hardTransactions) {
+    uint256 len = state.hardTransactions.length;
+    uint256 stopAt = start+max;
+    if (stopAt > len) stopAt = len;
+    len = stopAt - start;
+    _hardTransactions = new bytes[](len);
+    for (uint256 i = 0; i < len; i++) _hardTransactions[i] = state.hardTransactions[i + start];
+  }
+
+  function getBlockHash(uint256 height) external view returns (bytes32) {
+    return state.blockHashes[height];
+  }
+
+  function getBlockCount() external view returns (uint256) {
+    return state.blockHashes.length;
+  }
+
+  function getConfirmedBlockCount() external view returns (uint256) {
+    return state.confirmedBlocks;
+  }
+
   /**
    * @dev executeWithdrawal
    * @notice Executes a withdrawal which exists in a confirmed block and replaces the leaf with a null value.
@@ -138,19 +140,18 @@ contract DharmaPeg is Owned, StateManager {
     _putPendingBlock(input);
   }
 
-  function confirmBlock(Block.BlockHeader calldata header) external {
-    _confirmBlock(header);
+  function proveStateSizeError(
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) public {
+    HeaderFraud.proveStateSizeError(state, previousHeader, badHeader, transactionsData);
   }
 
-  function getBlockHash(uint256 height) external view returns (bytes32) {
-    return state.blockHashes[height];
-  }
-
-  function getBlockCount() external view returns (uint256) {
-    return state.blockHashes.length;
-  }
-
-  function getConfirmedBlockCount() external view returns (uint256) {
-    return state.confirmedBlocks;
+  function _deposit(address contractAddress, address signerAddress, uint56 value) internal {
+    /* TODO - replace storage of full data with storage of a hash, and emit the data in the event */
+    HardTx.HardDeposit memory deposit = HardTx.HardDeposit(contractAddress, signerAddress, value);
+    emit NewHardTransaction(state.hardTransactions.length);
+    state.hardTransactions.push(deposit.encode());
   }
 }

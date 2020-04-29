@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+
 library BlockLib {
   /* <-- Data Structures --> */
 
@@ -37,7 +38,7 @@ library BlockLib {
   /* <-- Utility Functions --> */
   /**
     * @dev toCommitment
-    * @notice This function takes a submitted block input and converts it to a committed block. 
+    * @notice This function takes a submitted block input and converts it to a committed block.
     * The transaction bytes are hashed and the hash is placed in the committed header.
     * @param blockInput - Block input data submitted with a block submission.
     */

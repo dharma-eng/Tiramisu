@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 import { IDharmaAddressGetter as DharmaAddressHandler } from "./interfaces/IDharmaAddressGetter.sol";
 import "./interfaces/IERC20.sol";
 
+
 contract Configurable {
   /* <-- Storage --> */
   /**
@@ -13,7 +14,7 @@ contract Configurable {
    */
   uint256 public daiDecimals = 0;
 
-  /** 
+  /**
     * @dev challengePeriod
     * @notice Number of blocks which must pass after a block is submitted before it can be confirmed.
     */
@@ -34,7 +35,7 @@ contract Configurable {
 
   /**
    * @dev changeDelay
-   * @notice Number of blocks which must pass between each modification 
+   * @notice Number of blocks which must pass between each modification
    */
   uint256 public changeDelay;
 
@@ -49,7 +50,7 @@ contract Configurable {
    * @notice Dharma Dai contract.
    */
   IERC20 public daiContract;
-  
+
   /**
    * @dev pendingChanges
    * @notice A mapping which has the value `true` for a pending change which has been recorded.

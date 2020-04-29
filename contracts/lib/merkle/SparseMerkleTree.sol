@@ -1,6 +1,8 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
+
 import "./DefaultHashes.sol";
+
 
 /*
  * Merkle Tree Utilities for Rollup
@@ -10,23 +12,6 @@ contract RollupMerkleUtils {
 
   constructor() public {
     defaultHashStorage = address(new DefaultHashes());
-  }
-
-  function getDefaultHashes()
-  internal view returns(bytes32[160] memory defaultHashes) {
-    assembly {
-      extcodecopy(sload(defaultHashStorage_slot), add(defaultHashes, 0x20), 0, mul(160, 0x20))
-    }
-  }
-
-  function getDefaultHash(uint256 index)
-  internal view returns(bytes32 defaultHash) {
-    bytes memory _defaultHash = new bytes(32);
-    assembly {
-      let ptr := add(_defaultHash, 0x20)
-      extcodecopy(sload(defaultHashStorage_slot), ptr, mul(index, 0x20), 0x20)
-      defaultHash := mload(ptr)
-    }
   }
 
   /**
@@ -69,6 +54,23 @@ contract RollupMerkleUtils {
 
     // Alright! We should be left with a single node! Return it...
     return nodes[0];
+  }
+
+  function getDefaultHashes()
+  internal view returns(bytes32[160] memory defaultHashes) {
+    assembly {
+      extcodecopy(sload(defaultHashStorage_slot), add(defaultHashes, 0x20), 0, mul(160, 0x20))
+    }
+  }
+
+  function getDefaultHash(uint256 index)
+  internal view returns(bytes32 defaultHash) {
+    bytes memory _defaultHash = new bytes(32);
+    assembly {
+      let ptr := add(_defaultHash, 0x20)
+      extcodecopy(sload(defaultHashStorage_slot), ptr, mul(index, 0x20), 0x20)
+      defaultHash := mload(ptr)
+    }
   }
 
   /**

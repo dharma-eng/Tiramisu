@@ -2,6 +2,7 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 import { MerkleTreeLib as Merkle } from "./merkle/MerkleTreeLib.sol";
 
+
 library TransactionsLib {
   enum TransactionType {
     HARD_CREATE,
@@ -148,11 +149,11 @@ library TransactionsLib {
     assembly {
       /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
       let bodyPtr := add(_tx, 0x21)
-      
+
       nonce := shr(232, mload(bodyPtr))
       accountIndex := shr(224, mload(add(bodyPtr, 3)))
       withdrawalAddress := shr(96, mload(add(bodyPtr, 7)))
-      value := shr(200, mload(add(bodyPtr, 27)))      
+      value := shr(200, mload(add(bodyPtr, 27)))
       sigV := shr(248, mload(add(bodyPtr, 34)))
       sigR := mload(add(bodyPtr, 35))
       sigS := mload(add(bodyPtr, 67))
@@ -161,7 +162,7 @@ library TransactionsLib {
 
     return SoftWithdrawal(nonce, accountIndex, withdrawalAddress, value, sigV, sigR, sigS, intermediateStateRoot);
   }
-  
+
   struct SoftCreate {
     uint24 nonce;
     uint32 fromIndex;
@@ -333,7 +334,7 @@ library TransactionsLib {
       }
     }
   }
-  
+
   /**
    * @dev transactionPrefix
    * Returns the transaction prefix from an encoded transaction by reading the first byte.
