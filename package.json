@@ -32,6 +32,8 @@
     "test:blockchain": "npm run mocha:ts -- ./test/tests/Blockchain.spec.ts",
     "test:state": "npm run mocha:ts -- ./test/tests/State.spec.ts",
     "test:transactions": "NODE_ENV=all npm run mocha:ts -- ./test/tests/transactions/index.spec.ts",
+    "test:fraud": "npm run mocha:ts -- ./test/tests/fraud-proofs/*.spec.ts",
+    "test:libs": "npm run mocha:ts -- ./test/tests/libraries/*.spec.ts",
     "test:app": "npm run build:sol && NODE_ENV=all npm run mocha:ts -- \"./test/tests/**/*.spec.ts\"",
     "test:coverage:sol": "npm run build:ts:tests && NODE_ENV=coverage ./node_modules/.bin/truffle run coverage --file=\"test/tests/BlockchainCoverage.spec.js\" && rm -rf ./dist-test",
     "test:coverage:app": "nyc npm run test:app",
