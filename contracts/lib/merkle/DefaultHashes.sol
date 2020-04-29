@@ -1,5 +1,6 @@
 pragma solidity ^0.6.0;
 
+
 contract DefaultHashes {
   constructor() public {
     bytes32[160] memory defaultHashes;

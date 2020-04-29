@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+
 library MerkleTreeLib {
   function getMerkleRoot(bytes[] memory leaves) internal pure returns(bytes32 root) {
     if (leaves.length == 0) return bytes32(0);

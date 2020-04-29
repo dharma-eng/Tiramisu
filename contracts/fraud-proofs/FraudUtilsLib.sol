@@ -5,6 +5,7 @@ import { BlockLib as Block } from "../lib/BlockLib.sol";
 import { StateLib as State } from "../lib/StateLib.sol";
 import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 
+
 library FraudUtilsLib {
   using Block for Block.BlockHeader;
   using State for State.State;
@@ -31,12 +32,15 @@ library FraudUtilsLib {
       return previousHeader.stateRoot;
     }
     TransactionProof memory proof = decodeTransactionProof(previousSource);
-    require(Merkle.verify(
-      blockHeader.transactionsRoot,
-      proof.transactionData,
-      transactionIndex - 1,
-      proof.siblings
-    ), "Invalid merkle root.");
+    require(
+      Merkle.verify(
+        blockHeader.transactionsRoot,
+        proof.transactionData,
+        transactionIndex - 1,
+        proof.siblings
+      ),
+      "Invalid merkle root."
+    );
     bytes memory data = proof.transactionData;
     bytes32 root;
     assembly { root := mload(
