@@ -6,7 +6,6 @@ import { IDharmaAddressGetter as DharmaAddress } from "./interfaces/IDharmaAddre
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
-import { HeaderFraudProofs as HeaderFraud } from "./fraud-proofs/HeaderFraudProofs.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 
