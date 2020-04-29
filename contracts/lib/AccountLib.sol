@@ -19,17 +19,19 @@ library AccountLib {
   }
 
   function verifyAccountInState(
-    bytes32 stateRoot,
-    StateProof memory proof
-  ) internal pure returns (bool valid, bool empty, Account memory account) {
-    valid = Merkle.verify(
+    bytes32 stateRoot, bytes memory encoded
+  ) internal pure returns (bool empty, uint256 accountIndex, Account memory account) {
+    StateProof memory proof = abi.decode((encoded), (StateProof));
+    accountIndex = proof.accountIndex;
+    require(Merkle.verify(
       stateRoot,
       proof.data,
-      // (account.contractAddress == address(0)) ? bytes("") : encode(proof.data),
-      proof.accountIndex,
+      accountIndex,
       proof.siblings
-    );
+    ), "Invalid state proof.");
+
     empty = proof.data.length == 0;
+    account = decode(proof.data);
     if (empty) {
       address[] memory signers = new address[](0);
       account = Account(address(0), 0, 0, signers);
