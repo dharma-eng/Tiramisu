@@ -1,0 +1,14 @@
+{
+  "extends": "solium:all",
+  "plugins": ["security"],
+  "rules": {
+    "quotes": ["error", "double"],
+    "indentation": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "arg-overflow": "off",
+    "no-experimental": "off",
+    "security/no-inline-assembly": "off",
+    "security/no-block-members": "off",
+    "lbrace": "off"
+  }
+}
