@@ -122,7 +122,7 @@ library HeaderFraudProofs {
     ];
 
     for (uint8 i = 0; i < 8; i++) {
-      uint256 count = elements[i][0];
+      uint16 count = elements[i][0];
       if (count > 0) {
         (identitySuccess, leafIndex, txPtr) = putLeaves(
           leaves, identitySuccess, leafIndex, txPtr, i, count, elements[i][1]
