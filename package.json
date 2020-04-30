@@ -39,7 +39,8 @@
     "test": "test:app && test:coverage",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
-    "start": "node ./node_modules/ganache-cli/cli"
+    "start": "node ./node_modules/ganache-cli/cli",
+    "start:app": "ts-node ./app/index.ts"
   },
   "dependencies": {
     "ethereumjs-utils": "^5.2.5",
