@@ -5,4 +5,4 @@ async function setupStateMachine() {
   return new StateMachine(state);
 }
 
-export default setupStateMachine;
+export default setupStateMachine();

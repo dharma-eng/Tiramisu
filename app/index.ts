@@ -1,12 +1,11 @@
 import setupServer from "./setupServer";
-import setupStateMachine from "./setupStateMachine";
 import { NODE_ENV } from "./env";
 
 if (NODE_ENV === "develop") {
   setupServer();
 }
 
-export let stateMachine = setupStateMachine();
+export {default as stateMachine} from "./setupStateMachine";
 export * from './types';
 export * from './state';
 export * from './lib';
