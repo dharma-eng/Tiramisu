@@ -464,7 +464,7 @@ library TransactionsLib {
     assembly { txPtr := add(transactionsData, 48) }
     bool identitySuccess = true;
     bytes[] memory leaves = new bytes[](txCount);
-    uint256[2][8] elements = [
+    uint16[2][8] memory elements = [
       [meta.hardCreateCount, 88],
       [meta.hardDepositCount, 48],
       [meta.hardWithdrawCount, 48],
@@ -475,7 +475,7 @@ library TransactionsLib {
       [meta.softChangeSignerCount, 125]
     ];
 
-    for (uint256 i = 0; i < elements.length; i++) {
+    for (uint8 i = 0; i < 8; i++) {
       uint256 count = elements[i][0];
       if (count > 0) {
         (identitySuccess, leafIndex, txPtr) = putLeaves(
