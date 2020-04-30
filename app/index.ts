@@ -4,5 +4,5 @@ export * from './lib';
 export {default as Blockchain} from './Blockchain';
 import setupServer from "./setupServer";
 
-setupServer();
+setupServer(); 
 
