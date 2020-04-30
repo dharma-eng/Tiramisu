@@ -10,13 +10,14 @@ import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
+import "./interfaces/DharmaPegInterface.sol";
 
 
-contract DharmaPeg is Owned, StateManager {
-  using HardTx for *;
-
-  /* NOTE: include `bytes hardTransaction`? */
-  event NewHardTransaction(uint256 hardTransactionIndex);
+contract DharmaPeg is DharmaPegInterface, Owned, StateManager {
+  using HardTx for bytes;
+  using HardTx for HardTx.HardDeposit;
+  using HardTx for HardTx.HardWithdrawal;
+  using HardTx for HardTx.HardAddSigner;
 
   constructor(
     uint256 challengePeriod_,
@@ -34,7 +35,7 @@ contract DharmaPeg is Owned, StateManager {
     daiContract = daiContract_;
   }
 
-  function deposit(uint56 value) external {
+  function deposit(uint56 value) external override {
     address contractAddress = addressHandler.getContractAddressForSigner(
       msg.sender
     );
@@ -48,7 +49,7 @@ contract DharmaPeg is Owned, StateManager {
     _deposit(contractAddress, msg.sender, value);
   }
 
-  function deposit(address signerAddress, uint56 value) external {
+  function deposit(address signerAddress, uint56 value) external override {
     /* Need to figure out better logic for address mapping. */
     require(
       addressHandler.verifySignerHasAuthority(msg.sender, signerAddress),
@@ -66,7 +67,7 @@ contract DharmaPeg is Owned, StateManager {
 
   function forceAddSigner(
     uint32 accountIndex, address signingAddress
-  ) external {
+  ) external override {
     HardTx.HardAddSigner memory hardTx = HardTx.HardAddSigner(
       accountIndex, msg.sender, signingAddress
     );
@@ -76,7 +77,9 @@ contract DharmaPeg is Owned, StateManager {
     emit NewHardTransaction(_state.hardTransactions.length);
   }
 
-  function forceWithdrawal(uint32 accountIndex, uint56 value) external {
+  function forceWithdrawal(
+    uint32 accountIndex, uint56 value
+  ) external override {
     HardTx.HardWithdrawal memory hardTx = HardTx.HardWithdrawal(
       accountIndex, msg.sender, value
     );
@@ -86,13 +89,13 @@ contract DharmaPeg is Owned, StateManager {
     emit NewHardTransaction(_state.hardTransactions.length);
   }
 
-  function confirmBlock(Block.BlockHeader calldata header) external {
+  function confirmBlock(Block.BlockHeader calldata header) external override {
     _confirmBlock(header);
   }
 
   function getHardTransactionsFrom(
     uint256 start, uint256 max
-  ) external view returns (bytes[] memory _hardTransactions) {
+  ) external view override returns (bytes[] memory _hardTransactions) {
     uint256 len = _state.hardTransactions.length;
     uint256 stopAt = start + max;
     if (stopAt > len) stopAt = len;
@@ -103,15 +106,17 @@ contract DharmaPeg is Owned, StateManager {
     }
   }
 
-  function getBlockHash(uint256 height) external view returns (bytes32) {
+  function getBlockHash(
+    uint256 height
+  ) external view override returns (bytes32) {
     return _state.blockHashes[height];
   }
 
-  function getBlockCount() external view returns (uint256) {
+  function getBlockCount() external view override returns (uint256) {
     return _state.blockHashes.length;
   }
 
-  function getConfirmedBlockCount() external view returns (uint256) {
+  function getConfirmedBlockCount() external view override returns (uint256) {
     return _state.confirmedBlocks;
   }
 
@@ -131,7 +136,7 @@ contract DharmaPeg is Owned, StateManager {
     bytes memory transaction,
     uint256 transactionIndex,
     bytes32[] memory inclusionProof
-  ) public {
+  ) public override {
     byte txPrefix = transaction[0];
     uint56 value;
     address receiver;
@@ -170,7 +175,9 @@ contract DharmaPeg is Owned, StateManager {
     daiContract.transfer(receiver, value);
   }
 
-  function submitBlock(Block.BlockInput memory input) public onlyOwner {
+  function submitBlock(
+    Block.BlockInput memory input
+  ) public override onlyOwner {
     _putPendingBlock(input);
   }
 
