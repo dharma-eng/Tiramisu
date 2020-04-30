@@ -467,8 +467,8 @@ library TransactionsLib {
     uint16[2][8] memory elements = [
       [meta.hardCreateCount, 88],
       [meta.hardDepositCount, 48],
-      [meta.hardWithdrawCount, 48],
-      [meta.hardAddSignerCount, 93],
+      [meta.hardWithdrawCount, 68],
+      [meta.hardAddSignerCount, 61],
       [meta.softWithdrawCount, 131],
       [meta.softCreateCount, 155],
       [meta.softTransferCount, 115],
