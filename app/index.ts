@@ -1,50 +1,9 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
-import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
+import schema from "./schema";
+
 const PORT = 5000;
 const GRAPHQL_ENDPOINT = "/";
-
-const test = {
-  type: GraphQLString,
-  resolve: () => "Hello world!",
-};
-
-const query = new GraphQLObjectType({
-  name: "query",
-  description: "API Queries [Read]",
-  fields: () => ({
-    test
-  }),
-});
-
-const testPrint = {
-  type: GraphQLString,
-  args: {
-    stringToPrint: {
-      name: "stringToPrint",
-      type: GraphQLString,
-    }
-  },
-  resolve: (parentValue, { stringToPrint }, auth) => {
-    console.log(`PRINTING STRING: ${stringToPrint}`);
-  }
-};
-
-const mutation = new GraphQLObjectType({
-  name: "mutations",
-  description: "API Mutations [Create, Update, Delete]",
-  fields: () => ({
-    testPrint
-  }),
-});
-
-const types = [];
-
-const schema = new GraphQLSchema({
-  types,
-  query,
-  mutation,
-});
 
 const server = express();
 
