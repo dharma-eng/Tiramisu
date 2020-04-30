@@ -4,10 +4,16 @@ pragma experimental ABIEncoderV2;
 import "../DharmaPeg.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IDharmaAddressGetter.sol";
-import { HeaderFraudProofs as HeaderFraud } from "../fraud-proofs/HeaderFraudProofs.sol";
-import { TransactionFraudProofs as TransactionFraud } from '../fraud-proofs/TransactionFraudProofs.sol';
-import { FraudUtilsLib as FraudUtils } from '../fraud-proofs/FraudUtilsLib.sol';
-import { AccountLib as Account } from '../lib/AccountLib.sol';
+import {
+  HeaderFraudProofs as HeaderFraud
+} from "../fraud-proofs/HeaderFraudProofs.sol";
+import {
+  TransactionFraudProofs as TransactionFraud
+} from "../fraud-proofs/TransactionFraudProofs.sol";
+import {
+  FraudUtilsLib as FraudUtils
+} from "../fraud-proofs/FraudUtilsLib.sol";
+import { AccountLib as Account } from "../lib/AccountLib.sol";
 
 
 contract MockDharmaPeg is DharmaPeg {
@@ -38,7 +44,9 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory blockHeader,
     uint256 transactionIndex
   ) public view returns(bytes32) {
-    return FraudUtils.transactionHadPreviousState(_state, previousSource, blockHeader, transactionIndex);
+    return FraudUtils.transactionHadPreviousState(
+      _state, previousSource, blockHeader, transactionIndex
+    );
   }
 
   function proveStateSizeError(
@@ -46,14 +54,18 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveStateSizeError(_state, previousHeader, badHeader, transactionsData);
+    HeaderFraud.proveStateSizeError(
+      _state, previousHeader, badHeader, transactionsData
+    );
   }
 
   function proveTransactionsRootError(
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveTransactionsRootError(_state, badHeader, transactionsData);
+    HeaderFraud.proveTransactionsRootError(
+      _state, badHeader, transactionsData
+    );
   }
 
   function proveHardTransactionRangeError(
@@ -61,7 +73,9 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveHardTransactionRangeError(_state, previousHeader, badHeader, transactionsData);
+    HeaderFraud.proveHardTransactionRangeError(
+      _state, previousHeader, badHeader, transactionsData
+    );
   }
 
   function proveHardTransactionSourceError(

@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import { MerkleProofLib as Merkle } from "./MerkleProofLib.sol";
 
+
 library AccountLib {
   struct Account {
     address contractAddress;
@@ -19,15 +20,16 @@ library AccountLib {
 
   function verifyAccountInState(
     bytes32 stateRoot, bytes memory encoded
-  ) public pure returns (bool empty, uint256 accountIndex, Account memory account) {
+  ) public pure returns (
+    bool empty, uint256 accountIndex, Account memory account
+  ) {
     StateProof memory proof = abi.decode((encoded), (StateProof));
     accountIndex = proof.accountIndex;
-    require(Merkle.verify(
-      stateRoot,
-      proof.data,
-      accountIndex,
-      proof.siblings
-    ), "Invalid state proof.");
+
+    require(
+      Merkle.verify(stateRoot, proof.data, accountIndex, proof.siblings),
+      "Invalid state proof."
+    );
 
     empty = proof.data.length == 0;
     account = decode(proof.data);
@@ -39,12 +41,19 @@ library AccountLib {
     }
   }
 
-  function hasSigner(Account memory account, address signer) internal pure returns (bool) {
-    for (uint256 i = 0; i < account.signers.length; i++) if (account.signers[i] == signer) return true;
+  function hasSigner(
+    Account memory account, address signer
+  ) internal pure returns (bool) {
+    for (uint256 i = 0; i < account.signers.length; i++) {
+      if (account.signers[i] == signer) return true;
+    }
+
     return false;
   }
 
-  function encode(Account memory account) internal pure returns(bytes memory ret) {
+  function encode(
+    Account memory account
+  ) internal pure returns (bytes memory ret) {
     uint256 len = account.signers.length;
     ret = new bytes(30 + len * 20);
     assembly {
@@ -61,7 +70,9 @@ library AccountLib {
     }
   }
 
-  function decode(bytes memory data) public pure returns(Account memory account) {
+  function decode(
+    bytes memory data
+  ) public pure returns(Account memory account) {
     uint256 remainder = (data.length - 30);
     if (remainder % 20 != 0) revert("Invalid account encoding.");
     uint256 signerCount = remainder / 20;

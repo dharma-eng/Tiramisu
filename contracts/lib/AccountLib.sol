@@ -20,15 +20,15 @@ library AccountLib {
 
   function verifyAccountInState(
     bytes32 stateRoot, bytes memory encoded
-  ) internal pure returns (bool empty, uint256 accountIndex, Account memory account) {
+  ) internal pure returns (
+    bool empty, uint256 accountIndex, Account memory account
+  ) {
     StateProof memory proof = abi.decode((encoded), (StateProof));
     accountIndex = proof.accountIndex;
-    require(Merkle.verify(
-      stateRoot,
-      proof.data,
-      accountIndex,
-      proof.siblings
-    ), "Invalid state proof.");
+    require(
+      Merkle.verify(stateRoot, proof.data, accountIndex, proof.siblings),
+      "Invalid state proof."
+    );
 
     empty = proof.data.length == 0;
     account = decode(proof.data);

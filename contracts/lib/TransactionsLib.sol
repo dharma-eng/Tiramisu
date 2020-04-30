@@ -447,7 +447,10 @@ library TransactionsLib {
   function deriveTransactionsRoot(
     bytes memory transactionsData
   ) internal view returns (bytes32) {
-    TransactionsMetadata memory meta = decodeTransactionsMetadata(transactionsData);
+    TransactionsMetadata memory meta = decodeTransactionsMetadata(
+      transactionsData
+    );
+
     uint256 expectedLength = expectedTransactionsLength(meta);
     /* If the transactions data size is incommensurate with the transactions
        header, the block is erroneous. */

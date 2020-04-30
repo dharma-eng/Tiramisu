@@ -19,7 +19,9 @@ contract RollupMerkleUtils {
    * @param dataBlocks The data being used to generate the tree.
    * @return the sparse merkle tree root
    */
-  function getMerkleRoot(bytes[] calldata dataBlocks) external view returns (bytes32) {
+  function getMerkleRoot(
+    bytes[] calldata dataBlocks
+  ) external view returns (bytes32) {
     uint256 nextLevelLength = dataBlocks.length;
     uint256 currentLevel = 0;
     bytes32[160] memory defaultHashes = getDefaultHashes();
@@ -31,9 +33,11 @@ contract RollupMerkleUtils {
     for (uint256 i = 0; i < dataBlocks.length; i++) {
       nodes[i] = keccak256(dataBlocks[i]);
     }
+
     if (dataBlocks.length == 1) {
       return nodes[0];
     }
+
     // Add a defaultNode if we've got an odd number of leaves
     if (nextLevelLength % 2 == 1) {
       nodes[nextLevelLength] = defaultHashes[currentLevel];

@@ -10,7 +10,8 @@ library MerkleProofLib {
   }
 
   /**
-   * @notice Verify an inclusion proof of some value, modify the value and return the new root.
+   * @notice Verify an inclusion proof of some value, modify the value and
+   * return the new root.
    * @param root The root of the tree we are verifying inclusion for.
    * @param oldLeaf The leaf node we're verifying inclusion for. Leaves must be
    * greater than 32 bytes to prevent valid proofs of non-leaf values.
@@ -86,7 +87,9 @@ library MerkleProofLib {
    * @param right The right child
    * @return The parent node
    */
-  function getParent(bytes32 left, bytes32 right) internal pure returns (bytes32) {
+  function getParent(
+    bytes32 left, bytes32 right
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(left, right));
   }
 
@@ -97,7 +100,9 @@ library MerkleProofLib {
    * @param index The index of the bit we want to extract
    * @return The bit (1 or 0) in a uint8
    */
-  function getNthBitFromRight(uint256 intVal, uint256 index) internal pure returns (uint8) {
+  function getNthBitFromRight(
+    uint256 intVal, uint256 index
+  ) internal pure returns (uint8) {
     return uint8(intVal >> index & 1);
   }
 }

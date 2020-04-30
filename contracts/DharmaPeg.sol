@@ -2,7 +2,9 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "./lib/BlockLib.sol";
-import { IDharmaAddressGetter as DharmaAddress } from "./interfaces/IDharmaAddressGetter.sol";
+import {
+  IDharmaAddressGetter as DharmaAddress
+} from "./interfaces/IDharmaAddressGetter.sol";
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
@@ -13,7 +15,8 @@ import "./StateManager.sol";
 contract DharmaPeg is Owned, StateManager {
   using HardTx for *;
 
-  event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
+  /* NOTE: include `bytes hardTransaction`? */
+  event NewHardTransaction(uint256 hardTransactionIndex);
 
   constructor(
     uint256 challengePeriod_,
@@ -61,7 +64,9 @@ contract DharmaPeg is Owned, StateManager {
     _deposit(msg.sender, signerAddress, value);
   }
 
-  function forceAddSigner(uint32 accountIndex, address signingAddress) external {
+  function forceAddSigner(
+    uint32 accountIndex, address signingAddress
+  ) external {
     HardTx.HardAddSigner memory hardTx = HardTx.HardAddSigner(
       accountIndex, msg.sender, signingAddress
     );

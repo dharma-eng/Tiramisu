@@ -6,13 +6,25 @@ library MerkleTreeLib {
   function getMerkleRoot(
     bytes[] memory leaves
   ) internal pure returns (bytes32 root) {
-    if (leaves.length == 0) return bytes32(0);
+    if (leaves.length == 0) {
+      return bytes32(0);
+    }
+
     uint256 nextLevelLength = leaves.length;
     uint256 currentLevel = 0;
-    bytes32[] memory nodes = new bytes32[](nextLevelLength + 1); // Add one in case we have an odd number of leaves
+
+    // Add one in case we have an odd number of leaves
+    bytes32[] memory nodes = new bytes32[](nextLevelLength + 1);
+
     // Generate the leaves
-    for (uint256 i = 0; i < leaves.length; i++) nodes[i] = keccak256(leaves[i]);
-    if (leaves.length == 1) return nodes[0];
+    for (uint256 i = 0; i < leaves.length; i++) {
+      nodes[i] = keccak256(leaves[i]);
+    }
+
+    if (leaves.length == 1) {
+      return nodes[0];
+    }
+
     // Add a defaultNode if we've got an odd number of leaves
     if (nextLevelLength % 2 == 1) {
       nodes[nextLevelLength] = bytes32(0);

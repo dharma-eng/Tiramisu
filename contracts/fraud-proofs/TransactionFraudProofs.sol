@@ -8,6 +8,7 @@ import { AccountLib as Account } from "../lib/AccountLib.sol";
 import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
+
 library TransactionFraudProofs {
   using Block for bytes;
   using Block for Block.BlockHeader;
@@ -62,14 +63,19 @@ library TransactionFraudProofs {
 
     Hard.HardDeposit memory input = Hard.decodeHardDeposit(inputData);
     Tx.HardDeposit memory output = Tx.decodeHardDeposit(outputData);
-    
+
     if (
       input.value != output.value
     ) return true;
-    
-    bytes32 previousStateRoot = state.transactionHadPreviousState(previousStateProof, badHeader, transactionIndex);
-    (bool empty, uint256 accountIndex, Account.Account memory account) = Account.verifyAccountInState(previousStateRoot, stateProof);
-    
+
+    bytes32 previousStateRoot = state.transactionHadPreviousState(
+      previousStateProof, badHeader, transactionIndex
+    );
+
+    (
+      bool empty, uint256 accountIndex, Account.Account memory account
+    ) = Account.verifyAccountInState(previousStateRoot, stateProof);
+
     bool addressMatch = account.contractAddress == input.contractAddress;
     bool indexMatch = accountIndex == output.accountIndex;
     if (
@@ -94,7 +100,7 @@ library TransactionFraudProofs {
 
     Hard.HardWithdrawal memory input = Hard.decodeHardWithdrawal(inputData);
     Tx.HardWithdrawal memory output = Tx.decodeHardWithdrawal(outputData);
-    
+
     if (
       input.accountIndex != output.accountIndex ||
       input.value != output.value ||
@@ -115,10 +121,10 @@ library TransactionFraudProofs {
     if (
       outputData.length != 94 || inputData.transactionPrefix() != 3
     ) return true;
-    
+
     Hard.HardAddSigner memory input = Hard.decodeHardAddSigner(inputData);
     Tx.HardAddSigner memory output = Tx.decodeHardAddSigner(outputData);
-    
+
     if (
       input.accountIndex != output.accountIndex ||
       input.signingAddress != output.signingAddress
@@ -135,24 +141,51 @@ library TransactionFraudProofs {
     bytes memory stateProof
   ) internal {
     /* Verify inputs */
-    require(state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()), "Block not pending.");
+    require(
+      state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
+      "Block not pending."
+    );
+
     uint8 prefix = transaction.transactionPrefix();
 
     require(prefix < 4, "Input not a hard transaction.");
-    require(Merkle.verify(badHeader.transactionsRoot, transaction, transactionIndex, siblings), "Invalid merkle proof.");
+
+    require(
+      Merkle.verify(
+        badHeader.transactionsRoot, transaction, transactionIndex, siblings
+      ),
+      "Invalid merkle proof."
+    );
 
     uint256 hardTransactionIndex;
-    assembly { hardTransactionIndex := shr(216, mload(add(transaction, 0x21))) }
+    assembly { hardTransactionIndex := shr(216, mload(add(transaction, 33))) }
 
     if (hardTransactionIndex >= state.hardTransactions.length) {
       return state.revertBlock(badHeader);
     }
-    
+
     bytes memory inputData = state.hardTransactions[hardTransactionIndex];
-    bool hasError = prefix == 0 ? proveHardCreateSourceError(inputData, transaction)
-      : prefix == 1 ? proveHardDepositSourceError(state, badHeader, inputData, transaction, transactionIndex, previousStateProof, stateProof)
-      : prefix == 2 ? proveHardWithdrawSourceError(inputData, transaction)
-      : proveHardAddSignerSourceError(inputData, transaction);
+
+    bool hasError;
+
+    if (prefix == 0) {
+      hasError = proveHardCreateSourceError(inputData, transaction);
+    } else if (prefix == 1) {
+      hasError = proveHardDepositSourceError(
+        state,
+        badHeader,
+        inputData,
+        transaction,
+        transactionIndex,
+        previousStateProof,
+        stateProof
+      );
+    } else if (prefix == 2) {
+      hasError = proveHardWithdrawSourceError(inputData, transaction);
+    } else {
+      hasError = proveHardAddSignerSourceError(inputData, transaction);
+    }
+
     require(hasError, "No error found in transaction source.");
     return state.revertBlock(badHeader);
   }
@@ -167,13 +200,21 @@ library TransactionFraudProofs {
   //   bytes memory previousStateProof,
   //   Account.StateProof memory stateProof
   // ) internal {
-  //   require(state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()), "Block not pending.");
+  //   require(
+  //     state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
+  //     "Block not pending."
+  //   );
   //   uint8 prefix = transaction.transactionPrefix();
   //   require(prefix >= 4, "Input not a soft transaction.");
-  //   require(Merkle.verify(badHeader.transactionsRoot, transaction, transactionIndex, siblings), "Invalid merkle proof.");
+  //   require(
+  //     Merkle.verify(
+  //       badHeader.transactionsRoot, transaction, transactionIndex, siblings
+  //     ),
+  //     "Invalid merkle proof."
+  //   );
 
   //   if (prefix == 4) {
-      
+
   //   }
   //   if (prefix == 5) {
 

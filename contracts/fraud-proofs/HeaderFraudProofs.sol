@@ -36,9 +36,17 @@ library HeaderFraudProofs {
       "Header does not match transactions data."
     );
 
-    Tx.TransactionsMetadata memory meta = transactionsData.decodeTransactionsMetadata();
-    uint256 failures = transactionsData.countCreateTransactionsWithEmptyRoot(meta);
-    uint256 expectedIncrease = (meta.hardCreateCount + meta.softCreateCount) - failures;
+    Tx.TransactionsMetadata memory meta = transactionsData
+      .decodeTransactionsMetadata();
+
+    uint256 failures = transactionsData.countCreateTransactionsWithEmptyRoot(
+      meta
+    );
+
+    uint256 expectedIncrease = (
+      (meta.hardCreateCount + meta.softCreateCount) - failures
+    );
+
     if (badHeader.stateSize != (previousHeader.stateSize + expectedIncrease)) {
       state.revertBlock(badHeader);
     }
@@ -52,14 +60,20 @@ library HeaderFraudProofs {
     uint8 typePrefix,
     uint256 typeCount,
     uint256 typeSize
-  ) internal view returns (bool _identitySuccess, uint256 _leafIndex, uint256 _currentPointer) {
+  ) internal view returns (
+    bool _identitySuccess, uint256 _leafIndex, uint256 _currentPointer
+  ) {
     for (uint256 i = 0; i < typeCount; i++) {
       bytes memory _tx = new bytes(typeSize + 1);
       assembly {
         let outPtr := add(_tx, 32)
         mstore8(outPtr, typePrefix)
         outPtr := add(outPtr, 1)
-        identitySuccess := staticcall(gas(), 0x04, currentPointer, typeSize, outPtr, typeSize)
+
+        identitySuccess := staticcall(
+          gas(), 0x04, currentPointer, typeSize, outPtr, typeSize
+        )
+
         currentPointer := add(currentPointer, typeSize)
       }
       leaves[leafIndex++] = _tx;
@@ -82,7 +96,9 @@ library HeaderFraudProofs {
       "Header does not match transactions data."
     );
 
-    Tx.TransactionsMetadata memory meta = transactionsData.decodeTransactionsMetadata();
+    Tx.TransactionsMetadata memory meta = transactionsData
+      .decodeTransactionsMetadata();
+
     uint256 expectedLength = meta.expectedTransactionsLength();
     /* If the transactions data size is incommensurate with the transactions
        header, the block is erroneous. */
@@ -153,12 +169,19 @@ library HeaderFraudProofs {
       "Header does not match transactions data."
     );
 
-    Tx.TransactionsMetadata memory meta = transactionsData.decodeTransactionsMetadata();
+    Tx.TransactionsMetadata memory meta = transactionsData
+      .decodeTransactionsMetadata();
+
     uint256 hardTxSum = (
       meta.hardCreateCount + meta.hardDepositCount +
       meta.hardWithdrawCount + meta.hardAddSignerCount
     );
-    if (badHeader.hardTransactionsCount != previousHeader.hardTransactionsCount + hardTxSum) {
+
+    if (
+      badHeader.hardTransactionsCount != (
+        previousHeader.hardTransactionsCount + hardTxSum
+      )
+    ) {
       state.revertBlock(badHeader);
     }
   }
