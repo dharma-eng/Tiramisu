@@ -9,7 +9,7 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util'
-const { toBuf, toHex, toInt } = require('../lib/to');
+import { toBuf, toHex, toInt } from "../lib/to";
 
 interface SoftChangeSignerArguments {
     fromAccountIndex: number;
@@ -21,6 +21,7 @@ interface SoftChangeSignerArguments {
 }
 
 export class SoftChangeSigner implements SoftChangeSignerTransaction {
+    prefix: 7;
     nonce: number;
     signingAddress: string;
     modificationCategory: number;
@@ -29,10 +30,6 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
     accountIndex: number;
     resolve: () => void;
     reject: (errorMessage: string) => void;
-
-    get prefix(): number {
-        return 7;
-    }
 
     get bytesWithoutPrefix(): number {
         return 125;
@@ -56,6 +53,7 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
 
         if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
         else this.signature = toHex(sig);
+        this.prefix = 7;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {

@@ -1,8 +1,7 @@
 import {SoftTransferTransaction} from "./TransactionInterfaces";
 import {AccountType} from "./Account";
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util'
-
-const { toBuf, toHex, toInt } = require('../lib/to');
+import { toBuf, toHex, toInt } from "../lib/to";
 // const { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig } = require('ethereumjs-utils')
 
 interface SoftTransferArguments {
@@ -15,6 +14,7 @@ interface SoftTransferArguments {
 }
 
 export class SoftTransfer implements SoftTransferTransaction {
+    prefix: 6;
     toAccountIndex: number;
     nonce: number;
     value: number;
@@ -23,10 +23,6 @@ export class SoftTransfer implements SoftTransferTransaction {
     accountIndex: number;
     resolve: () => void;
     reject: (errorMessage: string) => void;
-
-    get prefix():number {
-        return 6;
-    }
 
     get bytesWithoutPrefix():number {
         return 115;
@@ -50,6 +46,7 @@ export class SoftTransfer implements SoftTransferTransaction {
 
         if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
         else this.signature = toHex(sig);
+        this.prefix = 6;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {

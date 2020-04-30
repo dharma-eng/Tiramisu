@@ -10,15 +10,12 @@ interface HardWithdrawArguments {
 }
 
 export class HardWithdraw implements HardWithdrawTransaction {
+    prefix: 2;
     accountIndex: number;
     hardTransactionIndex: number;
     callerAddress: string;
     value: number;
     intermediateStateRoot: string;
-
-    get prefix(): number {
-        return 2;
-    }
 
     get bytesWithoutPrefix(): number {
         return 68;
@@ -30,6 +27,7 @@ export class HardWithdraw implements HardWithdrawTransaction {
         this.hardTransactionIndex = toInt(hardTransactionIndex);
         this.callerAddress = toHex(callerAddress);
         this.value = toInt(value);
+        this.prefix = 2;
     }
 
     addOutput(intermediateStateRoot: string): void {

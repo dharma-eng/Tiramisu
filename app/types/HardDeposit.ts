@@ -8,14 +8,11 @@ interface HardDepositArguments {
 }
 
 export class HardDeposit implements HardDepositTransaction {
+    prefix: 1;
     accountIndex: number;
     hardTransactionIndex: number;
     value: number;
     intermediateStateRoot: string;
-
-    get prefix(): number {
-        return 1;
-    }
 
     get bytesWithoutPrefix(): number {
         return 48;
@@ -26,6 +23,7 @@ export class HardDeposit implements HardDepositTransaction {
         this.accountIndex = toInt(accountIndex);
         this.hardTransactionIndex = toInt(hardTransactionIndex);
         this.value = toInt(value);
+        this.prefix = 1;
     }
 
     addOutput(intermediateStateRoot: string): void {

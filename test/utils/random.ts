@@ -21,3 +21,5 @@ export const randomAccount = () => {
 export const randomInt = (bytes) => {
   return toInt(randomHexBuffer(bytes));
 }
+
+export const randomFromArray = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];

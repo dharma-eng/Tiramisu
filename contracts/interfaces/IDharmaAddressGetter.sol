@@ -8,7 +8,9 @@ interface IDharmaAddressGetter {
    * @param signerAddress - An address to check for authority over the contract.
    * @return Boolean stating whether the signer has authority over the contract address.
    */
-  function verifySignerHasAuthority(address contractAddress, address signerAddress) external view returns (bool);
+  function verifySignerHasAuthority(
+    address contractAddress, address signerAddress
+  ) external view returns (bool);
 
   /**
    * @dev getContractAddressForSigner
@@ -16,5 +18,7 @@ interface IDharmaAddressGetter {
    * @param signerAddress The input address to get a contract address for.
    * @return Address of the Dharma contract for the signer.
    */
-  function getContractAddressForSigner(address signerAddress) external view returns (address);
+  function getContractAddressForSigner(
+    address signerAddress
+  ) external view returns (address);
 }

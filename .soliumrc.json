@@ -2,13 +2,14 @@
   "extends": "solium:all",
   "plugins": ["security"],
   "rules": {
+    "arg-overflow": "off",
     "quotes": ["error", "double"],
     "indentation": ["error", 2],
+    "lbrace": "off",
     "linebreak-style": ["error", "unix"],
-    "arg-overflow": "off",
+    "max-len": ["error", 79],
     "no-experimental": "off",
     "security/no-inline-assembly": "off",
-    "security/no-block-members": "off",
-    "lbrace": "off"
+    "security/no-block-members": "off"
   }
 }

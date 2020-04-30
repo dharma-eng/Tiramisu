@@ -2,19 +2,22 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "./lib/BlockLib.sol";
-import { IDharmaAddressGetter as DharmaAddress } from "./interfaces/IDharmaAddressGetter.sol";
+import {
+  IDharmaAddressGetter as DharmaAddress
+} from "./interfaces/IDharmaAddressGetter.sol";
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
-import { HeaderFraudProofs as HeaderFraud } from "./fraud-proofs/HeaderFraudProofs.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
+import "./interfaces/DharmaPegInterface.sol";
 
 
-contract DharmaPeg is Owned, StateManager {
-  using HardTx for *;
-
-  event NewHardTransaction(uint256 hardTransactionIndex/* , bytes hardTransaction */);
+contract DharmaPeg is DharmaPegInterface, Owned, StateManager {
+  using HardTx for bytes;
+  using HardTx for HardTx.HardDeposit;
+  using HardTx for HardTx.HardWithdrawal;
+  using HardTx for HardTx.HardAddSigner;
 
   constructor(
     uint256 challengePeriod_,
@@ -32,7 +35,7 @@ contract DharmaPeg is Owned, StateManager {
     daiContract = daiContract_;
   }
 
-  function deposit(uint56 value) external {
+  function deposit(uint56 value) external override {
     address contractAddress = addressHandler.getContractAddressForSigner(
       msg.sender
     );
@@ -46,7 +49,7 @@ contract DharmaPeg is Owned, StateManager {
     _deposit(contractAddress, msg.sender, value);
   }
 
-  function deposit(address signerAddress, uint56 value) external {
+  function deposit(address signerAddress, uint56 value) external override {
     /* Need to figure out better logic for address mapping. */
     require(
       addressHandler.verifySignerHasAuthority(msg.sender, signerAddress),
@@ -62,33 +65,37 @@ contract DharmaPeg is Owned, StateManager {
     _deposit(msg.sender, signerAddress, value);
   }
 
-  function forceAddSigner(uint32 accountIndex, address signingAddress) external {
+  function forceAddSigner(
+    uint32 accountIndex, address signingAddress
+  ) external override {
     HardTx.HardAddSigner memory hardTx = HardTx.HardAddSigner(
       accountIndex, msg.sender, signingAddress
     );
 
-    _state.hardTransactions.push(hardTx._encode());
+    _state.hardTransactions.push(hardTx.encode());
 
     emit NewHardTransaction(_state.hardTransactions.length);
   }
 
-  function forceWithdrawal(uint32 accountIndex, uint56 value) external {
+  function forceWithdrawal(
+    uint32 accountIndex, uint56 value
+  ) external override {
     HardTx.HardWithdrawal memory hardTx = HardTx.HardWithdrawal(
       accountIndex, msg.sender, value
     );
 
-    _state.hardTransactions.push(hardTx._encode());
+    _state.hardTransactions.push(hardTx.encode());
 
     emit NewHardTransaction(_state.hardTransactions.length);
   }
 
-  function confirmBlock(Block.BlockHeader calldata header) external {
+  function confirmBlock(Block.BlockHeader calldata header) external override {
     _confirmBlock(header);
   }
 
   function getHardTransactionsFrom(
     uint256 start, uint256 max
-  ) external view returns (bytes[] memory _hardTransactions) {
+  ) external view override returns (bytes[] memory _hardTransactions) {
     uint256 len = _state.hardTransactions.length;
     uint256 stopAt = start + max;
     if (stopAt > len) stopAt = len;
@@ -99,15 +106,17 @@ contract DharmaPeg is Owned, StateManager {
     }
   }
 
-  function getBlockHash(uint256 height) external view returns (bytes32) {
+  function getBlockHash(
+    uint256 height
+  ) external view override returns (bytes32) {
     return _state.blockHashes[height];
   }
 
-  function getBlockCount() external view returns (uint256) {
+  function getBlockCount() external view override returns (uint256) {
     return _state.blockHashes.length;
   }
 
-  function getConfirmedBlockCount() external view returns (uint256) {
+  function getConfirmedBlockCount() external view override returns (uint256) {
     return _state.confirmedBlocks;
   }
 
@@ -127,29 +136,29 @@ contract DharmaPeg is Owned, StateManager {
     bytes memory transaction,
     uint256 transactionIndex,
     bytes32[] memory inclusionProof
-  ) public {
+  ) public override {
     byte txPrefix = transaction[0];
     uint56 value;
     address receiver;
     /* Ensure transaction is the correct type and get withdrawal parameters. */
     if (txPrefix == 0x02) {
-      TX.HardWithdrawal memory withdrawal = TX._decodeHardWithdrawal(transaction);
+      TX.HardWithdrawal memory withdrawal = TX.decodeHardWithdrawal(transaction);
       value = withdrawal.value;
       receiver = withdrawal.withdrawalAddress;
     } else if (txPrefix == 0x04) {
-      TX.SoftWithdrawal memory withdrawal = TX._decodeSoftWithdrawal(transaction);
+      TX.SoftWithdrawal memory withdrawal = TX.decodeSoftWithdrawal(transaction);
       value = withdrawal.value;
       receiver = withdrawal.withdrawalAddress;
     } else revert("Transaction not of a withdrawal type.");
     /* Verify that the block is confirmed. */
-    bytes32 blockHash = Block._blockHash(header);
+    bytes32 blockHash = Block.blockHash(header);
     require(
-      _state._blockIsConfirmed(header.blockNumber, blockHash),
+      _state.blockIsConfirmed(header.blockNumber, blockHash),
       "Block is not confirmed."
     );
 
     /* Verify transaction's inclusion proof and replace it with a null leaf. */
-    (bool included, bytes32 newRoot) = Merkle._verifyAndUpdate(
+    (bool included, bytes32 newRoot) = Merkle.verifyAndUpdate(
       header.transactionsRoot,
       transaction,
       bytes(""),
@@ -160,24 +169,16 @@ contract DharmaPeg is Owned, StateManager {
     /* Update header with new transactions root. */
     header.transactionsRoot = newRoot;
     /* Update block hash with new header. */
-    _state.blockHashes[header.blockNumber] = Block._blockHash(header);
+    _state.blockHashes[header.blockNumber] = Block.blockHash(header);
     /* Transfer DAI to the recipient. */
     /* TODO - Add decimal conversion */
     daiContract.transfer(receiver, value);
   }
 
-  function submitBlock(Block.BlockInput memory input) public onlyOwner {
+  function submitBlock(
+    Block.BlockInput memory input
+  ) public override onlyOwner {
     _putPendingBlock(input);
-  }
-
-  function proveStateSizeError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    HeaderFraud._proveStateSizeError(
-      _state, previousHeader, badHeader, transactionsData
-    );
   }
 
   function _deposit(
@@ -189,6 +190,6 @@ contract DharmaPeg is Owned, StateManager {
       contractAddress, signerAddress, value
     );
     emit NewHardTransaction(_state.hardTransactions.length);
-    _state.hardTransactions.push(hardDeposit._encode());
+    _state.hardTransactions.push(hardDeposit.encode());
   }
 }

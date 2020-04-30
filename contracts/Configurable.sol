@@ -1,7 +1,10 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import { IDharmaAddressGetter as DharmaAddressHandler } from "./interfaces/IDharmaAddressGetter.sol";
+import {
+  IDharmaAddressGetter as DharmaAddressHandler
+} from "./interfaces/IDharmaAddressGetter.sol";
+
 import "./interfaces/IERC20.sol";
 
 
@@ -82,7 +85,10 @@ contract Configurable {
   }
 
   function _queueChange(ConfigField field, uint256 value) internal {
-    PendingModification memory pending = PendingModification(field, value, block.number + changeDelay);
+    PendingModification memory pending = PendingModification(
+      field, value, block.number + changeDelay
+    );
+
     bytes32 changeHash = keccak256(abi.encode(pending));
     require(!_pendingChanges[changeHash], "Change already queued.");
     _pendingChanges[changeHash] = true;
@@ -92,7 +98,11 @@ contract Configurable {
     bytes32 changeHash = keccak256(abi.encode(pending));
     require(_pendingChanges[changeHash], "Change not queued.");
     require(pending.readyAfter < block.number, "Change not ready.");
-    if (pending.field == ConfigField.CHALLENGE_PERIOD) challengePeriod = pending.value;
+
+    if (pending.field == ConfigField.CHALLENGE_PERIOD) {
+      challengePeriod = pending.value;
+    }
+
     else if (pending.field == ConfigField.COMMITMENT_BOND) commitmentBond = pending.value;
     else if (pending.field == ConfigField.VERSION) version = pending.value;
     else if (pending.field == ConfigField.CHANGE_DELAY) changeDelay = pending.value;

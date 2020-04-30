@@ -1,6 +1,21 @@
 import {AccountType} from "./Account";
+import HardCreate from "./HardCreate";
 
-export interface Transaction {
+export type Transaction = HardCreateTransaction |
+    HardDepositTransaction |
+    HardWithdrawTransaction |
+    HardAddSignerTransaction |
+    SoftWithdrawTransaction |
+    SoftCreateTransaction |
+    SoftTransferTransaction |
+    SoftChangeSignerTransaction;
+
+export interface CreateTransaction {
+    accountAddress: string;
+    initialSigningKey: string;
+}
+
+export interface BaseTransaction {
     prefix: number;
     intermediateStateRoot?: string;
     accountIndex: number;
@@ -8,11 +23,6 @@ export interface Transaction {
     addOutput(intermediateStateRoot: string, accountIndex?: number): void;
     checkValid?(account: AccountType): string;
     assignResolvers?(resolve: () => void, reject: (errorMessage: string) => void): void;
-}
-
-export interface CreateTransaction {
-    accountAddress: string;
-    initialSigningKey: string;
 }
 
 /**
@@ -23,22 +33,28 @@ export interface CreateTransaction {
  *      Hard Add Signer
  */
 
-export interface HardTransaction extends Transaction {
+export interface HardTransaction extends BaseTransaction {
     hardTransactionIndex: number;
 }
 
-export interface HardDepositTransaction extends HardTransaction {
+export interface HardCreateTransaction extends HardTransaction, CreateTransaction {
+    prefix: 0;
     value: number;
 }
 
-export interface HardCreateTransaction extends HardDepositTransaction, CreateTransaction {
+export interface HardDepositTransaction extends HardTransaction {
+    prefix: 1;
+    value: number;
 }
 
 export interface HardWithdrawTransaction extends HardTransaction {
+    callerAddress: string;
+    prefix: 2;
     value: number;
 }
 
 export interface HardAddSignerTransaction extends HardTransaction {
+    prefix: 3;
     signingAddress: string;
 }
 
@@ -51,27 +67,33 @@ export interface HardAddSignerTransaction extends HardTransaction {
  *      Soft Change Signer
  */
 
-export interface SoftTransaction extends Transaction {
+export interface SoftTransaction extends BaseTransaction {
     nonce: number;
     signature: string;
     resolve: (argument?: any) => void;
     reject: (errorMessage: string) => void;
 }
 
-export interface SoftTransferTransaction extends SoftTransaction {
-    toAccountIndex: number;
-    value: number;
-}
-
-export interface SoftCreateTransaction extends SoftTransferTransaction, CreateTransaction {
-}
-
 export interface SoftWithdrawTransaction extends SoftTransaction {
+    prefix: 4;
     withdrawalAddress: string;
     value: number;
 }
 
+export interface SoftCreateTransaction extends SoftTransaction, CreateTransaction {
+    prefix: 5;
+    toAccountIndex: number;
+    value: number;
+}
+
+export interface SoftTransferTransaction extends SoftTransaction {
+    prefix: 6;
+    toAccountIndex: number;
+    value: number;
+}
+
 export interface SoftChangeSignerTransaction extends SoftTransaction {
+    prefix: 7;
     signingAddress: string;
     modificationCategory: number;
 }

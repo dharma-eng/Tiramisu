@@ -13,6 +13,7 @@ export interface SoftWithdrawalArguments {
 }
 
 export class SoftWithdrawal implements SoftWithdrawTransaction {
+    prefix: 4;
     accountIndex: number;
     withdrawalAddress: string;
     nonce: number;
@@ -21,10 +22,6 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
     intermediateStateRoot: string;
     resolve: () => void;
     reject: (errorMessage: string) => void;
-
-    get prefix(): number {
-        return 4;
-    }
 
     get bytesWithoutPrefix(): number {
         return 131;
@@ -47,6 +44,7 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
 
         if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
         else this.signature = toHex(sig);
+        this.prefix = 4;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {

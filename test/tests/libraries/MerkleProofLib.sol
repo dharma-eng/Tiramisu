@@ -13,8 +13,9 @@ library MerkleProofLib {
    * @notice Verify an inclusion proof of some value, modify the value and
    * return the new root.
    * @param root The root of the tree we are verifying inclusion for.
-   * @param oldLeaf The leaf node we're verifying inclusion for. Leaves must be
-   * greater than 32 bytes to prevent valid proofs of non-leaf values.
+   * @param oldLeaf The leaf node we're verifying inclusion for.
+   * @notice leaf must be greater than 32 bytes. This is intended to prevent
+   * valid proofs of non-leaf values.
    * @param newLeaf The leaf node we're replacing oldLeaf with.
    * @param path The path from the leaf to the root.
    * @param siblings The sibling nodes along the way.
@@ -43,15 +44,16 @@ library MerkleProofLib {
         updatedRoot = getParent(sibling, updatedRoot);
       }
     }
-    // Check if the computed node (root) is equal to the provided root
+    // Check if the computed node (_root) is equal to the provided root
     valid = computedNode == root;
   }
 
   /**
    * @notice Verify an inclusion proof.
    * @param root The root of the tree we are verifying inclusion for.
-   * @param leaf The leaf node we're verifying inclusion for. Leaves must be
-   * greater than 32 bytes to prevent valid proofs of non-leaf values.
+   * @param leaf The leaf node we're verifying inclusion for.
+   * @notice leaf must be greater than 32 bytes. This is intended to prevent
+   * valid proofs of non-leaf values.
    * @param path The path from the leaf to the root.
    * @param siblings The sibling nodes along the way.
    * @return Boolean stating whether the proof was valid.
@@ -94,8 +96,8 @@ library MerkleProofLib {
   }
 
   /**
-   * @notice get the n'th bit in a uint.
-   *         For instance, if exampleUint=binary(11), getNth(exampleUint, 0) == 1, getNth(2, 1) == 1
+   * @notice Get the n'th bit in a uint. For instance, if
+   * exampleUint=binary(11), getNth(exampleUint, 0) == 1, getNth(2, 1) == 1
    * @param intVal The uint256 we are extracting a bit out of
    * @param index The index of the bit we want to extract
    * @return The bit (1 or 0) in a uint8

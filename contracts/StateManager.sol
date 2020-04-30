@@ -4,16 +4,14 @@ pragma experimental ABIEncoderV2;
 import { BlockLib as Block } from "./lib/BlockLib.sol";
 import { StateLib as State } from "./lib/StateLib.sol";
 import "./Configurable.sol";
+import "./interfaces/StateManagerInterface.sol";
 
 
-contract StateManager is Configurable {
+contract StateManager is StateManagerInterface, Configurable {
   using Block for Block.BlockHeader;
   using State for State.State;
 
   State.State internal _state;
-
-  /* <-- Events --> */
-  event BlockSubmitted(uint32 blockNumber, bytes32 blockHash);
 
   /* State Utility Functions */
   /**
@@ -25,12 +23,12 @@ contract StateManager is Configurable {
    * @param input Block input data, including a header and transactions buffer.
    */
   function _putPendingBlock(Block.BlockInput memory input) internal {
-    Block.BlockHeader memory header = Block._toCommitment(input);
+    Block.BlockHeader memory header = Block.toCommitment(input);
     require(
       header.blockNumber == _state.blockHashes.length, "Invalid block number."
     );
     require(header.version == version, "Version mismatch.");
-    bytes32 blockHash = Block._blockHash(header);
+    bytes32 blockHash = Block.blockHash(header);
     _state.blockHashes.push(blockHash);
     emit BlockSubmitted(header.blockNumber, blockHash);
   }
@@ -46,7 +44,7 @@ contract StateManager is Configurable {
    */
   function _confirmBlock(Block.BlockHeader memory header) internal {
     require(
-      _state._blockIsPending(header.blockNumber, Block._blockHash(header)),
+      _state.blockIsPending(header.blockNumber, Block.blockHash(header)),
       "Only pending blocks can be confirmed."
     );
 
