@@ -40,7 +40,7 @@
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli",
-    "start:app": "ts-node ./app/index.ts"
+    "start:app": "nodemon --exec ts-node ./app/index.ts"
   },
   "dependencies": {
     "ethereumjs-utils": "^5.2.5",
@@ -69,6 +69,7 @@
     "lint-staged": "^9.2.1",
     "mocha": "^7.1.1",
     "mocha-lcov-reporter": "^1.3.0",
+    "nodemon": "^2.0.3",
     "nyc": "^15.0.1",
     "prettier": "1.16.4",
     "pretty-quick": "^2.0.1",
