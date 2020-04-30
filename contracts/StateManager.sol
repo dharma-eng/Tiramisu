@@ -4,16 +4,14 @@ pragma experimental ABIEncoderV2;
 import { BlockLib as Block } from "./lib/BlockLib.sol";
 import { StateLib as State } from "./lib/StateLib.sol";
 import "./Configurable.sol";
+import "./interfaces/StateManagerInterface.sol";
 
 
-contract StateManager is Configurable {
+contract StateManager is StateManagerInterface, Configurable {
   using Block for Block.BlockHeader;
   using State for State.State;
 
   State.State internal _state;
-
-  /* <-- Events --> */
-  event BlockSubmitted(uint32 blockNumber, bytes32 blockHash);
 
   /* State Utility Functions */
   /**
