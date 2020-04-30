@@ -1,18 +1,16 @@
-import { State, StateMachine } from "./state";
+import setupServer from "./setupServer";
+import setupStateMachine from "./setupStateMachine";
+import { NODE_ENV } from "./env";
 
+if (NODE_ENV === "develop") {
+  setupServer();
+}
+
+export let stateMachine = setupStateMachine();
 export * from './types';
 export * from './state';
 export * from './lib';
 export {default as Blockchain} from './Blockchain';
-import setupServer from "./setupServer";
 
-setupServer();
-
-export let stateMachine = setupStateMachine();
-
-async function setupStateMachine() {
-  const state = await State.create();
-  return new StateMachine(state);
-}
 
 
