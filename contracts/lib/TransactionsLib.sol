@@ -103,7 +103,7 @@ library TransactionsLib {
     bytes32 intermediateStateRoot;
   }
 
-  function _decodeHardCreate(
+  function decodeHardCreate(
     bytes memory transaction
   ) internal pure returns (HardCreate memory hardCreate) {
     assembly {
@@ -124,7 +124,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeHardDeposit(
+  function decodeHardDeposit(
     bytes memory transaction
   ) internal pure returns (HardDeposit memory hardDeposit) {
     assembly {
@@ -141,7 +141,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeHardWithdrawal(
+  function decodeHardWithdrawal(
     bytes memory transaction
   ) internal pure returns (HardWithdrawal memory hardWithdrawal) {
     assembly {
@@ -160,7 +160,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeHardAddSigner(
+  function decodeHardAddSigner(
     bytes memory transaction
   ) internal pure returns (HardAddSigner memory hardAddSigner) {
     assembly {
@@ -179,7 +179,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeSoftWithdrawal(
+  function decodeSoftWithdrawal(
     bytes memory transaction
   ) internal pure returns (SoftWithdrawal memory softWithdrawal) {
     uint24 nonce;
@@ -217,7 +217,7 @@ library TransactionsLib {
     );
   }
 
-  function _decodeSoftCreate(
+  function decodeSoftCreate(
     bytes memory transaction
   ) internal pure returns (SoftCreate memory softCreate) {
     assembly {
@@ -247,7 +247,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeSoftTransfer(
+  function decodeSoftTransfer(
     bytes memory transaction
   ) internal pure returns (SoftTransfer memory softTransfer) {
     assembly {
@@ -272,7 +272,7 @@ library TransactionsLib {
     }
   }
 
-  function _decodeSoftChangeSigner(
+  function decodeSoftChangeSigner(
     bytes memory transaction
   ) internal pure returns (SoftChangeSigner memory softChangeSigner) {
     assembly {
@@ -298,12 +298,12 @@ library TransactionsLib {
   }
 
   /**
-   * @dev _decodeTransactionsMetadata
+   * @dev decodeTransactionsMetadata
    * Decodes the first 16 bytes of a block's transactions buffer into a metadata struct.
    * @param transactions - transactions buffer from a block
    * @return meta - decoded metadata object
    */
-  function _decodeTransactionsMetadata(
+  function decodeTransactionsMetadata(
     bytes memory transactions
   ) internal pure returns (TransactionsMetadata memory meta) {
     assembly {
@@ -328,12 +328,12 @@ library TransactionsLib {
   }
 
   /**
-   * @dev _stateRootFromTransaction
+   * @dev stateRootFromTransaction
    * Reads the state root from a transaction by peeling off the last 32 bytes.
    * @param transaction - encoded transaction of any type
    * @return root - state root from the transaction
    */
-  function _stateRootFromTransaction(
+  function stateRootFromTransaction(
     bytes memory transaction
   ) internal pure returns (bytes32 root) {
     assembly {
@@ -345,13 +345,13 @@ library TransactionsLib {
   }
 
   /**
-   * @dev _countCreateTransactionsWithEmptyRoot
+   * @dev countCreateTransactionsWithEmptyRoot
    * Counts the number of hard create transactions in a transactions buffer which failed to execute.
    * @param txData - transactions buffer from a block
    * @param meta - transactions metadata from the buffer
    * @return count - number of failed create transactions in the block
    */
-  function _countCreateTransactionsWithEmptyRoot(
+  function countCreateTransactionsWithEmptyRoot(
     bytes memory txData, TransactionsMetadata memory meta
   ) internal pure returns (uint256 count) {
     uint256 pointer;
@@ -366,24 +366,24 @@ library TransactionsLib {
   }
 
   /**
-   * @dev _transactionPrefix
+   * @dev transactionPrefix
    * Returns the transaction prefix from an encoded transaction by reading the first byte.
    * @param transaction - encoded transaction of any type
    * @return prefix - transaction prefix read from the first byte of the transaction
    */
-  function _transactionPrefix(
+  function transactionPrefix(
     bytes memory transaction
   ) internal pure returns (uint8 prefix) {
     assembly { prefix := shr(248, mload(add(transaction, 32))) }
   }
 
   /**
-   * @dev _transactionsCount
+   * @dev transactionsCount
    * Returns the total number of transactions in the tx metadata.
    * @param meta - transactions metadata from a transaction buffer
    * @return number of transactions the metadata says exist in the buffer
    */
-  function _transactionsCount(
+  function transactionsCount(
     TransactionsMetadata memory meta
   ) internal pure returns (uint256) {
     return (
@@ -404,7 +404,7 @@ library TransactionsLib {
    * @param meta - transactions metadata from a transaction buffer
    * @return number of bytes the transactions buffer should have
    */
-  function _expectedTransactionsLength(
+  function expectedTransactionsLength(
     TransactionsMetadata memory meta
   ) internal pure returns (uint256) {
     return (
@@ -419,7 +419,7 @@ library TransactionsLib {
     );
   }
 
-  function _putLeaves(
+  function putLeaves(
     bytes[] memory leaves,
     bool identitySuccess,
     uint256 leafIndex,
@@ -444,18 +444,21 @@ library TransactionsLib {
     return (identitySuccess, leafIndex, currentPointer);
   }
 
-  function _deriveTransactionsRoot(
+  function deriveTransactionsRoot(
     bytes memory transactionsData
   ) internal view returns (bytes32) {
-    TransactionsMetadata memory meta = _decodeTransactionsMetadata(transactionsData);
-    uint256 expectedLength = _expectedTransactionsLength(meta);
+    TransactionsMetadata memory meta = decodeTransactionsMetadata(
+      transactionsData
+    );
+
+    uint256 expectedLength = expectedTransactionsLength(meta);
     /* If the transactions data size is incommensurate with the transactions
        header, the block is erroneous. */
     require(
       transactionsData.length == expectedLength + 16,
       "Transactions metadata does not match buffer length."
     );
-    uint256 txCount = _transactionsCount(meta);
+    uint256 txCount = transactionsCount(meta);
     uint256 txPtr;
     uint256 leafIndex = 0;
     bytes[] memory leaves = new bytes[](txCount);
@@ -464,54 +467,54 @@ library TransactionsLib {
     bool identitySuccess = true;
 
     if (meta.hardCreateCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 0, meta.hardCreateCount, 88
       );
     }
 
     if (meta.hardDepositCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 1, meta.hardDepositCount, 48
       );
     }
 
     if (meta.hardWithdrawCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 2, meta.hardWithdrawCount, 68
       );
     }
 
     if (meta.hardAddSignerCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 3, meta.hardAddSignerCount, 61
       );
     }
 
     if (meta.softWithdrawCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 4, meta.softWithdrawCount, 131
       );
     }
 
     if (meta.softCreateCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 5, meta.softCreateCount, 155
       );
     }
 
     if (meta.softTransferCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 6, meta.softTransferCount, 115
       );
     }
 
     if (meta.softChangeSignerCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = _putLeaves(
+      (identitySuccess, leafIndex, txPtr) = putLeaves(
         leaves, identitySuccess, leafIndex, txPtr, 7, meta.softChangeSignerCount, 125
       );
     }
 
     require(identitySuccess, "Failed to copy bytes.");
-    return Merkle._getMerkleRoot(leaves);
+    return Merkle.getMerkleRoot(leaves);
   }
 }

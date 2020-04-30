@@ -19,10 +19,12 @@ contract RollupMerkleUtils {
    * @param dataBlocks The data being used to generate the tree.
    * @return the sparse merkle tree root
    */
-  function getMerkleRoot(bytes[] calldata dataBlocks) external view returns (bytes32) {
+  function getMerkleRoot(
+    bytes[] calldata dataBlocks
+  ) external view returns (bytes32) {
     uint256 nextLevelLength = dataBlocks.length;
     uint256 currentLevel = 0;
-    bytes32[160] memory defaultHashes = _getDefaultHashes();
+    bytes32[160] memory defaultHashes = getDefaultHashes();
 
     // Note: Add one in case we have an odd number of leaves
     bytes32[] memory nodes = new bytes32[](nextLevelLength + 1);
@@ -31,9 +33,11 @@ contract RollupMerkleUtils {
     for (uint256 i = 0; i < dataBlocks.length; i++) {
       nodes[i] = keccak256(dataBlocks[i]);
     }
+
     if (dataBlocks.length == 1) {
       return nodes[0];
     }
+
     // Add a defaultNode if we've got an odd number of leaves
     if (nextLevelLength % 2 == 1) {
       nodes[nextLevelLength] = defaultHashes[currentLevel];
@@ -62,7 +66,7 @@ contract RollupMerkleUtils {
     return nodes[0];
   }
 
-  function _getDefaultHashes() internal view returns (
+  function getDefaultHashes() internal view returns (
     bytes32[160] memory defaultHashes
   ) {
     assembly {
@@ -75,7 +79,7 @@ contract RollupMerkleUtils {
     }
   }
 
-  function _getDefaultHash(
+  function getDefaultHash(
     uint256 index
   ) internal view returns (bytes32 defaultHash) {
     bytes memory defaultHashMemory = new bytes(32);

@@ -8,10 +8,10 @@ import {
     SoftCreateTransaction,
     SoftTransferTransaction,
     SoftWithdrawTransaction,
-    Transactions
+    Transactions,
+    Transaction
 } from "../types/TransactionInterfaces";
 import {AccountType, Account} from "../types/Account";
-import { toHex } from "../lib/to";
 
 export interface StateMachine {
     state: StateType; 
@@ -96,6 +96,19 @@ export class StateMachine {
                     softCreates.splice(i, 1);
                 }
             }
+        }
+    }
+
+    async executeSingle(transaction: Transaction) {
+        switch(transaction.prefix) {
+            case 0: return this.hardCreate(transaction)
+            case 1: return this.hardDeposit(transaction)
+            case 2: return this.hardWithdraw(transaction)
+            case 3: return this.hardAddSigner(transaction)
+            case 4: return this.softWithdrawal(transaction)
+            case 5: return this.softCreate(transaction)
+            case 6: return this.softTransfer(transaction)
+            case 7: return this.softChangeSigner(transaction)
         }
     }
 

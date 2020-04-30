@@ -9,16 +9,13 @@ interface HardCreateArguments {
 }
 
 export class HardCreate implements HardCreateTransaction {
+    prefix: 0;
     hardTransactionIndex: number;
     accountAddress: string;
     initialSigningKey: string;
     value: number;
     intermediateStateRoot: string;
     accountIndex: number;
-
-    get prefix(): number {
-        return 0;
-    }
 
     constructor(args: HardCreateArguments) {
         const {
@@ -31,6 +28,7 @@ export class HardCreate implements HardCreateTransaction {
         this.accountAddress = toHex(contractAddress);
         this.initialSigningKey = toHex(signerAddress);
         this.value = toInt(value);
+        this.prefix = 0;
     }
 
     addOutput(intermediateStateRoot: string, accountIndex: number): void {

@@ -1,11 +1,11 @@
-import { BigNumber } from 'sparse-merkle-tree';
+import { BigNumber, SparseMerkleTree, MerkleTreeInclusionProof } from 'sparse-merkle-tree';
 import { bufferToHex } from 'ethereumjs-util';
 import {AccountType, Account} from "../types/Account";
 import getTree from './state-tree';
 import SimpleMemdown from '../lib/simple-memdown';
 
 export interface StateType {
-    tree: any;
+    tree: SparseMerkleTree;
     accountMap: any; //TODO: make this more specific than "any"
     size: number;
     getAccountIndexByAddress(address: string): Promise<number>;
@@ -13,10 +13,11 @@ export interface StateType {
     putAccount(account: AccountType): Promise<number>;
     rootHash(): Promise<string>;
     updateAccount(_accountIndex: any, account: AccountType): Promise<void>;
+    getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof>;
 
 }
 export class State implements StateType {
-    tree: any;
+    tree: SparseMerkleTree;
     size: number;
     accountMap: any;
 
@@ -68,6 +69,10 @@ export class State implements StateType {
         const accountIndex = BigNumber.isBigNumber(_accountIndex) ? _accountIndex : new BigNumber(_accountIndex);
         const leaf = account.encode() as Buffer;
         await this.tree.update(accountIndex, leaf);
+    }
+
+    async getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof> {
+        return this.tree.getMerkleProof(new BigNumber(accountIndex), (await this.getAccount(accountIndex)).encode());
     }
 }
 

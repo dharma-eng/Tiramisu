@@ -34,3 +34,14 @@ export const toNonPrefixed = (str: string) => {
   if (str.slice(0, 2) == '0x') return str.slice(2);
   return str;
 }
+
+export const toPrefixed = (str: string): string => {
+  if (str.slice(0, 2) == '0x') return str;
+  return `0x${str}`;
+}
+
+export const sliceBuffer = (buf: Buffer, index: number, length: number): Buffer => {
+  const copy = Buffer.alloc(length);
+  buf.copy(copy, index, index + length);
+  return copy;
+}

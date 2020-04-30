@@ -1,20 +1,6 @@
-import {
-    Transaction,
-    Transactions
-} from "./TransactionInterfaces";
-import TransactionsMetadata from './TransactionMetadata'
-import { getMerkleRoot, toBuf, toHex, keccak256 } from '../lib';
-
-const keys = [
-    "hardCreates",
-    "hardDeposits",
-    "hardWithdrawals",
-    "hardAddSigners",
-    "softWithdrawals",
-    "softCreates",
-    "softTransfers",
-    "softChangeSigners"
-];
+import { Transactions } from "./TransactionInterfaces";
+import { toBuf, toHex, keccak256 } from '../lib';
+import { encodeBlock } from "../lib/block-coder";
 
 interface BlockParameters {
     version: number,
@@ -53,49 +39,10 @@ export class Block implements BlockType {
     commitment: Commitment;
     transactions: Transactions;
     constructor(args: BlockArguments) {
-        const {
-            version,
-            blockNumber,
-            stateSize,
-            stateRoot,
-            hardTransactionsIndex,
-            transactions
-        } = args;
+        const { header, transactionsData } = encodeBlock(args);
 
-        this.transactions = transactions;
-
-        const transactionsArray = keys.reduce(
-            (arr, key) => [...arr, ...transactions[key]],
-            []
-        ) as Transaction[];
-
-        /* Encode transactions with their prefixes, calculate merkle root. */
-        const leaves = transactionsArray.map(t => t.encode(true)) as Buffer[];
-        const transactionsRoot = getMerkleRoot(leaves) as Buffer;
-
-        /* Encode transactions without their prefixes and concatenate them. Place the encoded metadata at the beginning. */
-        const transactionsMetadata = TransactionsMetadata.fromTransactions(
-            transactions
-        );
-        const transactionsBuffer = Buffer.concat(
-            transactionsArray.map(t => t.encode(false))
-        );
-        const transactionsData = Buffer.concat([
-            transactionsMetadata.encode(),
-            transactionsBuffer
-        ]);
-
-        /* Add the hard transactions count from this block to the previous total. */
-        const hardTransactionsCount =
-            hardTransactionsIndex + transactionsMetadata.hardTransactionsCount as number;
-        this.header = {
-            version,
-            blockNumber,
-            stateSize,
-            hardTransactionsCount: hardTransactionsCount,
-            stateRoot,
-            transactionsRoot
-        };
+        this.transactions = args.transactions;
+        this.header = header;
         this.transactionsData = transactionsData;
     }
 

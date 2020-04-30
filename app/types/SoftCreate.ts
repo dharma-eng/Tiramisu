@@ -9,8 +9,7 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util'
-
-const { toBuf, toHex, toInt } = require("../lib/to");
+import { toBuf, toHex, toInt } from "../lib/to";
 
 interface SoftCreateArguments {
     fromAccountIndex: number;
@@ -24,6 +23,7 @@ interface SoftCreateArguments {
 }
 
 export class SoftCreate implements SoftCreateTransaction {
+    prefix: 5;
     accountIndex: number;
     toAccountIndex: number;
     nonce: number;
@@ -34,10 +34,6 @@ export class SoftCreate implements SoftCreateTransaction {
     intermediateStateRoot: string;
     resolve: () => void;
     reject: (errorMessage: string) => void;
-
-    get prefix(): number {
-        return 5;
-    }
 
     get bytesWithoutPrefix(): number {
         return 155;
@@ -64,6 +60,7 @@ export class SoftCreate implements SoftCreateTransaction {
         let sig = privateKey ? this.sign(privateKey) : signature;
         if (typeof sig == "object") this.signature = toRpcSig(sig.v, sig.r, sig.s);
         else this.signature = toHex(sig);
+        this.prefix = 5;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {

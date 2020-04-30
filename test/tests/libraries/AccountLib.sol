@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import { MerkleProofLib as Merkle } from "./merkle/MerkleProofLib.sol";
+import { MerkleProofLib as Merkle } from "./MerkleProofLib.sol";
 
 
 library AccountLib {
@@ -20,11 +20,12 @@ library AccountLib {
 
   function verifyAccountInState(
     bytes32 stateRoot, bytes memory encoded
-  ) internal pure returns (
+  ) public pure returns (
     bool empty, uint256 accountIndex, Account memory account
   ) {
     StateProof memory proof = abi.decode((encoded), (StateProof));
     accountIndex = proof.accountIndex;
+
     require(
       Merkle.verify(stateRoot, proof.data, accountIndex, proof.siblings),
       "Invalid state proof."
@@ -44,9 +45,7 @@ library AccountLib {
     Account memory account, address signer
   ) internal pure returns (bool) {
     for (uint256 i = 0; i < account.signers.length; i++) {
-      if (account.signers[i] == signer) {
-        return true;
-      }
+      if (account.signers[i] == signer) return true;
     }
 
     return false;
@@ -73,7 +72,7 @@ library AccountLib {
 
   function decode(
     bytes memory data
-  ) internal pure returns (Account memory account) {
+  ) public pure returns(Account memory account) {
     uint256 remainder = (data.length - 30);
     if (remainder % 20 != 0) revert("Invalid account encoding.");
     uint256 signerCount = remainder / 20;

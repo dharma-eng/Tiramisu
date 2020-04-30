@@ -62,7 +62,7 @@ library HardTransactionsLib {
 
   enum HardTransactionType { INVALID, DEPOSIT, WITHDRAWAL, ADD_SIGNER }
 
-  function _checkTransactionType(
+  function checkTransactionType(
     bytes memory encodedTransaction
   ) internal pure returns (HardTransactionType) {
     if (encodedTransaction.length == 47) return HardTransactionType.DEPOSIT;
@@ -71,7 +71,7 @@ library HardTransactionsLib {
     return HardTransactionType.INVALID;
   }
 
-  function _encode(
+  function encode(
     HardDeposit memory transaction
   ) internal pure returns (bytes memory encodedTransaction) {
     /* Note, while the prefix 0 is used here, this struct actually handles both
@@ -84,7 +84,7 @@ library HardTransactionsLib {
     );
   }
 
-  function _decodeHardDeposit(
+  function decodeHardDeposit(
     bytes memory data
   ) internal pure returns (HardDeposit memory hardDeposit) {
     assembly {
@@ -99,7 +99,7 @@ library HardTransactionsLib {
     }
   }
 
-  function _encode(
+  function encode(
     HardWithdrawal memory transaction
   ) internal pure returns (bytes memory encodedTransaction) {
     encodedTransaction = abi.encodePacked(
@@ -110,7 +110,7 @@ library HardTransactionsLib {
     );
   }
 
-  function _decodeHardWithdrawal(
+  function decodeHardWithdrawal(
     bytes memory data
   ) internal pure returns (HardWithdrawal memory hardWithdrawal) {
     assembly {
@@ -125,7 +125,7 @@ library HardTransactionsLib {
     }
   }
 
-  function _encode(
+  function encode(
     HardAddSigner memory transaction
   ) internal pure returns (bytes memory encodedTransaction) {
     encodedTransaction = abi.encodePacked(
@@ -136,7 +136,7 @@ library HardTransactionsLib {
     );
   }
 
-  function _decodeHardAddSigner(
+  function decodeHardAddSigner(
     bytes memory data
   ) internal pure returns (HardAddSigner memory hardAddSigner) {
     assembly {

@@ -43,7 +43,7 @@ library BlockLib {
     * in the committed header.
     * @param blockInput - Block input data submitted with a block submission.
     */
-  function _toCommitment(
+  function toCommitment(
     BlockInput memory blockInput
   ) internal view returns (BlockHeader memory) {
     return BlockHeader(
@@ -58,19 +58,19 @@ library BlockLib {
     );
   }
 
-  function _decodeBlockHeader(
+  function decodeBlockHeader(
     bytes memory data
   ) internal pure returns (BlockHeader memory) {
     return abi.decode((data), (BlockHeader));
   }
 
-  function _blockHash(
+  function blockHash(
     BlockHeader memory header
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(header));
   }
 
-  function _hasTransactionsData(
+  function hasTransactionsData(
     BlockHeader memory header, bytes memory txData
   ) internal pure returns (bool) {
     return header.transactionsHash == keccak256(txData);
