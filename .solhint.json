@@ -1,0 +1,9 @@
+{
+  "extends": "solhint:all",
+  "rules": {
+    "compiler-version": "off",
+    "mark-callable-contracts": "off",
+    "no-inline-assembly": "off",
+    "reason-string": ["warn", { "maxLength": 42 }]
+  }
+}
