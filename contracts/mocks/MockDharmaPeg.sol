@@ -17,6 +17,7 @@ import { AccountLib as Account } from "../lib/AccountLib.sol";
 
 
 contract MockDharmaPeg is DharmaPeg {
+
   constructor(address daiContract) public DharmaPeg(
     0, /* challenge period */
     50, /* commitment bond */
@@ -24,7 +25,8 @@ contract MockDharmaPeg is DharmaPeg {
     0, /* config change delay */
     IDharmaAddressGetter(address(0)), /* dharma addressHandler */
     IERC20(daiContract)
-  ) {}
+  ) /* solhint-disable no-empty-blocks */ {
+  } /* solhint-enable no-empty-blocks */
 
   function mockDeposit(
     address contractAddress, address initialSignerAddress, uint56 value
@@ -39,16 +41,6 @@ contract MockDharmaPeg is DharmaPeg {
   }
 
   /* Fraud Proofs */
-  function transactionHadPreviousState(
-    bytes memory previousSource,
-    Block.BlockHeader memory blockHeader,
-    uint256 transactionIndex
-  ) public view returns(bytes32) {
-    return FraudUtils.transactionHadPreviousState(
-      _state, previousSource, blockHeader, transactionIndex
-    );
-  }
-
   function proveStateSizeError(
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
@@ -94,6 +86,16 @@ contract MockDharmaPeg is DharmaPeg {
       siblings,
       previousStateProof,
       stateProof
+    );
+  }
+
+  function transactionHadPreviousState(
+    bytes memory previousSource,
+    Block.BlockHeader memory blockHeader,
+    uint256 transactionIndex
+  ) public view returns (bytes32) {
+    return FraudUtils.transactionHadPreviousState(
+      _state, previousSource, blockHeader, transactionIndex
     );
   }
 }

@@ -147,7 +147,6 @@ library TransactionFraudProofs {
     );
 
     uint8 prefix = transaction.transactionPrefix();
-
     require(prefix < 4, "Input not a hard transaction.");
 
     require(
@@ -165,20 +164,13 @@ library TransactionFraudProofs {
     }
 
     bytes memory inputData = state.hardTransactions[hardTransactionIndex];
-
     bool hasError;
-
     if (prefix == 0) {
       hasError = proveHardCreateSourceError(inputData, transaction);
     } else if (prefix == 1) {
       hasError = proveHardDepositSourceError(
-        state,
-        badHeader,
-        inputData,
-        transaction,
-        transactionIndex,
-        previousStateProof,
-        stateProof
+        state, badHeader, inputData, transaction, transactionIndex,
+        previousStateProof, stateProof
       );
     } else if (prefix == 2) {
       hasError = proveHardWithdrawSourceError(inputData, transaction);

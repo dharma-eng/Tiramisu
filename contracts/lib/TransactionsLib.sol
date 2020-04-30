@@ -456,62 +456,32 @@ library TransactionsLib {
        header, the block is erroneous. */
     require(
       transactionsData.length == expectedLength + 16,
-      "Transactions metadata does not match buffer length."
+      "Incorrect transactions data buffer length."
     );
     uint256 txCount = transactionsCount(meta);
     uint256 txPtr;
     uint256 leafIndex = 0;
-    bytes[] memory leaves = new bytes[](txCount);
     assembly { txPtr := add(transactionsData, 48) }
-
     bool identitySuccess = true;
+    bytes[] memory leaves = new bytes[](txCount);
+    uint16[2][8] memory elements = [
+      [meta.hardCreateCount, 88],
+      [meta.hardDepositCount, 48],
+      [meta.hardWithdrawCount, 68],
+      [meta.hardAddSignerCount, 61],
+      [meta.softWithdrawCount, 131],
+      [meta.softCreateCount, 155],
+      [meta.softTransferCount, 115],
+      [meta.softChangeSignerCount, 125]
+    ];
 
-    if (meta.hardCreateCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 0, meta.hardCreateCount, 88
-      );
-    }
-
-    if (meta.hardDepositCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 1, meta.hardDepositCount, 48
-      );
-    }
-
-    if (meta.hardWithdrawCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 2, meta.hardWithdrawCount, 68
-      );
-    }
-
-    if (meta.hardAddSignerCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 3, meta.hardAddSignerCount, 61
-      );
-    }
-
-    if (meta.softWithdrawCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 4, meta.softWithdrawCount, 131
-      );
-    }
-
-    if (meta.softCreateCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 5, meta.softCreateCount, 155
-      );
-    }
-
-    if (meta.softTransferCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 6, meta.softTransferCount, 115
-      );
-    }
-
-    if (meta.softChangeSignerCount > 0) {
-      (identitySuccess, leafIndex, txPtr) = putLeaves(
-        leaves, identitySuccess, leafIndex, txPtr, 7, meta.softChangeSignerCount, 125
-      );
+    for (uint8 i = 0; i < 8; i++) {
+      uint16 count = elements[i][0];
+      if (count > 0) {
+        (identitySuccess, leafIndex, txPtr) = putLeaves(
+          leaves, identitySuccess, leafIndex, txPtr, i, count, elements[i][1]
+        );
+      }
     }
 
     require(identitySuccess, "Failed to copy bytes.");

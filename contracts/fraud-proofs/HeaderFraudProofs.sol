@@ -15,7 +15,7 @@ library HeaderFraudProofs {
   using Tx for Tx.TransactionsMetadata;
 
   /**
-   * @dev _proveStateSizeError
+   * @dev proveStateSizeError
    * Proves that the state size in a block header does not match the expected state size based on
    * the creation transactions in the block.
    * @param state storage struct representing the peg state
@@ -103,55 +103,33 @@ library HeaderFraudProofs {
     /* If the transactions data size is incommensurate with the transactions
        header, the block is erroneous. */
     if (transactionsData.length != expectedLength + 16) {
-      state.revertBlock(badHeader);
-      return;
+      return state.revertBlock(badHeader);
     }
     uint256 txCount = meta.transactionsCount();
     uint256 txPtr = 48;
     uint256 leafIndex = 0;
-    bytes[] memory leaves = new bytes[](txCount);
-
     bool identitySuccess = true;
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      0, meta.hardCreateCount, 88
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      1, meta.hardDepositCount, 48
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      2, meta.hardWithdrawCount, 48
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      3, meta.hardAddSignerCount, 93
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      4, meta.softWithdrawCount, 131
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      5, meta.softCreateCount, 155
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      6, meta.softTransferCount, 115
-    );
-    (identitySuccess, leafIndex, txPtr) = putLeaves(
-      leaves, identitySuccess,
-      leafIndex, txPtr,
-      7, meta.softChangeSignerCount, 125
-    );
+    bytes[] memory leaves = new bytes[](txCount);
+    uint16[2][8] memory elements = [
+      [meta.hardCreateCount, 88],
+      [meta.hardDepositCount, 48],
+      [meta.hardWithdrawCount, 48],
+      [meta.hardAddSignerCount, 93],
+      [meta.softWithdrawCount, 131],
+      [meta.softCreateCount, 155],
+      [meta.softTransferCount, 115],
+      [meta.softChangeSignerCount, 125]
+    ];
+
+    for (uint8 i = 0; i < 8; i++) {
+      uint16 count = elements[i][0];
+      if (count > 0) {
+        (identitySuccess, leafIndex, txPtr) = putLeaves(
+          leaves, identitySuccess, leafIndex, txPtr, i, count, elements[i][1]
+        );
+      }
+    }
+
     bytes32 txRoot = Merkle.getMerkleRoot(leaves);
     if (txRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
   }

@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 
 library MerkleTreeLib {
+  /* solhint-disable code-complexity */
   function getMerkleRoot(
     bytes[] memory leaves
   ) internal pure returns (bytes32 root) {
@@ -50,4 +51,5 @@ library MerkleTreeLib {
     }
     return nodes[0];
   }
+  /* solhint-enable code-complexity */
 }
