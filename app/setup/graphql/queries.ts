@@ -1,6 +1,6 @@
 import { GraphQLObjectType } from "graphql";
-import {test} from "../modules/prueba/query";
-import {getAccount} from "../modules/account/query";
+import {test} from "../../modules/prueba/query";
+import {getAccount} from "../../modules/account/query";
 
 const queries = new GraphQLObjectType({
   name: "query",

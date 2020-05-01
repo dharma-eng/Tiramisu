@@ -1,5 +1,5 @@
 import { GraphQLObjectType } from "graphql";
-import {testPrint} from "../modules/prueba/mutation";
+import {testPrint} from "../../modules/prueba/mutation";
 
 const mutations = new GraphQLObjectType({
   name: "mutations",
