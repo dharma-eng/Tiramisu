@@ -1,5 +1,5 @@
 import { encodeTransactions } from "./transactions-coder";
-import { Transactions } from "../types/TransactionInterfaces";
+import { Transactions } from "../modules/transactions";
 
 interface BlockArguments {
   version: number;

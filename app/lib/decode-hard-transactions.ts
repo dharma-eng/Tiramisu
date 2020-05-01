@@ -4,7 +4,7 @@ import {
   HardDeposit,
   HardWithdraw,
   HardAddSigner
-} from "../types";
+} from "../modules/transactions";
 
 async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
   let encoded = toNonPrefixed(_encoded);

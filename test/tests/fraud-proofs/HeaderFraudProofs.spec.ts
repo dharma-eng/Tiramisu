@@ -1,8 +1,6 @@
 import chai from 'chai';
 import Tester from '../../Tester';
-import { Blockchain } from '../../../app';
-
-import { BlockType, Commitment } from '../../../app/types';
+import { BlockType, Commitment, Blockchain } from '../../../app';
 import { randomHexBuffer } from '../../utils';
 
 const { expect } = chai;

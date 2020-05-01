@@ -1,8 +1,6 @@
-import { TransactionMetadata } from "../types/TransactionMetadata";
-import { Transactions, Transaction } from "../types/TransactionInterfaces";
+import { TransactionMetadata, Transactions, Transaction } from "../modules/transactions/";
 import { getMerkleRoot } from "./merkle";
 // import { sliceBuffer } from './to';
-// import { HardCreate, HardDeposit, HardWithdraw, HardAddSigner, SoftWithdrawal, SoftCreate, SoftTransfer, SoftChangeSigner } from "../types";
 
 const keys = [
   'hardCreates',
