@@ -1,8 +1,6 @@
-import StateMachine from '../../app/state/StateMachine';
 import { Transactions, Transaction } from '../../app/types/TransactionInterfaces';
 import { transactionsToArray } from '../../app/lib/transactions-coder';
 import { getMerkleProof, toHex, Blockchain, Block, BlockType, getMerkleRoot } from '../../app';
-import { MerkleTreeInclusionProof } from 'sparse-merkle-tree';
 const ABI = require('web3-eth-abi');
 
 export type BlockProofOptions = {

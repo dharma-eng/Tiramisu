@@ -10,8 +10,8 @@ import {
   SoftWithdrawal,
   SoftChangeSigner,
   SoftCreate,
-} from '../../../app/types';
-import { toHex } from '../../../app/lib';
+  toHex
+} from '../../../app';
 import { randomAccount, randomHexBuffer } from '../../utils/random';
 
 const { expect } = chai;

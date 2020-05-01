@@ -1,6 +1,6 @@
 import crypto = require("crypto");
 import { privateToAddress } from 'ethereumjs-util';
-import { toHex, toInt } from '../../app/lib/to';
+import { toHex, toInt } from '../../app';
 
 export function randomHexString(size) {
   const bytes = crypto.randomBytes(size);

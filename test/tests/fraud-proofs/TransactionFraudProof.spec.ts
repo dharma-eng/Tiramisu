@@ -1,15 +1,17 @@
-import chai from 'chai';
-import Tester from '../../Tester';
-import { getMerkleProof, getMerkleRoot } from '../../../app';
-import { BlockType, Commitment } from '../../../app/types';
 import {
   HardCreateTransaction,
   HardDepositTransaction,
   HardWithdrawTransaction,
-  HardAddSignerTransaction
-} from '../../../app/types/TransactionInterfaces';
+  HardAddSignerTransaction,
+  BlockType,
+  Commitment,
+  getMerkleProof,
+  getMerkleRoot,
+  transactionsToArray
+} from '../../../app';
+import chai from 'chai';
+import Tester from '../../Tester';
 import { randomHexString } from '../../utils/random';
-import { transactionsToArray } from '../../../app/lib/transactions-coder';
 import { ProofBlockchain } from '../../utils/ProofBlockchain';
 
 const { expect } = chai;

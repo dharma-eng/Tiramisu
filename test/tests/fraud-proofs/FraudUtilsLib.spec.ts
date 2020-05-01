@@ -1,11 +1,12 @@
 import chai from 'chai';
 import Tester from '../../Tester';
 import {
+  toHex,
+  getMerkleProof,
   Block,
   SoftWithdrawal,
-} from '../../../app/types';
-import { toHex, getMerkleProof } from '../../../app/lib';
-import { Blockchain } from '../../../app';
+  Blockchain
+} from '../../../app';
 const { expect } = chai;
 
 export const test = () => describe('FraudUtilsLib', async () => {
