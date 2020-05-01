@@ -1,4 +1,4 @@
-import { State, StateMachine } from "./state";
+import { State, StateMachine } from "../modules/state";
 
 async function setupStateMachine() {
   const state = await State.create();

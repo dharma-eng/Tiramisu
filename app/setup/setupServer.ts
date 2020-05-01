@@ -1,6 +1,6 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
-import schema from "./graphql/schema";
+import schema from "../graphql/schema";
 
 const PORT = 5000;
 const GRAPHQL_ENDPOINT = "/";
