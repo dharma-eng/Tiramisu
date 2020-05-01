@@ -51,3 +51,4 @@ export class Block implements BlockType {
 }
 
 export default Block;
+export * from "./interfaces";
