@@ -6,10 +6,10 @@ import {
   HardCreate,
   StateMachine,
   State,
-  sortTransactions
+  sortTransactions,
+  Transaction
 } from '../../app';
 import { randomAccount as randomAccountParams } from './random';
-import { Transaction } from '../../app/types/TransactionInterfaces';
 
 function randomAccount(balance = 0) {
   const { address, privateKey } = randomAccountParams();
