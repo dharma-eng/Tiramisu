@@ -42,7 +42,7 @@
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier": "prettier --write",
     "start": "node ./node_modules/ganache-cli/cli",
-    "start:app": "nodemon --exec ts-node ./app/index.ts"
+    "start:app": "NODE_ENV=develop nodemon --exec ts-node ./app/index.ts"
   },
   "dependencies": {
     "ethereumjs-utils": "^5.2.5",
