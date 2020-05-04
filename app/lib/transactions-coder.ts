@@ -1,6 +1,21 @@
-import { TransactionMetadata, Transactions, Transaction } from "../modules/transactions/";
+import {
+  TransactionMetadata, Transactions,
+  Transaction, TransactionsJson,
+  SoftWithdrawal, HardAddSigner, HardWithdraw, HardDeposit, HardCreate, SoftCreate, SoftTransfer, SoftChangeSigner
+} from "../modules/transactions/";
+
 import { getMerkleRoot } from "./merkle";
-// import { sliceBuffer } from './to';
+
+const TxTypes = [
+  HardCreate,
+  HardDeposit,
+  HardWithdraw,
+  HardAddSigner,
+  SoftWithdrawal,
+  SoftCreate,
+  SoftTransfer,
+  SoftChangeSigner
+];
 
 const keys = [
   'hardCreates',
@@ -22,9 +37,9 @@ export type TransactionEncoderOutput = {
 
 export function transactionsToArray(transactions: Transactions): Transaction[] {
   return keys.reduce(
-    (arr, key) => [...arr, ...transactions[key]],
+    (arr, key) => [...arr, ...(transactions[key] || [])],
     []
-) as Transaction[];
+  ) as Transaction[];
 }
 
 export function encodeTransactions(transactions: Transactions): TransactionEncoderOutput {
@@ -40,6 +55,17 @@ export function encodeTransactions(transactions: Transactions): TransactionEncod
     ...transactionsArray.map(t => t.encode(false))
   ]);
   return { transactionsRoot, metadata, transactionsData, transactionsArray };
+}
+
+export function fromTransactionsJson(transactionsJson: TransactionsJson): TransactionEncoderOutput & { transactions: Transactions } {
+  const transactions = keys.reduce(
+    (obj, key, i) => ({
+      ...obj,
+      [key]: (transactionsJson[key] || []).map(t => new TxTypes[i](t)),
+    }),
+    {}
+  );
+  return { ...encodeTransactions(transactions), transactions };
 }
 
 // export type TransactionDecoderOutput = {
