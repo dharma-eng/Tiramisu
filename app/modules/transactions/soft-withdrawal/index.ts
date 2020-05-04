@@ -1,42 +1,28 @@
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
 import {toBuf, toHex, toInt} from "../../../lib";
-import {SoftWithdrawTransaction} from "../interfaces";
+import {SoftTransaction} from "../interfaces";
 import {AccountType} from "../../account/interfaces";
-import { SoftWithdrawalArguments } from "./interfaces";
+import { SoftWithdrawalData, SoftWithdrawalInput } from "./interfaces";
 
-export class SoftWithdrawal implements SoftWithdrawTransaction {
+export { SoftWithdrawalData };
+
+export interface SoftWithdrawal extends SoftTransaction, SoftWithdrawalData {
     prefix: 4;
-    accountIndex: number;
-    withdrawalAddress: string;
-    nonce: number;
-    value: number;
     signature: string;
-    intermediateStateRoot: string;
-    resolve: () => void;
-    reject: (errorMessage: string) => void;
+}
+
+export class SoftWithdrawal {
+    prefix: 4 = 4;
 
     get bytesWithoutPrefix(): number {
         return 131;
     }
 
-    constructor({
-        fromAccountIndex,
-        withdrawalAddress,
-        nonce,
-        value,
-        signature,
-        privateKey
-    }: SoftWithdrawalArguments) {
-        this.accountIndex = toInt(fromAccountIndex);
-        this.withdrawalAddress = toHex(withdrawalAddress);
-        this.nonce = toInt(nonce);
-        this.value = toInt(value);
-
+    constructor(args: SoftWithdrawalInput) {
+        const { privateKey, signature, ...rest } = args;
+        Object.assign(this, rest);
         let sig = (privateKey) ? this.sign(privateKey) : signature
-
-        if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
-        else this.signature = toHex(sig);
-        this.prefix = 4;
+        this.signature = (typeof sig == 'object') ? toRpcSig(sig.v, sig.r, sig.s) : sig;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {
@@ -104,6 +90,8 @@ export class SoftWithdrawal implements SoftWithdrawTransaction {
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;
         if (!account.hasSufficientBalance(this.value)) return `Insufficient balance. Account has ${account.balance}.`;
     }
+
+    toJSON = (): SoftWithdrawalData => this;
 }
 
 export default SoftWithdrawal;

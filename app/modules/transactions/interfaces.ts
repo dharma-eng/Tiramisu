@@ -1,13 +1,30 @@
 import {AccountType} from "../account/interfaces";
+// import HardCreate from "./hard-create";
+// import HardDeposit from "./hard-deposit";
+// import HardWithdraw from "./hard-withdrawal";
+// import HardAddSigner from "./hard-add-signer";
+// import SoftWithdrawal from "./soft-withdrawal";
+// import SoftCreate from "./soft-create";
+// import SoftTransfer from "./soft-transfer";
+// import SoftChangeSigner from "./soft-change-signer";
+import {
+    HardCreate, HardCreateData,
+    HardDeposit, HardDepositData,
+    HardWithdraw, HardWithdrawData,
+    HardAddSigner, HardAddSignerData,
+    SoftWithdrawal, SoftWithdrawalData,
+    SoftCreate, SoftCreateData,
+    SoftTransfer, SoftTransferData,
+    SoftChangeSigner, SoftChangeSignerData,
+} from './index';
 
-export type Transaction = HardCreateTransaction |
-    HardDepositTransaction |
-    HardWithdrawTransaction |
-    HardAddSignerTransaction |
-    SoftWithdrawTransaction |
-    SoftCreateTransaction |
-    SoftTransferTransaction |
-    SoftChangeSignerTransaction;
+import { JsonType } from "../../lib/simple-level";
+
+export type Transaction = HardCreate | HardDeposit | HardWithdraw | HardAddSigner |
+    SoftWithdrawal | SoftCreate | SoftTransfer | SoftChangeSigner;
+
+export type TransactionData = HardCreateData | HardDepositData | HardWithdrawData | HardAddSignerData |
+    SoftWithdrawalData | SoftCreateData | SoftTransferData | SoftChangeSignerData
 
 export interface CreateTransaction {
     accountAddress: string;
@@ -17,96 +34,47 @@ export interface CreateTransaction {
 export interface BaseTransaction {
     prefix: number;
     intermediateStateRoot?: string;
-    accountIndex: number;
+    accountIndex?: number;
     encode(prefix: boolean): Buffer;
     addOutput(intermediateStateRoot: string, accountIndex?: number): void;
     checkValid?(account: AccountType): string;
     assignResolvers?(resolve: () => void, reject: (errorMessage: string) => void): void;
+    toJSON(): JsonType;
 }
-
-/**
- * Hard Transactions -
- *      Hard Create
- *      Hard Deposit
- *      Hard Withdraw
- *      Hard Add Signer
- */
 
 export interface HardTransaction extends BaseTransaction {
     hardTransactionIndex: number;
 }
 
-export interface HardCreateTransaction extends HardTransaction, CreateTransaction {
-    prefix: 0;
-    value: number;
-}
-
-export interface HardDepositTransaction extends HardTransaction {
-    prefix: 1;
-    value: number;
-}
-
-export interface HardWithdrawTransaction extends HardTransaction {
-    callerAddress: string;
-    prefix: 2;
-    value: number;
-}
-
-export interface HardAddSignerTransaction extends HardTransaction {
-    prefix: 3;
-    signingAddress: string;
-}
-
-
-/**
- * Soft Transactions -
- *      Soft Create
- *      Soft Transfer
- *      Soft Withdraw
- *      Soft Change Signer
- */
-
 export interface SoftTransaction extends BaseTransaction {
     nonce: number;
+    accountIndex: number;
     signature: string;
     resolve: (argument?: any) => void;
     reject: (errorMessage: string) => void;
 }
 
-export interface SoftWithdrawTransaction extends SoftTransaction {
-    prefix: 4;
-    withdrawalAddress: string;
-    value: number;
-}
-
-export interface SoftCreateTransaction extends SoftTransaction, CreateTransaction {
-    prefix: 5;
-    toAccountIndex: number;
-    value: number;
-}
-
-export interface SoftTransferTransaction extends SoftTransaction {
-    prefix: 6;
-    toAccountIndex: number;
-    value: number;
-}
-
-export interface SoftChangeSignerTransaction extends SoftTransaction {
-    prefix: 7;
-    signingAddress: string;
-    modificationCategory: number;
-}
-
 //Interface for object containing each type of Transaction
-export interface Transactions {
-    hardCreates?: HardCreateTransaction[],
-    hardDeposits?: HardDepositTransaction[],
-    hardWithdrawals?: HardWithdrawTransaction[],
-    hardAddSigners?: HardAddSignerTransaction[],
-    softWithdrawals?: SoftWithdrawTransaction[],
-    softCreates?: SoftCreateTransaction[],
-    softTransfers?: SoftTransferTransaction[],
-    softChangeSigners?: SoftChangeSignerTransaction[],
+export type TransactionsJson = {
+    hardCreates?: HardCreateData[],
+    hardDeposits?: HardDepositData[],
+    hardWithdrawals?: HardWithdrawData[],
+    hardAddSigners?: HardAddSignerData[],
+    softWithdrawals?: SoftWithdrawalData[],
+    softCreates?: SoftCreateData[],
+    softTransfers?: SoftTransferData[],
+    softChangeSigners?: SoftChangeSignerData[],
+}
+
+export type Transactions = {
+    hardCreates?: HardCreate[],
+    hardDeposits?: HardDeposit[],
+    hardWithdrawals?: HardWithdraw[],
+    hardAddSigners?: HardAddSigner[],
+    softWithdrawals?: SoftWithdrawal[],
+    softCreates?: SoftCreate[],
+    softTransfers?: SoftTransfer[],
+    softChangeSigners?: SoftChangeSigner[],
 }
 
 export interface TransactionMetadataType {

@@ -7,45 +7,30 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util';
-import {toBuf, toHex, toInt} from "../../../lib";
-import {SoftChangeSignerTransaction} from "../interfaces";
+import {toBuf, toHex} from "../../../lib";
+import {SoftTransaction} from "../interfaces";
 import {AccountType} from "../../account/interfaces";
-import { SoftChangeSignerArguments } from "./interfaces";
+import { SoftChangeSignerData, SoftChangeSignerInput } from './interfaces';
 
-export class SoftChangeSigner implements SoftChangeSignerTransaction {
+export { SoftChangeSignerData };
+
+export interface SoftChangeSigner extends SoftTransaction, SoftChangeSignerData {
     prefix: 7;
-    nonce: number;
-    signingAddress: string;
-    modificationCategory: number;
     signature: string;
-    intermediateStateRoot: string;
-    accountIndex: number;
-    resolve: () => void;
-    reject: (errorMessage: string) => void;
+}
+
+export class SoftChangeSigner {
+    prefix: 7 = 7;
 
     get bytesWithoutPrefix(): number {
         return 125;
     }
 
-    constructor(args: SoftChangeSignerArguments) {
-        const {
-            fromAccountIndex,
-            nonce,
-            signingAddress,
-            modificationCategory,
-            signature,
-            privateKey
-        } = args;
-        this.accountIndex = toInt(fromAccountIndex);
-        this.nonce = toInt(nonce);
-        this.signingAddress = toHex(signingAddress);
-        this.modificationCategory = toInt(modificationCategory);
-
+    constructor(args: SoftChangeSignerInput) {
+        const { privateKey, signature, ...rest } = args;
+        Object.assign(this, rest);
         let sig = (privateKey) ? this.sign(privateKey) : signature
-
-        if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
-        else this.signature = toHex(sig);
-        this.prefix = 7;
+        this.signature = (typeof sig == 'object') ? toRpcSig(sig.v, sig.r, sig.s) : sig;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {
@@ -120,6 +105,8 @@ export class SoftChangeSigner implements SoftChangeSignerTransaction {
             if (account.signers.length == 1) return `Can not remove last signer from account.`
         }
     }
+
+    toJSON = (): SoftChangeSignerData => this;
 }
 
 export default SoftChangeSigner;

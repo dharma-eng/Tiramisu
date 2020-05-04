@@ -1,24 +1,23 @@
-import {HardDepositTransaction} from "../interfaces";
-import { HardDepositArguments } from "./interfaces";
-import {toBuf, toHex, toInt} from "../../../lib";
+import {HardTransaction} from "../interfaces";
+import { HardDepositData } from "./interfaces";
+import {toBuf, toHex} from "../../../lib";
 
-export class HardDeposit implements HardDepositTransaction {
+export { HardDepositData };
+
+export interface HardDeposit extends HardTransaction, HardDepositData {
     prefix: 1;
     accountIndex: number;
-    hardTransactionIndex: number;
-    value: number;
-    intermediateStateRoot: string;
+}
+
+export class HardDeposit {
+    prefix: 1 = 1;
 
     get bytesWithoutPrefix(): number {
         return 48;
     }
 
-    constructor(args: HardDepositArguments) {
-        const { accountIndex, hardTransactionIndex, value } = args;
-        this.accountIndex = toInt(accountIndex);
-        this.hardTransactionIndex = toInt(hardTransactionIndex);
-        this.value = toInt(value);
-        this.prefix = 1;
+    constructor(args: HardDepositData) {
+        Object.assign(this, args);
     }
 
     addOutput(intermediateStateRoot: string): void {
@@ -26,10 +25,10 @@ export class HardDeposit implements HardDepositTransaction {
     }
 
     encode(prefix: boolean = false): Buffer {
-        const txIndex = toBuf(this.hardTransactionIndex, 5) as Buffer;
-        const acctIndex = toBuf(this.accountIndex, 4) as Buffer;
-        const value = toBuf(this.value, 7) as Buffer;
-        const root = toBuf(this.intermediateStateRoot, 32) as Buffer;
+        const txIndex = toBuf(this.hardTransactionIndex, 5);
+        const acctIndex = toBuf(this.accountIndex, 4);
+        const value = toBuf(this.value, 7);
+        const root = toBuf(this.intermediateStateRoot, 32);
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
             txIndex,
@@ -42,6 +41,8 @@ export class HardDeposit implements HardDepositTransaction {
     static fromCreate({ hardTransactionIndex, value }, accountIndex: number): HardDeposit {
         return new HardDeposit({ accountIndex, hardTransactionIndex, value });
     }
+
+    toJSON = (): HardDepositData => this;
 }
 
 export default HardDeposit;

@@ -1,4 +1,5 @@
-import { Transactions } from "../transactions";
+import { Transactions, Transaction, TransactionsJson } from "../transactions";
+import { JsonType } from "../../lib/simple-level";
 
 export interface BlockParameters {
   version: number,
@@ -28,5 +29,23 @@ export interface BlockType {
   commitment: Commitment;
   transactions: Transactions;
   addOutput(submittedAt: number): void;
-  blockHash(web3): string;
+  blockHash(): string;
 }
+
+export type CommitmentJson = {
+  version: number;
+  blockNumber: number;
+  stateSize: number;
+  stateRoot: string;
+  hardTransactionsCount: number;
+  transactionsRoot: string;
+  transactionsHash: string;
+  submittedAt: number;
+}
+
+export type BlockJson = {
+  commitment: CommitmentJson;
+  transactions: TransactionsJson;
+}
+
+export type BlockInput = BlockArguments | BlockJson;

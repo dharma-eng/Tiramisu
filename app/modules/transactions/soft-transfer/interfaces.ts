@@ -1,10 +1,15 @@
 import { ECDSASignature } from 'ethereumjs-util'
 
-export interface SoftTransferArguments {
-  fromAccountIndex: number;
+export type SoftTransferData = {
+  accountIndex: number;
   toAccountIndex: number;
   nonce: number;
   value: number;
-  signature?: ECDSASignature | string;
+  signature?: string;
+  intermediateStateRoot?: string;
+}
+
+export interface SoftTransferInput extends SoftTransferData {
   privateKey?: Buffer;
+  signature?: string | ECDSASignature;
 }
