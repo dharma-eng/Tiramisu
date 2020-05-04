@@ -1,12 +1,12 @@
 import {
-    HardAddSignerTransaction,
-    HardCreateTransaction,
-    HardDepositTransaction,
-    HardWithdrawTransaction,
-    SoftChangeSignerTransaction,
-    SoftCreateTransaction,
-    SoftTransferTransaction,
-    SoftWithdrawTransaction,
+    HardAddSigner,
+    HardCreate,
+    HardDeposit,
+    HardWithdraw,
+    SoftChangeSigner,
+    SoftCreate,
+    SoftTransfer,
+    SoftWithdrawal,
     Transactions,
     Transaction
 } from "../transactions";
@@ -114,7 +114,7 @@ export class StateMachine {
         }
     }
 
-    async hardCreate(transaction: HardCreateTransaction): Promise<boolean> {
+    async hardCreate(transaction: HardCreate): Promise<boolean> {
         const { accountAddress, initialSigningKey, value } = transaction;
         const account = new Account({
             address: accountAddress,
@@ -128,17 +128,17 @@ export class StateMachine {
         return true;
     }
 
-    async hardDeposit(transaction: HardDepositTransaction): Promise<boolean> {
+    async hardDeposit(transaction: HardDeposit): Promise<boolean> {
         const { accountIndex, value } = transaction;
         const account = await this.state.getAccount(accountIndex) as AccountType;
         account.balance += value;
         await this.state.updateAccount(accountIndex, account);
         const stateRoot = await this.state.rootHash() as string;
-        transaction.addOutput(stateRoot, accountIndex);
+        transaction.addOutput(stateRoot);
         return true;
     }
 
-    async hardWithdraw(transaction: HardWithdrawTransaction): Promise<boolean> {
+    async hardWithdraw(transaction: HardWithdraw): Promise<boolean> {
         const { accountIndex, value } = transaction;
         const account = await this.state.getAccount(accountIndex) as AccountType;
         if (!account || transaction.checkValid(account)) {
@@ -149,11 +149,11 @@ export class StateMachine {
         account.balance -= value;
         await this.state.updateAccount(accountIndex, account);
         const stateRoot = await this.state.rootHash() as string;
-        transaction.addOutput(stateRoot, accountIndex);
+        transaction.addOutput(stateRoot);
         return true;
     }
 
-    async hardAddSigner(transaction: HardAddSignerTransaction): Promise<boolean> {
+    async hardAddSigner(transaction: HardAddSigner): Promise<boolean> {
         const { accountIndex, signingAddress } = transaction;
         const account = await this.state.getAccount(accountIndex) as AccountType;
 
@@ -166,11 +166,11 @@ export class StateMachine {
         account.addSigner(signingAddress);
         await this.state.updateAccount(accountIndex, account);
         const stateRoot = await this.state.rootHash() as string;
-        transaction.addOutput(stateRoot, accountIndex);
+        transaction.addOutput(stateRoot);
         return true;
     }
 
-    async softTransfer(transaction: SoftTransferTransaction): Promise<boolean> {
+    async softTransfer(transaction: SoftTransfer): Promise<boolean> {
         const { accountIndex, toAccountIndex, value } = transaction;
         const fromAccount = await this.state.getAccount(accountIndex) as AccountType;
         const toAccount = await this.state.getAccount(toAccountIndex) as AccountType;
@@ -202,7 +202,7 @@ export class StateMachine {
         return true;
     }
 
-    async softWithdrawal(transaction: SoftWithdrawTransaction): Promise<boolean> {
+    async softWithdrawal(transaction: SoftWithdrawal): Promise<boolean> {
         const { accountIndex, value } = transaction;
         const fromAccount = await this.state.getAccount(accountIndex) as AccountType;
 
@@ -231,7 +231,7 @@ export class StateMachine {
         return true;
     }
 
-    async softChangeSigner(transaction: SoftChangeSignerTransaction): Promise<boolean> {
+    async softChangeSigner(transaction: SoftChangeSigner): Promise<boolean> {
         const { accountIndex, modificationCategory, signingAddress } = transaction;
         const fromAccount = await this.state.getAccount(accountIndex) as AccountType;
         /* Verification */
@@ -260,7 +260,7 @@ export class StateMachine {
         return true;
     }
 
-    async softCreate(transaction: SoftCreateTransaction): Promise<boolean> {
+    async softCreate(transaction: SoftCreate): Promise<boolean> {
         const { accountIndex, accountAddress, initialSigningKey, value } = transaction;
         const fromAccount = await this.state.getAccount(accountIndex) as AccountType;
         /* Verification */

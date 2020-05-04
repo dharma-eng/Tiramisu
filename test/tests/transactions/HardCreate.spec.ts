@@ -36,8 +36,8 @@ const test = () => describe("Hard Create", () => {
 
     const hardCreate = new HardCreate({
       hardTransactionIndex: 0,
-      contractAddress: initialAccount.address,
-      signerAddress: signer.address,
+      accountAddress: initialAccount.address,
+      initialSigningKey: signer.address,
       value: initialAccount.balance
     });
 

@@ -52,13 +52,13 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate = new SoftCreate({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         nonce: initialSender.nonce,
         privateKey: senderSigner.privateKey,
         toAccountIndex: initialStateSize,
         value: initialAccount.balance,
-        contractAddress: initialAccount.address,
-        signingAddress: signer.address
+        accountAddress: initialAccount.address,
+        initialSigningKey: signer.address
       });
 
       softCreate.assignResolvers(() => {}, () => {});
@@ -142,13 +142,13 @@ const test = () => describe("Soft Create", () => {
       const badSenderSigner = randomAccount();
 
       softCreate = new SoftCreate({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         nonce: initialSender.nonce,
         privateKey: badSenderSigner.privateKey,
         toAccountIndex: initialStateSize,
         value: initialAccount.balance,
-        contractAddress: initialAccount.address,
-        signingAddress: signer.address
+        accountAddress: initialAccount.address,
+        initialSigningKey: signer.address
       });
 
       softCreate.assignResolvers(() => {}, () => {});
@@ -209,13 +209,13 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate = new SoftCreate({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         nonce: initialSender.nonce + 1,
         privateKey: senderSigner.privateKey,
         toAccountIndex: initialStateSize,
         value: initialAccount.balance,
-        contractAddress: initialAccount.address,
-        signingAddress: signer.address
+        accountAddress: initialAccount.address,
+        initialSigningKey: signer.address
       });
 
       softCreate.assignResolvers(() => {}, () => {});
@@ -276,13 +276,13 @@ const test = () => describe("Soft Create", () => {
       });
 
       softCreate = new SoftCreate({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         nonce: initialSender.nonce,
         privateKey: senderSigner.privateKey,
         toAccountIndex: initialStateSize,
         value: initialAccount.balance,
-        contractAddress: initialAccount.address,
-        signingAddress: signer.address
+        accountAddress: initialAccount.address,
+        initialSigningKey: signer.address
       });
 
       softCreate.assignResolvers(() => {}, () => {});

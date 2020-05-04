@@ -22,9 +22,9 @@ export const test = () => describe('FraudUtilsLib', async () => {
       .send({ from, gas: 5e6 });
   }
 
-  function softWithdraw(account, fromAccountIndex, value): { transaction: SoftWithdrawal, promise: Promise<Buffer> } {
+  function softWithdraw(account, accountIndex, value): { transaction: SoftWithdrawal, promise: Promise<Buffer> } {
     const transaction = new SoftWithdrawal({
-      fromAccountIndex,
+      accountIndex,
       withdrawalAddress: account.address,
       nonce: account.nonce++,
       value,

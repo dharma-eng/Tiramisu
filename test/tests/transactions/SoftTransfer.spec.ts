@@ -55,7 +55,7 @@ const test = () => describe("Soft Transfer", () => {
       // EXECUTE TRANSACTION
       transferAmount = initialSender.balance / 5;
       softTransfer = new SoftTransfer({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         toAccountIndex: receiverAccountIndex,
         nonce: initialSender.nonce,
         value: transferAmount,
@@ -133,7 +133,7 @@ const test = () => describe("Soft Transfer", () => {
       transferAmount = initialSender.balance / 5;
       const badSenderSigner = randomAccount();
       softTransfer = new SoftTransfer({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         toAccountIndex: receiverAccountIndex,
         nonce: initialSender.nonce,
         value: transferAmount,
@@ -205,7 +205,7 @@ const test = () => describe("Soft Transfer", () => {
       // EXECUTE TRANSACTION
       transferAmount = initialSender.balance / 5;
       softTransfer = new SoftTransfer({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         toAccountIndex: receiverAccountIndex,
         nonce: initialSender.nonce + 1,
         value: transferAmount,
@@ -277,7 +277,7 @@ const test = () => describe("Soft Transfer", () => {
       // EXECUTE TRANSACTION
       transferAmount = initialSender.balance + 5;
       softTransfer = new SoftTransfer({
-        fromAccountIndex: senderAccountIndex,
+        accountIndex: senderAccountIndex,
         toAccountIndex: receiverAccountIndex,
         nonce: initialSender.nonce,
         value: transferAmount,

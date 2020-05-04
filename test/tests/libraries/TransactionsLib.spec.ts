@@ -33,8 +33,8 @@ export const test = () => describe('TransactionsLib', () => {
       const txs = {
         hardCreates: [new HardCreate({
           hardTransactionIndex: 0,
-          contractAddress: addr,
-          signerAddress: addr,
+          accountAddress: addr,
+          initialSigningKey: addr,
           value: 500
         })],
       hardDeposits: [new HardDeposit({
@@ -55,30 +55,30 @@ export const test = () => describe('TransactionsLib', () => {
         signingAddress: addr2
       })],
       softWithdrawals: [new SoftWithdrawal({
-        fromAccountIndex: 0,
+        accountIndex: 0,
         withdrawalAddress: addr,
         nonce: 0,
         value: 50,
         privateKey: acct.privateKey
       })],
       softCreates: [new SoftCreate({
-        fromAccountIndex: 0,
+        accountIndex: 0,
         toAccountIndex: 1,
         nonce: 1,
         value: 50,
-        contractAddress: addr2,
-        signingAddress: addr2,
+        accountAddress: addr2,
+        initialSigningKey: addr2,
         privateKey: acct.privateKey
       })],
       softTransfers: [new SoftTransfer({
-        fromAccountIndex: 0,
+        accountIndex: 0,
         toAccountIndex: 1,
         nonce: 2,
         value: 50,
         privateKey: acct.privateKey
       })],
       softChangeSigners: [new SoftChangeSigner({
-        fromAccountIndex: 0,
+        accountIndex: 0,
         nonce: 3,
         signingAddress: toHex(randomHexBuffer(20)),
         modificationCategory: 0,

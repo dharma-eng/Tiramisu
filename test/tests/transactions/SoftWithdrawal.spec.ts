@@ -34,7 +34,7 @@ const test = () => describe("Soft Withdraw", () => {
       const withdrawalAccount = randomAccount();
 
       softWithdrawal = new SoftWithdrawal({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         withdrawalAddress: withdrawalAccount.address,
         nonce: initialAccount.nonce,
         value: withdrawalAmount,
@@ -97,7 +97,7 @@ const test = () => describe("Soft Withdraw", () => {
 
       const badSigner = randomAccount();
       softWithdrawal = new SoftWithdrawal({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         withdrawalAddress: withdrawalAccount.address,
         nonce: initialAccount.nonce,
         value: withdrawalAmount,
@@ -154,7 +154,7 @@ const test = () => describe("Soft Withdraw", () => {
       const withdrawalAccount = randomAccount();
 
       softWithdrawal = new SoftWithdrawal({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         withdrawalAddress: withdrawalAccount.address,
         nonce: initialAccount.nonce + 1,
         value: withdrawalAmount,
@@ -211,7 +211,7 @@ const test = () => describe("Soft Withdraw", () => {
       const withdrawalAccount = randomAccount();
 
       softWithdrawal = new SoftWithdrawal({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         withdrawalAddress: withdrawalAccount.address,
         nonce: initialAccount.nonce,
         value: withdrawalAmount,

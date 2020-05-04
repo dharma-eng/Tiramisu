@@ -35,7 +35,7 @@ export type BlockFakerOptions = {
 }
 
 export class Faker {
-  static account(balance) {
+  static account(balance: number = 0) {
     const { address, privateKey } = randomAccount();
     const account = new Account({
       address,
@@ -71,11 +71,11 @@ export class Faker {
     return block;
   }
 
-  static hardCreate(account: Account, value: number = 50, hardIndex: number = 0) {
+  static hardCreate(account: Account = Faker.account(), value: number = 50, hardIndex: number = 0) {
     const hardCreate = new HardCreate({
       hardTransactionIndex: hardIndex,
-      contractAddress: account.address,
-      signerAddress: account.address,
+      accountAddress: account.address,
+      initialSigningKey: account.address,
       value
     });
     return hardCreate;

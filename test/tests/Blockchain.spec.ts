@@ -115,9 +115,9 @@ const test = () => describe("Blockchain Tests", () => {
         console.log(receipt.events.NewHardTransaction);
       }
 
-      function softWithdraw(account, fromAccountIndex, value) {
+      function softWithdraw(account, accountIndex, value) {
         const transaction = new SoftWithdrawal({
-          fromAccountIndex,
+          accountIndex,
           withdrawalAddress: account.address,
           nonce: account.nonce,
           value,
