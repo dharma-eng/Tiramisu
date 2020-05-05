@@ -1,6 +1,8 @@
 import MemDown from 'memdown'
 import leveldown from 'leveldown'
 import levelup, { LevelUp } from 'levelup'
+const WriteStream = require('level-ws');
+import { AbstractIteratorOptions } from 'abstract-leveldown';
 import path from 'path';
 
 /**
@@ -18,16 +20,49 @@ const isNotFound = (err) => {
   )
 }
 
+export class LevelSideways extends levelup {
+  constructor(dbPath?: string) {
+    if (dbPath) super(leveldown(dbPath));
+    else super(new MemDown());
+  }
+
+  async copy(_db?: LevelSideways | string, opts?: AbstractIteratorOptions): Promise<LevelSideways> {
+    let db: LevelSideways;
+    if (_db) {
+      if (typeof _db != 'string') db = _db;
+      else db = new LevelSideways(_db);
+    } else db = new LevelSideways();
+    
+    return new Promise((resolve, reject) => {
+      const ws = WriteStream(db);
+      ws.on('close', () => resolve(db));
+      ws.on('error', (err) => reject(err));
+      this.createReadStream(opts)
+        .on('data', pair => ws.write(pair))
+        .on('error', (err) => { reject(err); ws.end(); })
+        .on('end', () => ws.end());
+    })
+  }
+}
+
+// function simpleLevel(dbPath?: string)
+
 export type JsonBaseType = boolean | string | number | null;
 export type JsonType = JsonBaseType | Array<JsonType> | { [key: string]: JsonType }
 export type JsonLike = JsonType | { toJSON(key?: any): JsonType };
 
 class SimpleLevel {
-  db: LevelUp;
+  db: LevelSideways;
 
-  constructor(name: string, dbPath?: string) {
-    if (dbPath) this.db = levelup(leveldown(path.join(dbPath, name)));
-    else this.db = levelup(new MemDown());
+  constructor(public name?: string, public dbPath?: string) {
+    if (dbPath) this.db = new LevelSideways(path.join(dbPath, name));
+    else this.db = new LevelSideways();
+  }
+
+  async copy(_db?: SimpleLevel, opts?: AbstractIteratorOptions) {
+    const db = _db || new SimpleLevel();
+    await this.db.copy(db.db, opts);
+    return db;
   }
 
   async put(key: JsonBaseType, value: JsonLike): Promise<void> {
