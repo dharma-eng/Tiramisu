@@ -1,12 +1,4 @@
-import {AccountType} from "../account/interfaces";
-// import HardCreate from "./hard-create";
-// import HardDeposit from "./hard-deposit";
-// import HardWithdraw from "./hard-withdrawal";
-// import HardAddSigner from "./hard-add-signer";
-// import SoftWithdrawal from "./soft-withdrawal";
-// import SoftCreate from "./soft-create";
-// import SoftTransfer from "./soft-transfer";
-// import SoftChangeSigner from "./soft-change-signer";
+import {Account} from "../account";
 import {
     HardCreate, HardCreateData,
     HardDeposit, HardDepositData,
@@ -37,7 +29,7 @@ export interface BaseTransaction {
     accountIndex?: number;
     encode(prefix: boolean): Buffer;
     addOutput(intermediateStateRoot: string, accountIndex?: number): void;
-    checkValid?(account: AccountType): string;
+    checkValid?(account: Account): string;
     assignResolvers?(resolve: () => void, reject: (errorMessage: string) => void): void;
     toJSON(): JsonType;
 }

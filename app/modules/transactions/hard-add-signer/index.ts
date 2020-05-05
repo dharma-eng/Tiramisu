@@ -1,7 +1,7 @@
 import { toBuf, toHex, toInt } from "../../../lib";
 import { HardTransaction } from "../interfaces";
 import { HardAddSignerData } from "./interfaces";
-import { AccountType } from "../../account/interfaces";
+import { Account } from "../../account";
 
 export { HardAddSignerData };
 
@@ -39,7 +39,7 @@ export class HardAddSigner {
         ]);
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         if (account.hasSigner(this.signingAddress))
             return `Invalid signing address. Account already has signer ${
                 this.signingAddress

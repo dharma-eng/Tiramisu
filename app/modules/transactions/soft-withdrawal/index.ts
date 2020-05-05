@@ -1,7 +1,7 @@
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
 import {toBuf, toHex, toInt} from "../../../lib";
 import {SoftTransaction} from "../interfaces";
-import {AccountType} from "../../account/interfaces";
+import {Account} from "../../account";
 import { SoftWithdrawalData, SoftWithdrawalInput } from "./interfaces";
 
 export { SoftWithdrawalData };
@@ -84,7 +84,7 @@ export class SoftWithdrawal {
     }
 
     /* Returns either null or an error string */
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         const signer = this.getSignerAddress() as string;
         if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;

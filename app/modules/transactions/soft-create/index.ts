@@ -9,7 +9,7 @@ import {
 } from 'ethereumjs-util'
 import {toBuf, toHex} from "../../../lib";
 import {SoftTransaction, CreateTransaction} from "../interfaces";
-import {AccountType} from "../../account/interfaces";
+import {Account} from "../../account";
 import { SoftCreateData, SoftCreateInput } from "./interfaces";
 
 export { SoftCreateData };
@@ -90,7 +90,7 @@ export class SoftCreate {
         }
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         const signer = this.getSignerAddress() as string;
         if (!(signer && account.hasSigner(signer))) return "Invalid signature.";
         if (!account.checkNonce(this.nonce))

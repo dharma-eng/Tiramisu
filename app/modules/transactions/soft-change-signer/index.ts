@@ -9,7 +9,7 @@ import {
 } from 'ethereumjs-util';
 import {toBuf, toHex} from "../../../lib";
 import {SoftTransaction} from "../interfaces";
-import {AccountType} from "../../account/interfaces";
+import {Account} from "../../account";
 import { SoftChangeSignerData, SoftChangeSignerInput } from './interfaces';
 
 export { SoftChangeSignerData };
@@ -91,7 +91,7 @@ export class SoftChangeSigner {
         }
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         const signer = this.getSignerAddress();
         if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;

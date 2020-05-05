@@ -1,5 +1,5 @@
 import {HardTransaction} from "../interfaces"
-import {AccountType} from "../../account/interfaces";
+import {Account} from "../../account";
 import { HardWithdrawData } from "./interfaces";
 import {toBuf, toHex, toInt} from "../../../lib";
 
@@ -40,7 +40,7 @@ export class HardWithdraw {
         ]);
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         if (!(account.address == this.callerAddress))
             return `Caller not approved for withdrawal.`;
         if (!account.hasSufficientBalance(this.value))
