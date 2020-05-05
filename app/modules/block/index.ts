@@ -1,10 +1,19 @@
 import { Transactions, TransactionsJson } from "../transactions";
 import { toBuf, toHex, keccak256, fromTransactionsJson } from '../../lib';
 import { encodeBlock } from "../../lib/block-coder";
-import { BlockArguments, BlockType, Commitment, Header, BlockInput, BlockJson } from "./interfaces";
+import { BlockArguments, Commitment, Header, BlockInput, BlockJson } from "./interfaces";
 const ABI = require('web3-eth-abi');
 
-export class Block implements BlockType {
+export interface Block {
+    transactionsData: Buffer;
+    header: Header;
+    commitment: Commitment;
+    transactions: Transactions;
+    addOutput(submittedAt: number): void;
+    blockHash(): string;
+}
+
+export class Block {
     transactionsData: Buffer;
     header: Header;
     commitment: Commitment;

@@ -23,15 +23,6 @@ export interface Commitment extends Header {
   submittedAt: number,
 }
 
-export interface BlockType {
-  transactionsData: Buffer;
-  header: Header;
-  commitment: Commitment;
-  transactions: Transactions;
-  addOutput(submittedAt: number): void;
-  blockHash(): string;
-}
-
 export type CommitmentJson = {
   version: number;
   blockNumber: number;
