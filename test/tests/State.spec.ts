@@ -1,6 +1,10 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
 import Tester from '../Tester';
+import { State } from '../../app';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -51,4 +55,54 @@ describe("State Class Test", () => {
       );
     });
   });
+
+  describe('State Persistence', async () => {
+    let dbPath, db: State, db2: State, rootHash: string;
+    
+    before(() => {
+      dbPath = path.join(__dirname, 'tmp-db');
+      if (fs.existsSync(dbPath)) rimraf.sync(dbPath);
+      fs.mkdirSync(dbPath);
+    });
+
+    after(() => rimraf.sync(dbPath));
+
+    it('Should restart the db and read the same data.', async () => {
+      db = await State.create(dbPath);
+      await db.putAccount(account);
+      rootHash = await db.rootHash();
+      await db.close();
+      db = await State.create(dbPath, rootHash);
+      expect(await db.rootHash()).to.eql(rootHash);
+      expect(db.size).to.eql(1);
+      expect(await db.getAccountIndexByAddress(account.address)).to.eql(0);
+    });
+
+    it('Should commit the state by root hash, then recreate the state with the same db.', async () => {
+      // const root = await db.rootHash();
+      await db.commit();
+      db2 = await State.create(dbPath, rootHash);
+      const root2 = await db2.rootHash();
+      expect(root2).to.eql(rootHash);
+      expect(db2.size).to.eql(1);
+      expect(await db2.getAccountIndexByAddress(account.address)).to.eql(0);
+    });
+
+    it('Should update only one state, and not persist the changes to the other.', async () => {
+      const account2 = tester.randomAccount();
+      await db2.putAccount(account2);
+      expect(await db2.rootHash()).not.to.eql(rootHash);
+      expect(db2.size).to.eql(2);
+      expect(await db2.getAccountIndexByAddress(account2.address)).to.eql(1);
+      expect(db.size).to.eql(1);
+      expect(await db.getAccountIndexByAddress(account2.address)).to.eql(null);
+    });
+
+    it('Should produce a copy when pulling a checkpointed tree.', async () => {
+      db2 = await State.create(dbPath, rootHash);
+      expect(await db2.rootHash()).to.eql(rootHash);
+      expect(db2.size).to.eql(1);
+      expect(await db2.getAccountIndexByAddress(account.address)).to.eql(0);
+    })
+  })
 });
