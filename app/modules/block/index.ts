@@ -1,7 +1,7 @@
-import { Transactions, TransactionsJson } from "../transactions";
+import { Transactions } from "../transactions";
 import { toBuf, toHex, keccak256, fromTransactionsJson } from '../../lib';
 import { encodeBlock } from "../../lib/block-coder";
-import { BlockArguments, Commitment, Header, BlockInput, BlockJson } from "./interfaces";
+import { Commitment, Header, BlockInput, BlockJson } from "./interfaces";
 const ABI = require('web3-eth-abi');
 
 export interface Block {
