@@ -1,4 +1,4 @@
-import { BigNumber, SparseMerkleTree } from 'sparse-merkle-tree';
+import { BigNumber, SparseMerkleTree, MerkleTreeInclusionProof } from 'sparse-merkle-tree';
 import { bufferToHex } from 'ethereumjs-util';
 import fs from 'fs';
 import path from 'path';
@@ -13,6 +13,7 @@ export interface State {
     size: number;
     getAccountIndexByAddress(address: string): Promise<number>;
     getAccount(_accountIndex: any): Promise<Account>;
+    getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof>
     putAccount(account: Account): Promise<number>;
     rootHash(): Promise<string>;
     updateAccount(_accountIndex: any, account: Account): Promise<void>;
@@ -83,6 +84,10 @@ export class State {
         if (accountIndex.gte(new BigNumber(this.size))) return null;
         const leaf = await this.tree.getLeaf(accountIndex) as Buffer;
         return Account.decode(leaf);
+    }
+
+    async getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof> {
+        return this.tree.getMerkleProof(new BigNumber(accountIndex), (await this.getAccount(accountIndex)).encode());
     }
 
     /* takes Account */
