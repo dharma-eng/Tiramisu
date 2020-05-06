@@ -268,7 +268,7 @@ library HeaderFraudProofs {
         }
       }
     }
-    require(fraudProven == 1, "Fraud not found in hard transactions range.");
+    require(fraudProven == 1, "Fraud not found in hard tx range.");
     return state.revertBlock(badHeader);
   }
 }
