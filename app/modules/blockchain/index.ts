@@ -1,13 +1,9 @@
 // const { deploy } = require('../utils/test-utils/web3');
-import {
-    decodeHardTransactions,
-    sortTransactions,
-} from "../../lib";
+import { decodeHardTransactions, sortTransactions } from "../../lib";
 import {Transaction, Transactions} from "../transactions";
-import {StateType, StateMachine} from "../state";
+import {State, StateMachine} from "../state";
 import { Block } from '../block'
 import { BlockchainType } from "./interfaces";
-import { BlockType } from "../block/interfaces";
 
 export class Blockchain implements BlockchainType {
     queue: Transaction[];
@@ -17,7 +13,7 @@ export class Blockchain implements BlockchainType {
     web3: any;
     dai: any;
     peg: any;
-    state: StateType;
+    state: State;
     stateMachine: any; //TODO: update to StateMachine type
     version: number;
     blockNumber: number;
@@ -73,7 +69,7 @@ export class Blockchain implements BlockchainType {
         });
     }
 
-    async processBlock(): Promise<BlockType> {
+    async processBlock(): Promise<Block> {
         const { hardTransactionsIndex, version } = this;
         const transactions = await this.getTransactions() as Transactions;
         await this.stateMachine.execute(transactions);
@@ -94,7 +90,7 @@ export class Blockchain implements BlockchainType {
         return block;
     }
 
-    async submitBlock(block: BlockType): Promise<void> {
+    async submitBlock(block: Block): Promise<void> {
         const receipt = await this.peg.methods
             .submitBlock(block)
             .send({ gas: 5e6, from: this.address });
@@ -106,7 +102,7 @@ export class Blockchain implements BlockchainType {
         block.addOutput(blockNumber);
     }
 
-    async confirmBlock(block: BlockType): Promise<void> {
+    async confirmBlock(block: Block): Promise<void> {
         const header = block.commitment;
         await this.peg.methods
             .confirmBlock(header)
