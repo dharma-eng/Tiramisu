@@ -74,7 +74,7 @@ library TransactionFraudProofs {
     );
 
     (
-      bool empty, uint256 accountIndex, Account.Account memory account
+      bool empty, uint256 accountIndex,, Account.Account memory account
     ) = Account.verifyAccountInState(previousStateRoot, stateProof);
 
     bool addressMatch = account.contractAddress == input.contractAddress;
@@ -209,17 +209,23 @@ library TransactionFraudProofs {
     bytes32 previousStateRoot = state.transactionHadPreviousState(
       previousStateProof, badHeader, transactionIndex
     );
-    (, uint256 accountIndex, Account.Account memory account) = Account.verifyAccountInState(
-      previousStateRoot, stateProof
-    );
+    (
+      , uint256 accountIndex,, Account.Account memory account
+    ) = Account.verifyAccountInState(previousStateRoot, stateProof);
     uint256 txAccountIndex;
     assembly {
       /* All soft transactions have the account index as the third argument (prefix, nonce, accountIndex, ...) */
       let bodyPtr := add(transaction, 0x21)
       txAccountIndex := shr(224, mload(add(bodyPtr, 3)))
     }
-    require(accountIndex == txAccountIndex, "Proven account does not match transaction.");
-    require(!account.hasSigner(signer), "Not fraudulent -- account includes signer.");
+    require(
+      accountIndex == txAccountIndex,
+      "Proven account does not match transaction."
+    );
+    require(
+      !account.hasSigner(signer),
+      "Not fraudulent -- account includes signer."
+    );
     return state.revertBlock(badHeader);
   }
 }

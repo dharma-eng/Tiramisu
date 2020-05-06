@@ -70,7 +70,7 @@ library FraudUtilsLib {
       state, previousStateProof, badHeader, transactionIndex
     );
 
-    (empty, accountIndex, account) = Account.verifyAccountInState(
+    (empty, accountIndex,, account) = Account.verifyAccountInState(
       previousStateRoot, stateProof
     );
   }

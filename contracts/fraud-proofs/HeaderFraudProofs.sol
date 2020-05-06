@@ -97,44 +97,6 @@ library HeaderFraudProofs {
     );
     bytes32 calculatedRoot = Tx.deriveTransactionsRoot(transactionsData);
     if (calculatedRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
-    // Tx.TransactionsMetadata memory meta = transactionsData
-    //   .decodeTransactionsMetadata();
-
-    // uint256 expectedLength = meta.expectedTransactionsLength();
-    // /* If the transactions data size is incommensurate with the transactions
-    //    header, the block is erroneous. */
-    // if (transactionsData.length != expectedLength + 16) {
-    //   return state.revertBlock(badHeader);
-    // }
-    // uint256 txCount = meta.transactionsCount();
-    
-    // uint256 txPtr;
-    // assembly { txPtr := add(transactionsData, 48) }
-    // uint256 leafIndex = 0;
-    // bool identitySuccess = true;
-    // bytes[] memory leaves = new bytes[](txCount);
-    // uint16[2][8] memory elements = [
-    //   [meta.hardCreateCount, 88],
-    //   [meta.hardDepositCount, 48],
-    //   [meta.hardWithdrawCount, 48],
-    //   [meta.hardAddSignerCount, 93],
-    //   [meta.softWithdrawCount, 131],
-    //   [meta.softCreateCount, 155],
-    //   [meta.softTransferCount, 115],
-    //   [meta.softChangeSignerCount, 125]
-    // ];
-
-    // for (uint8 i = 0; i < 8; i++) {
-    //   uint16 count = elements[i][0];
-    //   if (count > 0) {
-    //     (identitySuccess, leafIndex, txPtr) = putLeaves(
-    //       leaves, identitySuccess, leafIndex, txPtr, i, count, elements[i][1]
-    //     );
-    //   }
-    // }
-
-    // bytes32 txRoot = Merkle.getMerkleRoot(leaves);
-    // if (txRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
   }
 
   function proveHardTransactionsCountError(

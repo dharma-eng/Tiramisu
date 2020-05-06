@@ -18,10 +18,24 @@ library AccountLib {
     bytes32[] siblings;
   }
 
+  function newAccount(
+    address contractAddress, address signerAddress, uint56 balance
+  ) internal pure returns (Account memory) {
+    address[] memory signers = new address[](1);
+    signers[0] = signerAddress;
+    return Account(contractAddress, 0, balance, signers);
+  }
+
+  function updateAccount(
+    Account memory account, uint256 accountIndex, bytes32[] memory siblings
+  ) internal pure returns (bytes32 updatedRoot) {
+    return Merkle.update(encode(account), accountIndex, siblings);
+  }
+
   function verifyAccountInState(
     bytes32 stateRoot, bytes memory encoded
   ) internal pure returns (
-    bool empty, uint256 accountIndex, Account memory account
+    bool empty, uint256 accountIndex, bytes32[] memory siblings, Account memory account
   ) {
     StateProof memory proof = abi.decode((encoded), (StateProof));
     accountIndex = proof.accountIndex;
@@ -38,6 +52,7 @@ library AccountLib {
     } else {
       account = decode(proof.data);
     }
+    siblings = proof.siblings;
   }
 
   function hasSigner(
