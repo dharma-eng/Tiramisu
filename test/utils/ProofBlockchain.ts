@@ -1,4 +1,4 @@
-import { getMerkleProof, toHex, Blockchain, Block, BlockType, getMerkleRoot, Transactions, Transaction, transactionsToArray } from '../../app';
+import { getMerkleProof, toHex, Blockchain, Block, getMerkleRoot, Transactions, Transaction, transactionsToArray } from '../../app';
 const ABI = require('web3-eth-abi');
 
 export type BlockProofOptions = {
@@ -8,7 +8,7 @@ export type BlockProofOptions = {
 }
 
 export type BlockProofOutput = {
-  block: BlockType;
+  block: Block;
   accountProof: string | Buffer;
   previousStateProof: string | Buffer;
   transactionProof: Array<string | Buffer>;
