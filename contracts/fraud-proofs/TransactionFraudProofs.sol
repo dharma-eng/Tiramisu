@@ -8,13 +8,13 @@ import { AccountLib as Account } from "../lib/AccountLib.sol";
 import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
-
 library TransactionFraudProofs {
   using Block for bytes;
   using Block for Block.BlockHeader;
   using State for State.State;
   using utils for State.State;
   using Tx for bytes;
+  using Account for Account.Account;
 
   function proveHardCreateSourceError(
     bytes memory inputData,
@@ -182,40 +182,43 @@ library TransactionFraudProofs {
     return state.revertBlock(badHeader);
   }
 
-
-  // function proveSignatureError(
-  //   State.State storage state,
-  //   Block.BlockHeader memory badHeader,
-  //   bytes memory transaction,
-  //   uint256 transactionIndex,
-  //   bytes32[] memory siblings,
-  //   bytes memory previousStateProof,
-  //   Account.StateProof memory stateProof
-  // ) internal {
-  //   require(
-  //     state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
-  //     "Block not pending."
-  //   );
-  //   uint8 prefix = transaction.transactionPrefix();
-  //   require(prefix >= 4, "Input not a soft transaction.");
-  //   require(
-  //     Merkle.verify(
-  //       badHeader.transactionsRoot, transaction, transactionIndex, siblings
-  //     ),
-  //     "Invalid merkle proof."
-  //   );
-
-  //   if (prefix == 4) {
-
-  //   }
-  //   if (prefix == 5) {
-
-  //   }
-  //   if (prefix == 6) {
-
-  //   }
-  //   if (prefix == 7) {
-
-  //   }
-  // }
+  function proveSignatureError(
+    State.State storage state,
+    Block.BlockHeader memory badHeader,
+    bytes memory transaction,
+    uint256 transactionIndex,
+    bytes32[] memory siblings,
+    bytes memory previousStateProof,
+    bytes memory stateProof
+  ) internal {
+    require(
+      state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
+      "Block not pending."
+    );
+    uint8 prefix = transaction.transactionPrefix();
+    require(prefix >= 4, "Input not a soft transaction.");
+    require(
+      Merkle.verify(
+        badHeader.transactionsRoot, transaction, transactionIndex, siblings
+      ),
+      "Invalid merkle proof."
+    );
+    address signer = transaction.recoverSignature();
+    if (signer == address(0)) return state.revertBlock(badHeader);
+    bytes32 previousStateRoot = state.transactionHadPreviousState(
+      previousStateProof, badHeader, transactionIndex
+    );
+    (, uint256 accountIndex, Account.Account memory account) = Account.verifyAccountInState(
+      previousStateRoot, stateProof
+    );
+    uint256 txAccountIndex;
+    assembly {
+      /* All soft transactions have the account index as the third argument (prefix, nonce, accountIndex, ...) */
+      let bodyPtr := add(transaction, 0x21)
+      txAccountIndex := shr(224, mload(add(bodyPtr, 3)))
+    }
+    require(accountIndex == txAccountIndex, "Proven account does not match transaction.");
+    require(!account.hasSigner(signer), "Not fraudulent -- account includes signer.");
+    return state.revertBlock(badHeader);
+  }
 }

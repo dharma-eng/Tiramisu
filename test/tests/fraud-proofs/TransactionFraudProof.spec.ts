@@ -3,11 +3,12 @@ import {
   HardDeposit,
   HardWithdraw,
   HardAddSigner,
-  BlockType,
+  Block,
   Commitment,
   getMerkleProof,
   getMerkleRoot,
-  transactionsToArray
+  transactionsToArray,
+  SoftTransfer
 } from '../../../app';
 import chai from 'chai';
 import Tester from '../../Tester';
@@ -47,7 +48,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
 
   describe('Hard Transaction Source Error', async () => {
     let previousHeader: Commitment;
-    let badBlock: BlockType;
+    let badBlock: Block;
     let account1, account2;
 
     before(async () => {
@@ -157,7 +158,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         transactionIndex = transactionIndex || 0;
         if (proofSetup) await proofSetup();
         else await hardDeposit(account1, 50)
-        let block: BlockType;
+        let block: Block;
         let previousStateProof;
         let accountProof;
         let transactionProof;
@@ -399,6 +400,58 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });  
     });
   });
+
+  describe('Soft Transaction Signature Error', async () => {
+    let previousHeader: Commitment;
+    let badBlock: Block;
+    let account1, account2;
+
+    before(async () => {
+      account1 = tester.randomAccount();
+      account2 = tester.randomAccount();
+    });
+
+    afterEach(async () => await resetBlockchain());
+
+    describe('Soft Transfer Signature Error', async () => {
+      async function executeFraudProof(errorInducer: (transaction: SoftTransfer) => Buffer) {
+        await hardDeposit(account1, 50);
+        await hardDeposit(account2, 50);
+        blockchain.queueTransaction(new SoftTransfer({
+          accountIndex: 0,
+          toAccountIndex: 1,
+          nonce: 0,
+          value: 10,
+          privateKey: account1.privateKey
+        }))
+        const block = await blockchain.processBlock();
+        const transaction = block.transactions.softTransfers[0];
+        const leaves = transactionsToArray(block.transactions).map(tx => tx.encode(true));
+        leaves[1] = errorInducer(transaction);
+        const transactionProof = getMerkleProof(leaves, 1).siblings;
+        const transactionData = leaves[1];
+        block.header.transactionsRoot = getMerkleRoot(leaves);
+        await blockchain.submitBlock(block);
+        expect(await getBlockCount()).to.eql(1);
+        await blockchain.peg.methods.proveSignatureError(
+          block.commitment,
+          transactionData,
+          1,
+          transactionProof,
+          '0x',
+          '0x'
+        ).send({ from });
+        expect(await getBlockCount()).to.eql(0);
+      }
+
+      it('Should prove that a soft transfer has an invalid signature', async () => {
+        await executeFraudProof((transaction: SoftTransfer): Buffer => {
+          transaction.signature = `0x${'00'.repeat(65)}`;
+          return transaction.encode(true);
+        });
+      })
+    })
+  })
 });
 
 if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();
