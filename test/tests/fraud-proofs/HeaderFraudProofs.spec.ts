@@ -167,7 +167,7 @@ transactionsData */
         .proveHardTransactionsCountError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 })
-      expect(promise).to.eventually.be.rejectedWith('revert Hard transactions count not invalid.')
+      expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Hard transactions count not invalid.')
     })
   });
 
@@ -236,7 +236,7 @@ transactionsData */
         .proveHardTransactionsRangeError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 })
-      expect(promise).to.eventually.be.rejectedWith('revert Fraud not found in hard transactions range.')
+      expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Fraud not found in hard tx range.')
     })
   });
 });
