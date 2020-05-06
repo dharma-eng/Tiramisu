@@ -16,6 +16,11 @@ export class Database {
     private dbPath?: string
   ) {}
 
+  async close() {
+    await this.blockHashDB.close();
+    await this.blocksDB.close();
+  }
+
   static async create(dbPath?: string) {
     const blocksDB = new BlockDatabase(dbPath);
     const blockHashDB = await BlockHashDatabase.create(dbPath);
