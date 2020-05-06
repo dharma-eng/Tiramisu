@@ -8,6 +8,8 @@ export class ParentInterface {
     public maxHardTransactions: number = 10
   ) {}
 
+  currentBlockNumber = async (): Promise<number> => this.web3.eth.getBlockNumber();
+
   /**
    * Gets an array of encoded hard transactions from the chain peg.
    */
