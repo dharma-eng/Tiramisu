@@ -24,12 +24,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm run lint
-    - run: npm run test:app
+    - run: npm install -g yarn
+    - run: yarn install --frozen-lockfile
+    - run: yarn build
+    - run: yarn lint
+    - run: yarn test:app
       env:
         CI: true
-    - run: npm run test:coverage
-    - run: npm run report-coverage
+    - run: yarn test:coverage
+    - run: yarn report-coverage
 
