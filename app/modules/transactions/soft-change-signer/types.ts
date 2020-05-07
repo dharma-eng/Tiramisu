@@ -1,13 +1,10 @@
 import {
   GraphQLBoolean,
-  GraphQLError,
-  GraphQLInputObjectType,
   GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
   GraphQLString
 } from "graphql";
-import SoftChangeSigner from "./index";
 import { AccountType } from "../../account/types";
 
 export const SoftChangeSignerType = new GraphQLObjectType({
@@ -44,39 +41,32 @@ export const SoftChangeSignerType = new GraphQLObjectType({
   }),
 });
 
-export const SubmitSoftChangeSignerInput = new GraphQLInputObjectType({
-  name: 'submitSoftChangeSignerInput',
-  fields: () => ({
-    accountAddress: {
-      type: GraphQLString
-    },
-    signingAddress: {
-      type: GraphQLString
-    },
-    modificationCategory: {
-      type: GraphQLInt
-    },
-    nonce: {
-      type: GraphQLInt
-    },
-    signature: {
-      type: GraphQLString
-    },
-  })
-});
+export const GetUnsignedSoftChangeSignerInput = {
+  accountAddress: {
+    type: GraphQLString
+  },
+  signingAddress: {
+    type: GraphQLString
+  },
+  modificationCategory: {
+    type: GraphQLInt
+  }
+};
 
-export const GetUnsignedSoftChangeSignerInput = new GraphQLInputObjectType({
-  name: 'getUnsignedSoftChangeSignerInput',
-  fields: () => ({
-    accountAddress: {
-      type: GraphQLString
-    },
-    signingAddress: {
-      type: GraphQLString
-    },
-    modificationCategory: {
-      type: GraphQLInt
-    }
-  })
-});
-
+export const SubmitSoftChangeSignerInput = {
+  accountAddress: {
+    type: GraphQLString
+  },
+  signingAddress: {
+    type: GraphQLString
+  },
+  modificationCategory: {
+    type: GraphQLInt
+  },
+  nonce: {
+    type: GraphQLInt
+  },
+  signature: {
+    type: GraphQLString
+  },
+};
