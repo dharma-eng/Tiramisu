@@ -1,15 +1,9 @@
-import { GraphQLString } from "graphql";
-import { AccountType } from "./types";
+import { GetAccountInput, AccountType } from "./types";
 import { getAccountResolver } from "./resolvers";
 
 export const getAccount = {
   type: AccountType,
-  args: {
-    address: {
-      name: "address",
-      type: GraphQLString,
-    },
-  },
+  args: GetAccountInput,
   resolve: getAccountResolver,
 };
 
