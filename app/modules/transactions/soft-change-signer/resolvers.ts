@@ -1,4 +1,4 @@
-import { L2CorePromise, SoftChangeSigner } from "../../../index";
+import { L2CorePromise, SoftChangeSigner, toHex } from "../../../index";
 import TransactionQueue from "../../transactions-queue"
 
 function validateInputs(accountIndex: number, signingAddress: string, modificationCategory: number) {
@@ -51,7 +51,7 @@ export async function getUnsignedSoftChangeSignerResolver(
     errors.push(error);
   }
 
-  const messageHash = softChangeSigner.toMessageHash();
+  const messageHash = toHex(softChangeSigner.toMessageHash());
 
   return {
     account,
