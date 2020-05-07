@@ -63,21 +63,28 @@ library HeaderFraudProofs {
   ) internal view returns (
     bool _identitySuccess, uint256 _leafIndex, uint256 _currentPointer
   ) {
-    for (uint256 i = 0; i < typeCount; i++) {
-      bytes memory _tx = new bytes(typeSize + 1);
+    // Iterate over a set of memory pointers dictated by typeSize and typeCount.
+    uint256 finalPointer = currentPointer + (typeSize * typeCount);
+
+    for (uint256 i = currentPointer; i < finalPointer; i += typeSize) {
+      // Allocate a memory region for the transaction and set the prefix.
+      bytes memory transaction = new bytes(typeSize + 1);
+      transaction[0] = byte(typePrefix);
+
       assembly {
-        let outPtr := add(_tx, 32)
-        mstore8(outPtr, typePrefix)
-        outPtr := add(outPtr, 1)
+        // Get target location in memory, skipping the length and prefix.
+        let targetPointer := add(transaction, 33)
 
+        // Perform a "memcpy" using the identity precompile contract.
         identitySuccess := staticcall(
-          gas(), 0x04, currentPointer, typeSize, outPtr, typeSize
+          gas(), 4, i, typeSize, targetPointer, typeSize
         )
-
-        currentPointer := add(currentPointer, typeSize)
       }
-      leaves[leafIndex++] = _tx;
+
+      // Update the relevant leaf and increment the index.
+      leaves[leafIndex++] = transaction;
     }
+
     return (identitySuccess, leafIndex, currentPointer);
   }
 
@@ -96,7 +103,9 @@ library HeaderFraudProofs {
       "Header does not match transactions data."
     );
     bytes32 calculatedRoot = Tx.deriveTransactionsRoot(transactionsData);
-    if (calculatedRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
+    if (calculatedRoot != badHeader.transactionsRoot) {
+      state.revertBlock(badHeader);
+    }
   }
 
   function proveHardTransactionsCountError(
@@ -125,6 +134,7 @@ library HeaderFraudProofs {
         previousHeader.hardTransactionsCount + hardTxSum
       ), "Hard transactions count not invalid."
     );
+
     return state.revertBlock(badHeader);
   }
 
