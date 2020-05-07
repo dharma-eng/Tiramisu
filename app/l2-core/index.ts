@@ -1,8 +1,7 @@
 import { EventEmitter } from 'events';
 import ParentInterface from "../modules/parent-interface"
-import { Transaction, StateMachine, Block } from "../modules";
+import { StateMachine, Block } from "../modules";
 import { Database } from "../modules/db";
-import { TransactionQueue } from "../modules/transactions-queue";
 
 export type Web3Options = {
   peg: any;
@@ -18,7 +17,6 @@ export class DharmaL2Core extends EventEmitter {
 
   constructor(
     public database: Database,
-    public queue: TransactionQueue,
     public parentInterface: ParentInterface,
     private dbPath?: string
   ) {
@@ -28,7 +26,6 @@ export class DharmaL2Core extends EventEmitter {
 
   static async create(web3: Web3Options, dbPath?: string): Promise<DharmaL2Core> {
     const db = await Database.create(dbPath);
-    const queue = new TransactionQueue();
     const parent = new ParentInterface(web3.peg, web3.from, web3.web3);
     return new DharmaL2Core(db, queue, parent, dbPath);
   }
