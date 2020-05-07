@@ -69,42 +69,62 @@ library AccountLib {
 
   function encode(
     Account memory account
-  ) internal pure returns (bytes memory ret) {
-    uint256 len = account.signers.length;
-    ret = new bytes(30 + len * 20);
-    assembly {
-      mstore(add(ret, 32), shl(96, mload(account)))
-      mstore(add(ret, 52), shl(232, mload(add(account, 0x20))))
-      mstore(add(ret, 55), shl(200, mload(add(account, 0x40))))
-      let writePtr := add(ret, 62)
-      let inPtr := add(mload(add(account, 96)), 32)
-      for { let i := 0 } lt(i, len) { i := add(i, 1) } {
-        mstore(writePtr, shl(96, mload(inPtr)))
-        writePtr := add(writePtr, 20)
-        inPtr := add(inPtr, 32)
-      }
-    }
+  ) internal pure returns (bytes memory encodedAccount) {
+    encodedAccount = abi.encodePacked(
+      account.contractAddress,
+      account.nonce,
+      account.balance,
+      encodeExtraPacked(account.signers)
+    );
   }
 
   function decode(
     bytes memory data
   ) internal pure returns (Account memory account) {
-    uint256 remainder = (data.length - 30);
-    if (remainder % 20 != 0) revert("Invalid account encoding.");
-    uint256 signerCount = remainder / 20;
-    account.signers = new address[](signerCount);
+    uint256 signersLength = (data.length - 30);
+    require(signersLength % 20 == 0, "Invalid account encoding.");
+    uint256 signersCount = signersLength / 20;
+
+    address accountAddress;
+    uint24 accountNonce;
+    uint56 accountBalance;
+
+    // Read and shift each parameter, skipping length encoding and prefix.
     assembly {
-      let inPtr := add(data, 32)
-      mstore(account, shr(96, mload(inPtr)))
-      mstore(add(account, 32), shr(232, mload(add(inPtr, 20))))
-      mstore(add(account, 64), shr(200, mload(add(inPtr, 23))))
-      let writePtr := add(mload(add(account, 96)), 32)
-      inPtr := add(inPtr, 30)
-      for { let i := 0 } lt(i, signerCount) { i := add(i, 1) } {
-        mstore(writePtr, shr(96, mload(inPtr)))
-        writePtr := add(writePtr, 32)
-        inPtr := add(inPtr, 20)
-      }
+      accountAddress := shr(96, mload(add(data, 32)))
+      accountNonce := shr(232, mload(add(data, 52)))
+      accountBalance := shr(200, mload(add(data, 55)))
+    }
+
+    account.contractAddress = accountAddress;
+    account.nonce = accountNonce;
+    account.balance = accountBalance;
+    account.signers = new address[](signersCount);
+
+    address currentSigner;
+    for (uint256 i = 0; i < signersCount; i++) {
+      uint256 offset = 62 + (i * 20);
+      // Read and shift each address at the proper offset in relation to data.
+      assembly { currentSigner := shr(96, mload(add(data, offset))) }
+
+      // Assign the signer to the corresponding location in the returned array.
+      account.signers[i] = currentSigner;
+    }
+  }
+
+  // Note: abi.encodePacked doesn't remove padding on dynamic array values.
+  function encodeExtraPacked(
+    address[] memory signers
+  ) internal pure returns (bytes memory packedSigners) {
+    packedSigners = new bytes(signers.length * 20);
+
+    // Iterate over each provided signer address.
+    for (uint256 i = 0; i < signers.length; i++) {
+      address signer = signers[i];
+      uint256 offset = 32 + (i * 20);
+
+      // Drop in each signer address at the calculated offset.
+      assembly { mstore(add(packedSigners, offset), shl(96, signer)) }
     }
   }
 }

@@ -70,13 +70,15 @@ library StateLib {
     bytes32[] storage blockHashes = state.blockHashes;
     uint256 len = blockHashes.length;
     delete blockHashes[header.blockNumber];
+
+    // NOTE: this loop might be susceptible to gas exhaustion... investigate!
     for (uint256 i = header.blockNumber; i < len; i++) {
       emit BlockReverted(i, state.blockHashes[i]);
       delete state.blockHashes[i];
     }
     uint256 num = header.blockNumber;
-    assembly {
-      sstore(blockHashes_slot, num)
-    }
+
+    // Reassign the new block number as the length of the block hash array.
+    assembly { sstore(blockHashes_slot, num) }
   }
 }

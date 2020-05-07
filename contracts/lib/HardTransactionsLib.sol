@@ -65,9 +65,18 @@ library HardTransactionsLib {
   function checkTransactionType(
     bytes memory encodedTransaction
   ) internal pure returns (HardTransactionType) {
-    if (encodedTransaction.length == 47) return HardTransactionType.DEPOSIT;
-    if (encodedTransaction.length == 31) return HardTransactionType.WITHDRAWAL;
-    if (encodedTransaction.length == 44) return HardTransactionType.ADD_SIGNER;
+    if (encodedTransaction.length == 47) {
+      return HardTransactionType.DEPOSIT;
+    }
+
+    if (encodedTransaction.length == 31) {
+      return HardTransactionType.WITHDRAWAL;
+    }
+
+    if (encodedTransaction.length == 44) {
+      return HardTransactionType.ADD_SIGNER;
+    }
+
     return HardTransactionType.INVALID;
   }
 
@@ -87,16 +96,22 @@ library HardTransactionsLib {
   function decodeHardDeposit(
     bytes memory data
   ) internal pure returns (HardDeposit memory hardDeposit) {
+    address contractAddress;
+    address signerAddress;
+    uint56 value;
+
+    // Read and shift each parameter, skipping length encoding and prefix.
     assembly {
-      // Skip length and prefix
-      let ptr := add(data, 0x21)
-      // contractAddress
-      mstore(hardDeposit, shr(96, mload(ptr)))
-      // signerAddress
-      mstore(add(hardDeposit, 0x20), shr(96, mload(add(ptr, 20))))
-      // value
-      mstore(add(hardDeposit, 0x40), shr(200, mload(add(ptr, 40))))
+      contractAddress := shr(96, mload(add(data, 33)))
+      signerAddress := shr(96, mload(add(data, 53)))
+      value := shr(200, mload(add(data, 73)))
     }
+
+    hardDeposit = HardDeposit({
+      contractAddress: contractAddress,
+      signerAddress: signerAddress,
+      value: value
+    });
   }
 
   function encode(
@@ -113,16 +128,22 @@ library HardTransactionsLib {
   function decodeHardWithdrawal(
     bytes memory data
   ) internal pure returns (HardWithdrawal memory hardWithdrawal) {
+    uint32 accountIndex;
+    address callingAccount;
+    uint56 value;
+
+    // Read and shift each parameter, skipping length encoding and prefix.
     assembly {
-      // Skip length and prefix
-      let ptr := add(data, 0x21)
-      // accountIndex
-      mstore(hardWithdrawal, shr(224, mload(ptr)))
-      // caller
-      mstore(add(hardWithdrawal, 0x20), shr(96, mload(add(ptr, 4))))
-      // value
-      mstore(add(hardWithdrawal, 0x40), shr(200, mload(add(ptr, 24))))
+      accountIndex := shr(224, mload(add(data, 33)))
+      callingAccount := shr(96, mload(add(data, 37)))
+      value := shr(200, mload(add(data, 57)))
     }
+
+    hardWithdrawal = HardWithdrawal({
+      accountIndex: accountIndex,
+      caller: callingAccount,
+      value: value
+    });
   }
 
   function encode(
@@ -139,15 +160,21 @@ library HardTransactionsLib {
   function decodeHardAddSigner(
     bytes memory data
   ) internal pure returns (HardAddSigner memory hardAddSigner) {
+    uint32 accountIndex;
+    address callingAccount;
+    address signingAddress;
+
+    // Read and shift each parameter, skipping length encoding and prefix.
     assembly {
-      // Skip length and prefix
-      let ptr := add(data, 0x21)
-      // accountIndex
-      mstore(hardAddSigner, shr(224, mload(ptr)))
-      // caller
-      mstore(add(hardAddSigner, 0x20), shr(96, mload(add(ptr, 4))))
-      // signingAddress
-      mstore(add(hardAddSigner, 0x40), shr(96, mload(add(ptr, 24))))
+      accountIndex := shr(224, mload(add(data, 33)))
+      callingAccount := shr(96, mload(add(data, 37)))
+      signingAddress := shr(96, mload(add(data, 57)))
     }
+
+    hardAddSigner = HardAddSigner({
+      accountIndex: accountIndex,
+      caller: callingAccount,
+      signingAddress: signingAddress
+    });
   }
 }
