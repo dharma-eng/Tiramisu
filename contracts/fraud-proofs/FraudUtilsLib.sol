@@ -23,15 +23,22 @@ library FraudUtilsLib {
     uint256 transactionIndex
   ) internal view returns (bytes32) {
     if (transactionIndex == 0) {
-      Block.BlockHeader memory previousHeader = Block.decodeBlockHeader(previousSource);
+      Block.BlockHeader memory previousHeader = Block.decodeBlockHeader(
+        previousSource
+      );
+
       require(
-        state.blockHashes[previousHeader.blockNumber] == Block.blockHash(previousHeader),
+        state.blockHashes[previousHeader.blockNumber] == Block.blockHash(
+          previousHeader
+        ),
         "Header not in array."
       );
+
       require(
         blockHeader.blockNumber == previousHeader.blockNumber + 1,
         "Block number does not match."
       );
+
       return previousHeader.stateRoot;
     }
 
@@ -50,10 +57,10 @@ library FraudUtilsLib {
     );
 
     bytes memory data = proof.transactionData;
+
+    // Read the state root from the last word of the transaction and return it.
     bytes32 root;
-    assembly { root := mload(
-      add(add(data, 32), sub(mload(data), 32))
-    ) }
+    assembly { root := mload(add(data, mload(data))) }
     return root;
   }
 
