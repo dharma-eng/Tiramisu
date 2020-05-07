@@ -27,7 +27,7 @@
     "build:sol": "./node_modules/.bin/truffle compile",
     "build": "yarn build:ts && yarn build:sol",
     "build:ts:tests": "tsc --project ./tsconfig.test.json",
-    "lint": "./node_modules/.bin/solhint \"contracts/**/**/*.sol\"",
+    "lint": "./node_modules/.bin/solium -d . && ./node_modules/.bin/solhint \"contracts/**/**/*.sol\"",
     "migrate": "./node_modules/.bin/truffle migrate -- --network development",
     "mocha:ts": "mocha -r ts-node/register",
     "test:blockchain": "yarn mocha:ts -- ./test/tests/Blockchain.spec.ts",

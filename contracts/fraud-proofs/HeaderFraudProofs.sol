@@ -128,6 +128,7 @@ library HeaderFraudProofs {
     return state.revertBlock(badHeader);
   }
 
+  /* solhint-disable function-max-lines */ // TODO: simplify this function
   /**
    * @dev proveHardTransactionsRangeError
    * Proves that a block has a missing or duplicate hard transaction index.
@@ -233,4 +234,5 @@ library HeaderFraudProofs {
     require(fraudProven == 1, "Fraud not found in hard tx range.");
     return state.revertBlock(badHeader);
   }
+  /* solhint-enable function-max-lines */
 }
