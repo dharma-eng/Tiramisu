@@ -79,10 +79,11 @@ library TransactionFraudProofs {
 
     bool addressMatch = account.contractAddress == input.contractAddress;
     bool indexMatch = accountIndex == output.accountIndex;
-    if (
+
+    return (
       (indexMatch && (empty || !addressMatch)) ||
       (addressMatch && !indexMatch)
-    ) return true;
+    );
   }
 
   function proveHardWithdrawSourceError(
@@ -157,6 +158,7 @@ library TransactionFraudProofs {
       "Invalid merkle proof."
     );
 
+    // Retrieve hard tx index from 40-bit memory region after length and prefix.
     uint256 hardTransactionIndex;
     assembly { hardTransactionIndex := shr(216, mload(add(transaction, 33))) }
 
@@ -205,26 +207,31 @@ library TransactionFraudProofs {
       "Invalid merkle proof."
     );
     address signer = transaction.recoverSignature();
-    if (signer == address(0)) return state.revertBlock(badHeader);
+    if (signer == address(0)) {
+      return state.revertBlock(badHeader);
+    }
+
     bytes32 previousStateRoot = state.transactionHadPreviousState(
       previousStateProof, badHeader, transactionIndex
     );
     (
       , uint256 accountIndex,, Account.Account memory account
     ) = Account.verifyAccountInState(previousStateRoot, stateProof);
-    uint256 txAccountIndex;
+    uint256 transactionAccountIndex;
     assembly {
-      /* All soft transactions have the account index as the third argument (prefix, nonce, accountIndex, ...) */
-      let bodyPtr := add(transaction, 0x21)
-      txAccountIndex := shr(224, mload(add(bodyPtr, 3)))
+      // Get account index memory location (skip length, prefix, and nonce).
+      let accountIndexPointer := add(transaction, 36)
+
+      // Retrieve the 32-bit account index from the located memory region.
+      transactionAccountIndex := shr(224, mload(accountIndexPointer))
     }
     require(
-      accountIndex == txAccountIndex,
+      accountIndex == transactionAccountIndex,
       "Proven account does not match transaction."
     );
     require(
       !account.hasSigner(signer),
-      "Not fraudulent -- account includes signer."
+      "Not fraudulent — account includes signer."
     );
     return state.revertBlock(badHeader);
   }
