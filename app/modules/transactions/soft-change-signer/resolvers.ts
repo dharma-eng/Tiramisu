@@ -1,27 +1,12 @@
 import { L2CorePromise, SoftChangeSigner, toHex } from "../../../index";
 import TransactionQueue from "../../transactions-queue"
 
-function validateInputs(accountIndex: number, signingAddress: string, modificationCategory: number) {
-  const errors = [];
-
-  if (accountIndex === null) {
-    errors.push("Account does not exist for address; cannot modify signer");
-  }
-
-  if (![0, 1].includes(modificationCategory)) {
-    errors.push("Modification category must be 0 or 1.");
-  }
-
-  //TODO: validate signing address is valid ETH address
-
-  return errors;
-}
-
 export async function getUnsignedSoftChangeSignerResolver(
   parentValue,
   { accountAddress, signingAddress, modificationCategory },
   auth
 ) {
+  //TODO: update pulling in L2Core
   const L2Core = await L2CorePromise;
   const state = await L2Core.getLatestState();
 
@@ -108,3 +93,20 @@ export async function submitSoftChangeSignerResolver(
     success
   };
 }
+
+function validateInputs(accountIndex: number, signingAddress: string, modificationCategory: number) {
+  const errors = [];
+
+  if (accountIndex === null) {
+    errors.push("Account does not exist for address; cannot modify signer");
+  }
+
+  if (![0, 1].includes(modificationCategory)) {
+    errors.push("Modification category must be 0 or 1.");
+  }
+
+  //TODO: validate signing address is valid ETH address
+
+  return errors;
+}
+
