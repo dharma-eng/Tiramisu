@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import ParentInterface from "../modules/parent-interface"
 import { StateMachine, Block } from "../modules";
 import { Database } from "../modules/db";
+import TransactionQueue from "../modules/transactions-queue";
 
 export type Web3Options = {
   peg: any;
@@ -27,7 +28,7 @@ export class DharmaL2Core extends EventEmitter {
   static async create(web3: Web3Options, dbPath?: string): Promise<DharmaL2Core> {
     const db = await Database.create(dbPath);
     const parent = new ParentInterface(web3.peg, web3.from, web3.web3);
-    return new DharmaL2Core(db, queue, parent, dbPath);
+    return new DharmaL2Core(db, parent, dbPath);
   }
 
   async confirmationLoop() {
@@ -63,7 +64,7 @@ export class DharmaL2Core extends EventEmitter {
     const state = await this.database.getState(parentData.stateRoot);
     const stateMachine = new StateMachine(state);
     const encodedHardTransactions = await this.parentInterface.getHardTransactions(parentData.hardTransactionsCount);
-    const softTransactions = await this.queue.getTransactions(this.maxSoftTransactions);
+    const softTransactions = await TransactionQueue.getTransactions(this.maxSoftTransactions);
     const block = await stateMachine.executeBlock({
       ...parentData,
       hardTransactionsIndex: parentData.hardTransactionsCount,
