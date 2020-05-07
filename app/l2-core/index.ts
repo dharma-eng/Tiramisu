@@ -54,6 +54,10 @@ export class DharmaL2Core extends EventEmitter {
     await this.database.close();
   }
 
+  async getLatestState() {
+    return this.database.getLatestState();
+  }
+
   async processBlock(parentHashOrNumber?: string | number, commit?: boolean): Promise<Block> {
     const parentData = await this.database.getBlockOrDefault(parentHashOrNumber);
     const state = await this.database.getState(parentData.stateRoot);
