@@ -1,26 +1,78 @@
-import { GraphQLInputObjectType, GraphQLObjectType, GraphQLString } from "graphql";
-import SoftCreate from "./index";
+import { GraphQLFloat, GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import { AccountType } from "../../account/types";
 
 export const SoftCreateType = new GraphQLObjectType({
   name: "softCreate",
   description: "Soft Create Type",
-  isTypeOf: account => account instanceof SoftCreate,
   fields: () => ({
-    //TODO: define fields
+    account: {
+      type: AccountType
+    },
+    toAccount: {
+      type: AccountType
+    },
+    toAccountIndex: {
+      type: GraphQLInt
+    },
+    toAccountAddress: {
+      type: GraphQLString
+    },
+    initialSigningKey: {
+      type: GraphQLString
+    },
+    nonce: {
+      type: GraphQLInt
+    },
+    value: {
+      type: GraphQLFloat
+    },
+    signature: {
+      type: GraphQLString
+    },
+    prefix: {
+      type: GraphQLInt
+    },
+    intermediateStateRoot: {
+      type: GraphQLString
+    }
   }),
 });
 
-export const SubmitSoftCreateInput = new GraphQLInputObjectType({
-  name: 'submitSoftCreateInput',
-  fields: () => ({
-    //TODO: define fields
-  })
-});
+export const GetUnsignedSoftCreateInput = {
+  accountAddress: {
+    type: GraphQLString
+  },
+  toAccountAddress: {
+    type: GraphQLString
+  },
+  initialSigningKey: {
+    type: GraphQLString
+  },
+  value: {
+    type: GraphQLFloat
+  }
+};
 
-export const GetUnsignedSoftCreateInput = new GraphQLInputObjectType({
-  name: 'getUnsignedSoftCreateInput',
-  fields: () => ({
-    //TODO: define fields
-  })
-});
-
+export const SubmitSoftCreateInput = {
+  accountAddress: {
+    type: GraphQLString
+  },
+  toAccountAddress: {
+    type: GraphQLString
+  },
+  toAccountIndex: {
+    type: GraphQLInt
+  },
+  initialSigningKey: {
+    type: GraphQLString
+  },
+  value: {
+    type: GraphQLFloat
+  },
+  nonce: {
+    type: GraphQLInt
+  },
+  signature: {
+    type: GraphQLString
+  }
+};
