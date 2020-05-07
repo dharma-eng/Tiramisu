@@ -1,8 +1,9 @@
 import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import Tester from '../../Tester';
-import { BlockType, Commitment, Blockchain } from '../../../app';
+import { Block, Commitment, Blockchain } from '../../../app';
 import { randomHexBuffer } from '../../utils';
-
+chai.use(chaiAsPromised);
 const { expect } = chai;
 
 export const test = () => describe("Header Fraud Proof Tests", () => {
@@ -27,7 +28,7 @@ export const test = () => describe("Header Fraud Proof Tests", () => {
 
   describe('State Size Error', async () => {
     let previousHeader: Commitment;
-    let badBlock: BlockType;
+    let badBlock: Block;
     let account1, account2;
 
     before(async () => {
@@ -71,7 +72,7 @@ transactionsData */
 
   describe('Transactions Root Error', async () => {
     let previousHeader: Commitment;
-    let badBlock: BlockType;
+    let badBlock: Block;
     let account1, account2;
 
     before(async () => {
@@ -110,9 +111,9 @@ transactionsData */
     });
   });
 
-  describe('Hard Transactions Range Error', async () => {
+  describe('Hard Transactions Count Error', async () => {
     let previousHeader: Commitment;
-    let badBlock: BlockType;
+    let badBlock: Block;
     let account1, account2;
 
     before(async () => {
@@ -132,15 +133,15 @@ transactionsData */
     it('Should submit a block with a bad hard transaction count.', async () => {
       await hardDeposit(account2, 100);
       badBlock = await blockchain.processBlock();
-      badBlock.header.hardTransactionsCount += 1;
+      badBlock.header.hardTransactionsCount = 5;
       await blockchain.submitBlock(badBlock);
       const blockCount = await blockchain.peg.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
     });
 
-    it('Should prove fraud by calling proveHardTransactionRangeError', async () => {
+    it('Should prove fraud by calling proveHardTransactionsCountError', async () => {
       await blockchain.peg.methods
-        .proveHardTransactionRangeError(
+        .proveHardTransactionsCountError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 });
     });
@@ -149,6 +150,94 @@ transactionsData */
       const blockCount = await blockchain.peg.methods.getBlockCount().call();
       expect(blockCount).to.eql('1');
     });
+    
+    it('Should not revert a block with a valid hard transactions count', async () => {
+      await resetBlockchain();
+      await hardDeposit(account1, 100);
+      let block = await blockchain.processBlock();
+      await blockchain.submitBlock(block);
+      await blockchain.confirmBlock(block);
+      previousHeader = block.commitment;
+      await hardDeposit(account2, 100);
+      badBlock = await blockchain.processBlock();
+      await blockchain.submitBlock(badBlock);
+      let blockCount = await blockchain.peg.methods.getBlockCount().call();
+      expect(blockCount).to.eql('2');
+      const promise = blockchain.peg.methods
+        .proveHardTransactionsCountError(
+          previousHeader, badBlock.commitment, badBlock.transactionsData
+        ).send({ from, gas: 5e6 })
+      expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Hard transactions count not invalid.')
+    })
+  });
+
+  describe('Hard Transactions Range Error', async () => {
+    let previousHeader: Commitment;
+    let badBlock: Block;
+    let account1, account2;
+
+    before(async () => {
+      await resetBlockchain();
+      account1 = tester.randomAccount();
+      account2 = tester.randomAccount();
+    });
+
+    it("Should process, submit and confirm an initial block.", async () => {
+      await hardDeposit(account1, 100);
+      let block = await blockchain.processBlock();
+      await blockchain.submitBlock(block);
+      await blockchain.confirmBlock(block);
+      previousHeader = block.commitment;
+    });
+
+    it('Should submit a block with a duplicate hard transaction index.', async () => {
+      await hardDeposit(account2, 100);
+      await hardDeposit(account1, 100);
+      const block = await blockchain.processBlock();
+      const tx0 = block.transactions.hardCreates[0];
+      const tx1 = block.transactions.hardDeposits[0];
+      tx1.hardTransactionIndex = tx0.hardTransactionIndex;
+      badBlock = new Block({
+        ...block.header,
+        hardTransactionsIndex: block.header.hardTransactionsCount - 2,
+        transactions: { hardCreates: [tx0], hardDeposits: [tx1] }
+      });
+      await blockchain.submitBlock(badBlock);
+      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      expect(blockCount).to.eql('2');
+    });
+
+    it('Should prove fraud by calling proveHardTransactionsRangeError', async () => {
+      await blockchain.peg.methods
+        .proveHardTransactionsRangeError(
+          previousHeader, badBlock.commitment, badBlock.transactionsData
+        ).send({ from, gas: 5e6 });
+    });
+
+    it('Should have updated the block count', async () => {
+      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      expect(blockCount).to.eql('1');
+    });
+    
+    it('Should not revert a valid block', async () => {
+      await resetBlockchain();
+      await hardDeposit(account1, 100);
+      let block = await blockchain.processBlock();
+      await blockchain.submitBlock(block);
+      await blockchain.confirmBlock(block);
+      previousHeader = block.commitment;
+      await hardDeposit(account2, 100);
+      await hardDeposit(account1, 100);
+      badBlock = await blockchain.processBlock();
+      await blockchain.submitBlock(badBlock);
+      let blockCount = await blockchain.peg.methods.getBlockCount().call();
+      expect(blockCount).to.eql('2');
+      const promise = blockchain.peg.methods
+        .proveHardTransactionsRangeError(
+          previousHeader, badBlock.commitment, badBlock.transactionsData
+        ).send({ from, gas: 5e6 })
+      expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Fraud not found in hard tx range.')
+    })
   });
 });
 

@@ -43,7 +43,7 @@ export class TransactionMetadata implements TransactionMetadataType {
         return new TransactionMetadata(
             keys.reduce((o, k) => ({
                 ...o,
-                [k]: transactions[k].length
+                [k]: (transactions[k] || []).length
             }), {})
         );
     }

@@ -95,46 +95,11 @@ library HeaderFraudProofs {
       badHeader.hasTransactionsData(transactionsData),
       "Header does not match transactions data."
     );
-
-    Tx.TransactionsMetadata memory meta = transactionsData
-      .decodeTransactionsMetadata();
-
-    uint256 expectedLength = meta.expectedTransactionsLength();
-    /* If the transactions data size is incommensurate with the transactions
-       header, the block is erroneous. */
-    if (transactionsData.length != expectedLength + 16) {
-      return state.revertBlock(badHeader);
-    }
-    uint256 txCount = meta.transactionsCount();
-    uint256 txPtr = 48;
-    uint256 leafIndex = 0;
-    bool identitySuccess = true;
-    bytes[] memory leaves = new bytes[](txCount);
-    uint16[2][8] memory elements = [
-      [meta.hardCreateCount, 88],
-      [meta.hardDepositCount, 48],
-      [meta.hardWithdrawCount, 48],
-      [meta.hardAddSignerCount, 93],
-      [meta.softWithdrawCount, 131],
-      [meta.softCreateCount, 155],
-      [meta.softTransferCount, 115],
-      [meta.softChangeSignerCount, 125]
-    ];
-
-    for (uint8 i = 0; i < 8; i++) {
-      uint16 count = elements[i][0];
-      if (count > 0) {
-        (identitySuccess, leafIndex, txPtr) = putLeaves(
-          leaves, identitySuccess, leafIndex, txPtr, i, count, elements[i][1]
-        );
-      }
-    }
-
-    bytes32 txRoot = Merkle.getMerkleRoot(leaves);
-    if (txRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
+    bytes32 calculatedRoot = Tx.deriveTransactionsRoot(transactionsData);
+    if (calculatedRoot != badHeader.transactionsRoot) state.revertBlock(badHeader);
   }
 
-  function proveHardTransactionRangeError(
+  function proveHardTransactionsCountError(
     State.State storage state,
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
@@ -155,12 +120,119 @@ library HeaderFraudProofs {
       meta.hardWithdrawCount + meta.hardAddSignerCount
     );
 
-    if (
+    require(
       badHeader.hardTransactionsCount != (
         previousHeader.hardTransactionsCount + hardTxSum
-      )
-    ) {
-      state.revertBlock(badHeader);
-    }
+      ), "Hard transactions count not invalid."
+    );
+    return state.revertBlock(badHeader);
   }
+
+  /* solhint-disable function-max-lines */ // TODO: simplify this function
+  /**
+   * @dev proveHardTransactionsRangeError
+   * Proves that a block has a missing or duplicate hard transaction index.
+   */
+  function proveHardTransactionsRangeError(
+    State.State storage state,
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) internal {
+    state.blockIsPendingAndHasParent(badHeader, previousHeader);
+
+    require(
+      badHeader.hasTransactionsData(transactionsData),
+      "Header does not match transactions data."
+    );
+
+    Tx.TransactionsMetadata memory meta = transactionsData
+      .decodeTransactionsMetadata();
+
+    uint256 hardTxSum = (
+      meta.hardCreateCount + meta.hardDepositCount +
+      meta.hardWithdrawCount + meta.hardAddSignerCount
+    );
+
+    uint256 prevCount = previousHeader.hardTransactionsCount;
+    bytes memory indexBuffer = new bytes(hardTxSum);
+    uint8 fraudProven = 0;
+    assembly {
+      let bufPtr := add(indexBuffer, 32)
+      let txOffset := add(transactionsData, 48) // skip length and metadata
+      /* Check hard create indices */
+      let len := mload(meta)
+      for {let i := 0} lt(i, len) {i := add(i, 1)} {
+        let txIndex := shr(216, mload(txOffset))
+        if lt(txIndex, prevCount) {
+          fraudProven := 1
+          break
+        }
+        let ptr := add(bufPtr, sub(txIndex, prevCount))
+        if eq(shr(248, mload(ptr)), 1) {
+          fraudProven := 1
+          break
+        }
+        mstore8(ptr, 1)
+        txOffset := add(txOffset, 88)
+      }
+      if iszero(fraudProven) {
+        /* Check hard deposit indices */
+        len := mload(add(meta, 32))
+        for {let i := 0} lt(i, len) {i := add(i, 1)} {
+          let txIndex := shr(216, mload(txOffset))
+          if lt(txIndex, prevCount) {
+            fraudProven := 1
+            break
+          }
+          let ptr := add(bufPtr, sub(txIndex, prevCount))
+          if eq(shr(248, mload(ptr)), 1) {
+            fraudProven := 1
+            break
+          }
+          mstore8(ptr, 1)
+          txOffset := add(txOffset, 48)
+        }
+      }
+      if iszero(fraudProven) {
+        /* Check hard withdraw indices */
+        len := mload(add(meta, 64))
+        for {let i := 0} lt(i, len) {i := add(i, 1)} {
+          let txIndex := shr(216, mload(txOffset))
+          if lt(txIndex, prevCount) {
+            fraudProven := 1
+            break
+          }
+          let ptr := add(bufPtr, sub(txIndex, prevCount))
+          if eq(shr(248, mload(ptr)), 1) {
+            fraudProven := 1
+            break
+          }
+          mstore8(ptr, 1)
+          txOffset := add(txOffset, 68)
+        }
+      }
+      if iszero(fraudProven) {
+        /* Check hard add signer indices */
+        len := mload(add(meta, 64))
+        for {let i := 0} lt(i, len) {i := add(i, 1)} {
+          let txIndex := shr(216, mload(txOffset))
+          if lt(txIndex, prevCount) {
+            fraudProven := 1
+            break
+          }
+          let ptr := add(bufPtr, sub(txIndex, prevCount))
+          if eq(shr(248, mload(ptr)), 1) {
+            fraudProven := 1
+            break
+          }
+          mstore8(ptr, 1)
+          txOffset := add(txOffset, 61)
+        }
+      }
+    }
+    require(fraudProven == 1, "Fraud not found in hard tx range.");
+    return state.revertBlock(badHeader);
+  }
+  /* solhint-enable function-max-lines */
 }

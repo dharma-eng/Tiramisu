@@ -1,5 +1,5 @@
 import {Transaction} from "../transactions";
-import {StateType} from "../state";
+import {State} from "../state";
 
 export interface BlockchainType {
   queue: Transaction[];
@@ -9,7 +9,7 @@ export interface BlockchainType {
   web3: any;
   dai: any;
   peg: any;
-  state: StateType;
+  state: State;
   stateMachine: any; //TODO: update to StateMachine type
   version: number;
   blockNumber: number;

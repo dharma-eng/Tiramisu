@@ -1,27 +1,23 @@
-import {HardWithdrawTransaction} from "../interfaces"
-import {AccountType} from "../../account/interfaces";
-import { HardWithdrawArguments } from "./interfaces";
+import {HardTransaction} from "../interfaces"
+import {Account} from "../../account";
+import { HardWithdrawData } from "./interfaces";
 import {toBuf, toHex, toInt} from "../../../lib";
 
-export class HardWithdraw implements HardWithdrawTransaction {
+export { HardWithdrawData };
+
+export interface HardWithdraw extends HardTransaction, HardWithdrawData {
     prefix: 2;
-    accountIndex: number;
-    hardTransactionIndex: number;
-    callerAddress: string;
-    value: number;
-    intermediateStateRoot: string;
+}
+
+export class HardWithdraw {
+    prefix: 2 = 2;
 
     get bytesWithoutPrefix(): number {
         return 68;
     }
 
-    constructor(args: HardWithdrawArguments) {
-        const { accountIndex, hardTransactionIndex, callerAddress, value } = args;
-        this.accountIndex = toInt(accountIndex);
-        this.hardTransactionIndex = toInt(hardTransactionIndex);
-        this.callerAddress = toHex(callerAddress);
-        this.value = toInt(value);
-        this.prefix = 2;
+    constructor(args: HardWithdrawData) {
+        Object.assign(this, args);
     }
 
     addOutput(intermediateStateRoot: string): void {
@@ -44,7 +40,7 @@ export class HardWithdraw implements HardWithdrawTransaction {
         ]);
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         if (!(account.address == this.callerAddress))
             return `Caller not approved for withdrawal.`;
         if (!account.hasSufficientBalance(this.value))
@@ -62,6 +58,8 @@ export class HardWithdraw implements HardWithdrawTransaction {
             value
         });
     }
+
+    toJSON = (): HardWithdrawData => this;
 }
 
 export default HardWithdraw;

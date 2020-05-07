@@ -1,8 +1,21 @@
-import { AccountArguments, AccountType } from "./interfaces";
+import { AccountArguments } from "./interfaces";
 const { toBuffer } = require('ethereumjs-utils');
 import {toInt, toBuf, toHex} from "../../lib";
 
-export class Account implements AccountType {
+export interface Account {
+    address: string;
+    nonce: number;
+    balance: number;
+    signers: string[];
+    hasSufficientBalance(value: number): boolean;
+    checkNonce(nonce: number): boolean;
+    hasSigner(address: string): boolean;
+    encode(): Buffer;
+    addSigner(address: string): void;
+    removeSigner(address: string): void;
+}
+
+export class Account {
     address: string;
     nonce: number;
     balance: number;

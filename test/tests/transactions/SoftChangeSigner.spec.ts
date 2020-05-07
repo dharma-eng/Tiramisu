@@ -39,7 +39,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSigner = randomAccount();
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -110,7 +110,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSigner = randomAccount();
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -176,7 +176,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSigner = randomAccount();
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce - 1,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -242,7 +242,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSigner = randomAccount();
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -269,7 +269,7 @@ const test = () => describe("Soft Change Signer", () => {
 
     it("Should not add the signer a second time", async () => {
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: account.nonce,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -340,7 +340,7 @@ const test = () => describe("Soft Change Signer", () => {
         newSigner = randomAccount();
 
         softChangeSigner = new SoftChangeSigner({
-          fromAccountIndex: accountIndex,
+          accountIndex,
           nonce: initialAccount.nonce,
           signingAddress: newSigner.address,
           modificationCategory: 0,
@@ -374,7 +374,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSigner = randomAccount();
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSigner.address,
         modificationCategory: 0,
@@ -411,7 +411,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSignerAddress = initialAccount.signers[initialAccount.signers.length - 1];
 
       const softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSignerAddress,
         modificationCategory: 1,
@@ -476,7 +476,7 @@ const test = () => describe("Soft Change Signer", () => {
       newSignerAddress = newSigner.address;
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: newSignerAddress,
         modificationCategory: 1,
@@ -549,7 +549,7 @@ const test = () => describe("Soft Change Signer", () => {
         removeSignerAddress = initialAccount.signers[initialAccount.signers.length - 1];
 
         softChangeSigner = new SoftChangeSigner({
-          fromAccountIndex: accountIndex,
+          accountIndex,
           nonce: initialAccount.nonce,
           signingAddress: removeSignerAddress,
           modificationCategory: 1,
@@ -584,7 +584,7 @@ const test = () => describe("Soft Change Signer", () => {
       removeSignerAddress = initialAccount.signers[initialAccount.signers.length - 1];
 
       softChangeSigner = new SoftChangeSigner({
-        fromAccountIndex: accountIndex,
+        accountIndex,
         nonce: initialAccount.nonce,
         signingAddress: removeSignerAddress,
         modificationCategory: 1,

@@ -3,7 +3,8 @@ import {
   HardCreate,
   HardDeposit,
   HardWithdraw,
-  HardAddSigner
+  HardAddSigner,
+  Transaction
 } from "../modules/transactions";
 
 async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
@@ -24,7 +25,7 @@ async function decodeHardTransaction(state, hardTransactionIndex, _encoded) {
   if (prefix == 3) return HardAddSigner.fromLayer1(hardTransactionIndex, buf);
 }
 
-export async function decodeHardTransactions(state, startIndex, hardTransactions) {
+export async function decodeHardTransactions(state, startIndex, hardTransactions): Promise<Transaction[]> {
   const arr = [];
   for (let i = 0; i < hardTransactions.length; i++) {
     const hardTransactionIndex = startIndex + i;

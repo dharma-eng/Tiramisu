@@ -1,32 +1,24 @@
 import { toBuf, toHex, toInt } from "../../../lib";
-import {HardAddSignerTransaction} from "../interfaces";
-import { HardAddSignerArguments } from "./interfaces";
-import {AccountType} from "../../account/interfaces";
+import { HardTransaction } from "../interfaces";
+import { HardAddSignerData } from "./interfaces";
+import { Account } from "../../account";
 
-export class HardAddSigner implements HardAddSignerTransaction {
+export { HardAddSignerData };
+
+export interface HardAddSigner extends HardTransaction, HardAddSignerData {
     prefix: 3;
     accountIndex: number;
-    hardTransactionIndex: number;
-    callerAddress: string;
-    signingAddress: string;
-    intermediateStateRoot: string;
+}
+
+export class HardAddSigner {
+    prefix: 3 = 3;
 
     get bytesWithoutPrefix(): number {
         return 61;
     }
 
-    constructor(args: HardAddSignerArguments) {
-        const {
-            accountIndex,
-            hardTransactionIndex,
-            callerAddress,
-            signingAddress
-        } = args;
-        this.accountIndex = toInt(accountIndex);
-        this.hardTransactionIndex = toInt(hardTransactionIndex);
-        this.callerAddress = toHex(callerAddress);
-        this.signingAddress = toHex(signingAddress);
-        this.prefix = 3;
+    constructor(args: HardAddSignerData) {
+        Object.assign(this, args);
     }
 
     addOutput(intermediateStateRoot: string): void{
@@ -47,7 +39,7 @@ export class HardAddSigner implements HardAddSignerTransaction {
         ]);
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         if (account.hasSigner(this.signingAddress))
             return `Invalid signing address. Account already has signer ${
                 this.signingAddress
@@ -57,9 +49,9 @@ export class HardAddSigner implements HardAddSignerTransaction {
     }
 
     static fromLayer1(hardTransactionIndex: number, buf: Buffer): HardAddSigner {
-        let accountIndex = toInt(toHex(buf.slice(1, 5))) as number;
-        let callerAddress = toHex(buf.slice(5, 25)) as string;
-        let signingAddress = toHex(buf.slice(25)) as string;
+        let accountIndex = toInt(toHex(buf.slice(1, 5)));
+        let callerAddress = toHex(buf.slice(5, 25));
+        let signingAddress = toHex(buf.slice(25));
 
         return new HardAddSigner({
             hardTransactionIndex,
@@ -68,6 +60,8 @@ export class HardAddSigner implements HardAddSignerTransaction {
             signingAddress
         });
     }
+
+    toJSON = (): HardAddSignerData => this;
 }
 
 export default HardAddSigner;

@@ -1,43 +1,28 @@
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
-import {toBuf, toHex, toInt} from "../../../lib";
-import {SoftTransferTransaction} from "../interfaces";
-import {AccountType} from "../../account/interfaces";
-import { SoftTransferArguments } from "./interfaces";
+import {toBuf, toHex} from "../../../lib";
+import {SoftTransaction} from "../interfaces";
+import {Account} from "../../account";
+import { SoftTransferData, SoftTransferInput } from "./interfaces";
 
-export class SoftTransfer implements SoftTransferTransaction {
+export { SoftTransferData };
+
+export interface SoftTransfer extends SoftTransaction, SoftTransferData {
     prefix: 6;
-    toAccountIndex: number;
-    nonce: number;
-    value: number;
     signature: string;
-    intermediateStateRoot: string;
-    accountIndex: number;
-    resolve: () => void;
-    reject: (errorMessage: string) => void;
+}
+
+export class SoftTransfer {
+    prefix: 6 = 6;
 
     get bytesWithoutPrefix():number {
         return 115;
     }
 
-    constructor(args: SoftTransferArguments) {
-        const {
-            fromAccountIndex,
-            toAccountIndex,
-            nonce,
-            value,
-            signature,
-            privateKey
-        } = args;
-        this.accountIndex = toInt(fromAccountIndex);
-        this.toAccountIndex = toInt(toAccountIndex);
-        this.nonce = toInt(nonce);
-        this.value = toInt(value);
-
+    constructor(args: SoftTransferInput) {
+        const { privateKey, signature, ...rest } = args;
+        Object.assign(this, rest);
         let sig = (privateKey) ? this.sign(privateKey) : signature
-
-        if (typeof sig == 'object') this.signature = toRpcSig(sig.v, sig.r, sig.s);
-        else this.signature = toHex(sig);
-        this.prefix = 6;
+        this.signature = (typeof sig == 'object') ? toRpcSig(sig.v, sig.r, sig.s) : sig;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {
@@ -98,12 +83,14 @@ export class SoftTransfer implements SoftTransferTransaction {
         }
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         const signer = this.getSignerAddress() as string;
         if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;
         if (!account.hasSufficientBalance(this.value)) return `Insufficient balance. Account has ${account.balance}.`;
     }
+
+    toJSON = (): SoftTransferData => this;
 }
 
 export default SoftTransfer;

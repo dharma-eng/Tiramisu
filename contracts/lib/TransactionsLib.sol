@@ -32,14 +32,14 @@ library TransactionsLib {
     uint56 value;
     address contractAddress;
     address signerAddress;
-    bytes32 root;
+    bytes32 intermediateStateRoot;
   }
 
   struct HardDeposit {
     uint40 hardTransactionIndex;
     uint32 accountIndex;
     uint56 value;
-    bytes32 root;
+    bytes32 intermediateStateRoot;
   }
 
   struct HardWithdrawal {
@@ -486,5 +486,23 @@ library TransactionsLib {
 
     require(identitySuccess, "Failed to copy bytes.");
     return Merkle.getMerkleRoot(leaves);
+  }
+
+  function recoverSignature(bytes memory txData)
+  internal pure returns (address signer) {
+    bytes32 msgHash;
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+    assembly {
+      let ptr := add(txData, 0x20)
+      let inputLen := sub(mload(txData), 97)
+      msgHash := keccak256(ptr, inputLen)
+      let vOffset := add(ptr, inputLen)
+      v := shr(248, mload(vOffset))
+      r := mload(add(vOffset, 1))
+      s := mload(add(vOffset, 33))
+    }
+    signer = ecrecover(msgHash, v, r, s);
   }
 }

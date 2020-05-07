@@ -1,13 +1,14 @@
 import {
-  HardCreateTransaction,
-  HardDepositTransaction,
-  HardWithdrawTransaction,
-  HardAddSignerTransaction,
-  BlockType,
+  HardCreate,
+  HardDeposit,
+  HardWithdraw,
+  HardAddSigner,
+  Block,
   Commitment,
   getMerkleProof,
   getMerkleRoot,
-  transactionsToArray
+  transactionsToArray,
+  SoftTransfer
 } from '../../../app';
 import chai from 'chai';
 import Tester from '../../Tester';
@@ -47,7 +48,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
 
   describe('Hard Transaction Source Error', async () => {
     let previousHeader: Commitment;
-    let badBlock: BlockType;
+    let badBlock: Block;
     let account1, account2;
 
     before(async () => {
@@ -78,7 +79,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     });
 
     describe('Hard Create Source Error', async () => {
-      async function executeFraudProof(errorInducer: (transaction: HardCreateTransaction) => Buffer) {
+      async function executeFraudProof(errorInducer: (transaction: HardCreate) => Buffer) {
         await hardDeposit(account1, 50);
         const block = await blockchain.processBlock();
         const transaction = block.transactions.hardCreates[0];
@@ -99,7 +100,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       }
 
       it('Should prove that a hard create has a bad length', async () => {
-        const errorInducer = (transaction: HardCreateTransaction): Buffer => {
+        const errorInducer = (transaction: HardCreate): Buffer => {
           const leaf = transaction.encode(true);
           return leaf.slice(0, leaf.length - 1)
         };
@@ -107,7 +108,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard create has a bad prefix', async () => {
-        const errorInducer = (transaction: HardCreateTransaction): Buffer => {
+        const errorInducer = (transaction: HardCreate): Buffer => {
           const leaf = transaction.encode(true);
           leaf[0] = 0x2;
           return leaf;
@@ -116,7 +117,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard create has a bad `value` field.', async () => {
-        const errorInducer = (transaction: HardCreateTransaction): Buffer => {
+        const errorInducer = (transaction: HardCreate): Buffer => {
           transaction.value += 1;
           const leaf = transaction.encode(true);
           return leaf;
@@ -125,7 +126,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard create has a bad `accountAddress` field.', async () => {
-        const errorInducer = (transaction: HardCreateTransaction): Buffer => {
+        const errorInducer = (transaction: HardCreate): Buffer => {
           transaction.accountAddress = randomHexString(20);
           const leaf = transaction.encode(true);
           return leaf;
@@ -134,7 +135,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard create has a bad `signerAddress` field.', async () => {
-        const errorInducer = (transaction: HardCreateTransaction): Buffer => {
+        const errorInducer = (transaction: HardCreate): Buffer => {
           transaction.initialSigningKey = randomHexString(20);
           const leaf = transaction.encode(true);
           return leaf;
@@ -150,14 +151,14 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
           transactionIndex?: number,
           getPriorStateProof?: boolean,
           proofSetup?: () => Promise<void>,
-          transactionMutator?: (transaction: HardDepositTransaction) => Buffer
+          transactionMutator?: (transaction: HardDeposit) => Buffer
         }
       ) {
         let { accountIndex, transactionIndex, getPriorStateProof, proofSetup, transactionMutator } = options;
         transactionIndex = transactionIndex || 0;
         if (proofSetup) await proofSetup();
         else await hardDeposit(account1, 50)
-        let block: BlockType;
+        let block: Block;
         let previousStateProof;
         let accountProof;
         let transactionProof;
@@ -211,7 +212,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
             await blockchain.submitBlock(block);
             await hardDeposit(account1, 20);
           },
-          transactionMutator: (transaction: HardDepositTransaction): Buffer => {
+          transactionMutator: (transaction: HardDeposit): Buffer => {
             const leaf = transaction.encode(true);
             return leaf.slice(0, leaf.length - 1);
           }
@@ -226,7 +227,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
             await blockchain.submitBlock(block);
             await hardDeposit(account1, 20);
           },
-          transactionMutator: (transaction: HardDepositTransaction): Buffer => {
+          transactionMutator: (transaction: HardDeposit): Buffer => {
             const leaf = transaction.encode(true);
             leaf[0] = 0x2;
             return leaf;
@@ -242,7 +243,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
             await blockchain.submitBlock(block);
             await hardDeposit(account1, 20);
           },
-          transactionMutator: (transaction: HardDepositTransaction): Buffer => {
+          transactionMutator: (transaction: HardDeposit): Buffer => {
             transaction.value += 1;
             return transaction.encode(true);
           }
@@ -259,7 +260,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
             await hardDeposit(account1, 20);
             await hardDeposit(account2, 20);
           },
-          transactionMutator: (transaction: HardDepositTransaction): Buffer => {
+          transactionMutator: (transaction: HardDeposit): Buffer => {
             transaction.accountIndex = 0;
             return transaction.encode(true);
           },
@@ -271,7 +272,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     });
 
     describe('Hard Withdraw Source Error', async () => {
-      async function executeFraudProof(errorInducer: (transaction: HardWithdrawTransaction) => Buffer) {
+      async function executeFraudProof(errorInducer: (transaction: HardWithdraw) => Buffer) {
         await hardDeposit(account1, 50);
         await hardWithdraw(0, 10)
         const block = await blockchain.processBlock();
@@ -301,14 +302,14 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       - output value, account index or withdrawal address do not match input
     */
       it('Should prove that a hard withdraw has a bad length', async () => {
-        await executeFraudProof((transaction: HardWithdrawTransaction): Buffer => {
+        await executeFraudProof((transaction: HardWithdraw): Buffer => {
           const leaf = transaction.encode(true);
           return leaf.slice(0, leaf.length - 1);
         });
       });
 
       it('Should prove that a hard withdraw has a bad prefix', async () => {
-        await executeFraudProof((transaction: HardWithdrawTransaction): Buffer => {
+        await executeFraudProof((transaction: HardWithdraw): Buffer => {
           const leaf = transaction.encode(true);
           leaf[0] = 0x1;
           return leaf;
@@ -316,21 +317,21 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard withdraw has a bad `accountIndex` field.', async () => {
-        await executeFraudProof((transaction: HardWithdrawTransaction): Buffer => {
+        await executeFraudProof((transaction: HardWithdraw): Buffer => {
           transaction.accountIndex += 1;
           return transaction.encode(true);
         });
       });
 
       it('Should prove that a hard withdraw has a bad `value` field.', async () => {
-        await executeFraudProof((transaction: HardWithdrawTransaction): Buffer => {
+        await executeFraudProof((transaction: HardWithdraw): Buffer => {
           transaction.value += 1;
           return transaction.encode(true);
         });
       });
 
       it('Should prove that a hard withdraw has a bad `callerAddress` field.', async () => {
-        await executeFraudProof((transaction: HardWithdrawTransaction): Buffer => {
+        await executeFraudProof((transaction: HardWithdraw): Buffer => {
           transaction.callerAddress = `0x${'00'.repeat(20)}`;
           return transaction.encode(true);
         });
@@ -338,7 +339,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     });
 
     describe('Hard Add Signer Source Error', async () => {
-      async function executeFraudProof(errorInducer: (transaction: HardAddSignerTransaction) => Buffer) {
+      async function executeFraudProof(errorInducer: (transaction: HardAddSigner) => Buffer) {
         await hardDeposit(account1, 50);
         await blockchain.peg.methods
           .forceAddSigner(0, randomHexString(20))
@@ -370,14 +371,14 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         - output account index or signing address don't match input value
       */
       it('Should prove that a hard add signer has a bad length', async () => {
-        await executeFraudProof((transaction: HardAddSignerTransaction): Buffer => {
+        await executeFraudProof((transaction: HardAddSigner): Buffer => {
           const leaf = transaction.encode(true);
           return leaf.slice(0, leaf.length - 1);
         });
       });
 
       it('Should prove that a hard add signer has a bad prefix', async () => {
-        await executeFraudProof((transaction: HardAddSignerTransaction): Buffer => {
+        await executeFraudProof((transaction: HardAddSigner): Buffer => {
           const leaf = transaction.encode(true);
           leaf[0] = 0x1;
           return leaf;
@@ -385,20 +386,72 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       });
 
       it('Should prove that a hard add signer has a bad `accountIndex` field.', async () => {
-        await executeFraudProof((transaction: HardAddSignerTransaction): Buffer => {
+        await executeFraudProof((transaction: HardAddSigner): Buffer => {
           transaction.accountIndex += 1;
           return transaction.encode(true);
         });
       });
 
       it('Should prove that a hard add signer has a bad `signingAddress` field.', async () => {
-        await executeFraudProof((transaction: HardAddSignerTransaction): Buffer => {
+        await executeFraudProof((transaction: HardAddSigner): Buffer => {
           transaction.signingAddress = `0x${'00'.repeat(20)}`;
           return transaction.encode(true);
         });
       });  
     });
   });
+
+  describe('Soft Transaction Signature Error', async () => {
+    let previousHeader: Commitment;
+    let badBlock: Block;
+    let account1, account2;
+
+    before(async () => {
+      account1 = tester.randomAccount();
+      account2 = tester.randomAccount();
+    });
+
+    afterEach(async () => await resetBlockchain());
+
+    describe('Soft Transfer Signature Error', async () => {
+      async function executeFraudProof(errorInducer: (transaction: SoftTransfer) => Buffer) {
+        await hardDeposit(account1, 50);
+        await hardDeposit(account2, 50);
+        blockchain.queueTransaction(new SoftTransfer({
+          accountIndex: 0,
+          toAccountIndex: 1,
+          nonce: 0,
+          value: 10,
+          privateKey: account1.privateKey
+        }))
+        const block = await blockchain.processBlock();
+        const transaction = block.transactions.softTransfers[0];
+        const leaves = transactionsToArray(block.transactions).map(tx => tx.encode(true));
+        leaves[1] = errorInducer(transaction);
+        const transactionProof = getMerkleProof(leaves, 1).siblings;
+        const transactionData = leaves[1];
+        block.header.transactionsRoot = getMerkleRoot(leaves);
+        await blockchain.submitBlock(block);
+        expect(await getBlockCount()).to.eql(1);
+        await blockchain.peg.methods.proveSignatureError(
+          block.commitment,
+          transactionData,
+          1,
+          transactionProof,
+          '0x',
+          '0x'
+        ).send({ from });
+        expect(await getBlockCount()).to.eql(0);
+      }
+
+      it('Should prove that a soft transfer has an invalid signature', async () => {
+        await executeFraudProof((transaction: SoftTransfer): Buffer => {
+          transaction.signature = `0x${'00'.repeat(65)}`;
+          return transaction.encode(true);
+        });
+      })
+    })
+  })
 });
 
 if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();

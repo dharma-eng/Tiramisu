@@ -60,12 +60,22 @@ contract MockDharmaPeg is DharmaPeg {
     );
   }
 
-  function proveHardTransactionRangeError(
+  function proveHardTransactionsCountError(
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveHardTransactionRangeError(
+    HeaderFraud.proveHardTransactionsCountError(
+      _state, previousHeader, badHeader, transactionsData
+    );
+  }
+
+  function proveHardTransactionsRangeError(
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) public {
+    HeaderFraud.proveHardTransactionsRangeError(
       _state, previousHeader, badHeader, transactionsData
     );
   }
@@ -79,6 +89,25 @@ contract MockDharmaPeg is DharmaPeg {
     bytes memory stateProof
   ) public {
     TransactionFraud.proveHardTransactionSourceError(
+      _state,
+      badHeader,
+      transaction,
+      transactionIndex,
+      siblings,
+      previousStateProof,
+      stateProof
+    );
+  }
+
+  function proveSignatureError(
+    Block.BlockHeader memory badHeader,
+    bytes memory transaction,
+    uint256 transactionIndex,
+    bytes32[] memory siblings,
+    bytes memory previousStateProof,
+    bytes memory stateProof
+  ) public {
+    TransactionFraud.proveSignatureError(
       _state,
       badHeader,
       transaction,

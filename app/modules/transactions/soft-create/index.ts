@@ -7,50 +7,30 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util'
-import {toBuf, toHex, toInt} from "../../../lib";
-import {SoftCreateTransaction} from "../interfaces";
-import {AccountType} from "../../account/interfaces";
-import { SoftCreateArguments } from "./interfaces";
+import {toBuf, toHex} from "../../../lib";
+import {SoftTransaction, CreateTransaction} from "../interfaces";
+import {Account} from "../../account";
+import { SoftCreateData, SoftCreateInput } from "./interfaces";
 
-export class SoftCreate implements SoftCreateTransaction {
+export { SoftCreateData };
+
+export interface SoftCreate extends SoftTransaction, CreateTransaction, SoftCreateData {
     prefix: 5;
-    accountIndex: number;
-    toAccountIndex: number;
-    nonce: number;
-    value: number;
-    accountAddress: string;
-    initialSigningKey: string;
     signature: string;
-    intermediateStateRoot: string;
-    resolve: () => void;
-    reject: (errorMessage: string) => void;
+}
+
+export class SoftCreate {
+    prefix: 5 = 5;
 
     get bytesWithoutPrefix(): number {
         return 155;
     }
 
-    constructor(args: SoftCreateArguments) {
-        const {
-            fromAccountIndex,
-            toAccountIndex,
-            nonce,
-            value,
-            contractAddress,
-            signingAddress,
-            signature,
-            privateKey
-        } = args;
-        this.accountIndex = toInt(fromAccountIndex);
-        this.toAccountIndex = toInt(toAccountIndex);
-        this.nonce = toInt(nonce);
-        this.value = toInt(value);
-        this.accountAddress = toHex(contractAddress);
-        this.initialSigningKey = toHex(signingAddress);
-
-        let sig = privateKey ? this.sign(privateKey) : signature;
-        if (typeof sig == "object") this.signature = toRpcSig(sig.v, sig.r, sig.s);
-        else this.signature = toHex(sig);
-        this.prefix = 5;
+    constructor(args: SoftCreateInput) {
+        const { privateKey, signature, ...rest } = args;
+        Object.assign(this, rest);
+        let sig = (privateKey) ? this.sign(privateKey) : signature
+        this.signature = (typeof sig == 'object') ? toRpcSig(sig.v, sig.r, sig.s) : sig;
     }
 
     assignResolvers(resolve: () => void, reject: (errorMessage: string) => void): void {
@@ -110,7 +90,7 @@ export class SoftCreate implements SoftCreateTransaction {
         }
     }
 
-    checkValid(account: AccountType): string {
+    checkValid(account: Account): string {
         const signer = this.getSignerAddress() as string;
         if (!(signer && account.hasSigner(signer))) return "Invalid signature.";
         if (!account.checkNonce(this.nonce))
@@ -118,6 +98,8 @@ export class SoftCreate implements SoftCreateTransaction {
         if (!account.hasSufficientBalance(this.value))
             return `Insufficient balance. Account has ${account.balance}.`;
     }
+
+    toJSON = (): SoftCreateData => this;
 }
 
 export default SoftCreate;

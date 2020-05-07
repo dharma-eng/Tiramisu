@@ -9,6 +9,21 @@ library MerkleProofLib {
     bytes32[] siblings;
   }
 
+  function update(
+    bytes memory newLeaf, uint256 path, bytes32[] memory siblings
+  ) internal pure returns (bytes32 updatedRoot) {
+    updatedRoot = keccak256(newLeaf);
+    for (uint256 i = 0; i < siblings.length; i++) {
+      bytes32 sibling = siblings[i];
+      uint8 isComputedRightSibling = getNthBitFromRight(path, i);
+      if (isComputedRightSibling == 0) {
+        updatedRoot = getParent(updatedRoot, sibling);
+      } else {
+        updatedRoot = getParent(sibling, updatedRoot);
+      }
+    }
+  }
+
   /**
    * @notice Verify an inclusion proof of some value, modify the value and
    * return the new root.
