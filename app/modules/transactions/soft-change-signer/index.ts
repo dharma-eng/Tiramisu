@@ -91,9 +91,11 @@ export class SoftChangeSigner {
         }
     }
 
-    checkValid(account: Account): string {
-        const signer = this.getSignerAddress();
-        if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
+    checkValid(account: Account, signed: boolean = true): string {
+        if (signed) {
+            const signer = this.getSignerAddress();
+            if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
+        }
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;
         if (this.modificationCategory == 0) {
             /* Add signer */

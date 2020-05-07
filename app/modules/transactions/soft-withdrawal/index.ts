@@ -84,9 +84,11 @@ export class SoftWithdrawal {
     }
 
     /* Returns either null or an error string */
-    checkValid(account: Account): string {
-        const signer = this.getSignerAddress() as string;
-        if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
+    checkValid(account: Account, signed: boolean = true): string {
+        if (signed) {
+            const signer = this.getSignerAddress() as string;
+            if (!(signer && account.hasSigner(signer))) return 'Invalid signature.';
+        }
         if (!account.checkNonce(this.nonce)) return `Invalid nonce. Expected ${account.nonce}`;
         if (!account.hasSufficientBalance(this.value)) return `Insufficient balance. Account has ${account.balance}.`;
     }
