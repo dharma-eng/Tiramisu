@@ -74,7 +74,7 @@ library AccountLib {
       account.contractAddress,
       account.nonce,
       account.balance,
-      _encodeExtraPacked(account.signers)
+      encodeExtraPacked(account.signers)
     );
   }
 
@@ -113,7 +113,7 @@ library AccountLib {
   }
 
   // Note: abi.encodePacked doesn't remove padding on dynamic array values.
-  function _encodeExtraPacked(
+  function encodeExtraPacked(
     address[] memory signers
   ) internal pure returns (bytes memory packedSigners) {
     packedSigners = new bytes(signers.length * 20);
