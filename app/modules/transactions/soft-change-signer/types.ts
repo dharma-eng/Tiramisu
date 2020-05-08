@@ -23,13 +23,13 @@ export const SoftChangeSignerType = new GraphQLObjectType({
     nonce: {
       type: GraphQLInt
     },
-    messageHash: {
-      type: GraphQLString
-    },
     signature: {
       type: GraphQLString
     },
     intermediateStateRoot: {
+      type: GraphQLString
+    },
+    messageHash: {
       type: GraphQLString
     },
     errors: {

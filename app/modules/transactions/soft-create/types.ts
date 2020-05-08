@@ -1,4 +1,4 @@
-import { GraphQLFloat, GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import { GraphQLBoolean, GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString } from "graphql";
 import { AccountType } from "../../account/types";
 
 export const SoftCreateType = new GraphQLObjectType({
@@ -34,6 +34,15 @@ export const SoftCreateType = new GraphQLObjectType({
     },
     intermediateStateRoot: {
       type: GraphQLString
+    },
+    messageHash: {
+      type: GraphQLString
+    },
+    errors: {
+      type: GraphQLList(GraphQLString)
+    },
+    success: {
+      type: GraphQLBoolean
     }
   }),
 });
