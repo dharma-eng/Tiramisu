@@ -56,6 +56,12 @@ export const SubmitSoftTransferInput = {
   },
   value: {
     type: GraphQLFloat
+  },
+  nonce: {
+    type: GraphQLInt
+  },
+  signature: {
+    type: GraphQLString
   }
 };
 
@@ -68,12 +74,6 @@ export const GetUnsignedSoftTransferInput = {
   },
   value: {
     type: GraphQLFloat
-  },
-  nonce: {
-    type: GraphQLInt
-  },
-  signature: {
-    type: GraphQLString
   }
 };
 
