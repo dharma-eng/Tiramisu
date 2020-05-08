@@ -107,15 +107,10 @@ function validateInputs(accountIndex: number, initialSigningKey: string) {
   const errors = [];
 
   if (accountIndex === null) {
-    errors.push("Account does not exist for address; cannot modify signer");
+    errors.push("Account does not exist for address; cannot transfer funds from account");
   }
 
   //TODO: validate initialSigningKey is valid ETH address
 
   return errors;
 }
-
-
-
-
-
