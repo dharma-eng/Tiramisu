@@ -20,7 +20,7 @@ export class BlockHashDatabase extends SimpleLevel {
   }
 
   async init(): Promise<void> {
-    const n = await this.db.get('latest');
+    const n = await this.get('latest');
     this._latest = n || 0;
   }
 
@@ -28,7 +28,7 @@ export class BlockHashDatabase extends SimpleLevel {
    * Get the array of block hashes stored for a given height.
    */
   async blockHashes(height: number): Promise<BlockHashes> {
-    return (await this.db.get(height)) || [];
+    return (await this.get(height)) || [];
   }
 
   /**
@@ -50,9 +50,9 @@ export class BlockHashDatabase extends SimpleLevel {
     // uses gte to handle height = 0
     if (height >= this._latest) {
       this._latest = height;
-      await this.db.put('latest', height);
+      await this.put('latest', height);
     }
-    await this.db.put(height, blockHashes);
+    await this.put(height, blockHashes);
   }
 
   /**
