@@ -1,4 +1,4 @@
-import { L2CorePromise, SoftCreate, toHex } from "../../../index";
+import { L2CorePromise, SoftCreate, toHex, UNSIGNED } from "../../../index";
 import TransactionQueue from "../../transactions-queue";
 
 //TODO generalize to getUnsignedTransferTransaction -- node will tell you if need to create the account or  not
@@ -33,7 +33,7 @@ export async function getUnsignedSoftCreateResolver(
     value,
     accountAddress: toAccountAddress,
     initialSigningKey,
-    signature: "unsigned"
+    signature: UNSIGNED
   });
 
   const error = softCreate.checkValid(account, false);
