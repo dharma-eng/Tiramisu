@@ -5,11 +5,10 @@ export type SoftTransferData = {
   toAccountIndex: number;
   nonce: number;
   value: number;
-  signature?: string;
+  signature?: string | ECDSASignature;
   intermediateStateRoot?: string;
 }
 
 export interface SoftTransferInput extends SoftTransferData {
   privateKey?: Buffer;
-  signature?: string | ECDSASignature;
 }

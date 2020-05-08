@@ -7,11 +7,10 @@ export type SoftCreateData = {
   value: number;
   accountAddress: string;
   initialSigningKey: string;
-  signature?: string;
+  signature?: string | ECDSASignature;
   intermediateStateRoot?: string;
 }
 
 export interface SoftCreateInput extends SoftCreateData {
   privateKey?: Buffer;
-  signature?: string | ECDSASignature;
 }
