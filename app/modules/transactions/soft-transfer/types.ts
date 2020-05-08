@@ -47,6 +47,18 @@ export const SoftTransferType = new GraphQLObjectType({
   }),
 });
 
+export const GetUnsignedSoftTransferInput = {
+  accountAddress: {
+    type: GraphQLString
+  },
+  toAccountAddress: {
+    type: GraphQLString
+  },
+  value: {
+    type: GraphQLFloat
+  }
+};
+
 export const SubmitSoftTransferInput = {
   accountAddress: {
     type: GraphQLString
@@ -64,16 +76,3 @@ export const SubmitSoftTransferInput = {
     type: GraphQLString
   }
 };
-
-export const GetUnsignedSoftTransferInput = {
-  accountAddress: {
-    type: GraphQLString
-  },
-  toAccountAddress: {
-    type: GraphQLString
-  },
-  value: {
-    type: GraphQLFloat
-  }
-};
-
