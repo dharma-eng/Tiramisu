@@ -1,4 +1,4 @@
-import { L2CorePromise, SoftChangeSigner, toHex } from "../../../index";
+import { L2CorePromise, SoftChangeSigner, toHex, UNSIGNED } from "../../../index";
 import TransactionQueue from "../../transactions-queue"
 
 export async function getUnsignedSoftChangeSignerResolver(
@@ -27,7 +27,7 @@ export async function getUnsignedSoftChangeSignerResolver(
     nonce: account.nonce,
     signingAddress,
     modificationCategory,
-    signature: "unsigned"
+    signature: UNSIGNED
   });
 
   const error = softChangeSigner.checkValid(account, false);

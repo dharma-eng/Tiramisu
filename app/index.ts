@@ -14,6 +14,7 @@ export const L2CorePromise = DharmaL2Core.create({
 export * from "./setup";
 export * from './modules';
 export * from './lib';
+export * from "./constants";
 
 
 
