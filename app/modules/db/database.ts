@@ -54,7 +54,7 @@ export class Database {
    * Read the latest block from the database.
    * @param height Optional field to specify which block height to read the latest hash from.
    */
-  async latest(height?: number): Promise<Block> {
+  async getLatestBlock(height?: number): Promise<Block> {
     const blockHash = await this.blockHashDB.latest(height);
     return this.getBlock(blockHash);
   }
@@ -64,12 +64,17 @@ export class Database {
     {
       let block = (hashOrNumber != undefined)
         ? await this.getBlock(hashOrNumber)
-        : await this.latest();
+        : await this.getLatestBlock();
       return block ? block.header : defaultBlockInfo;
     }
 
   async getState(rootHash?: string): Promise<State> {
     return State.create(this.dbPath, rootHash);
+  }
+
+  async getLatestState(): Promise<State> {
+    const latestBlock = await this.getLatestBlock();
+    return State.create(this.dbPath, latestBlock.header.stateRoot);
   }
 }
 

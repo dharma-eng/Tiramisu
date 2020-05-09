@@ -5,11 +5,10 @@ export type SoftWithdrawalData = {
   accountIndex: number;
   withdrawalAddress: string;
   value: number;
-  signature?: string;
+  signature?: string | ECDSASignature;
   intermediateStateRoot?: string;
 }
 
 export interface SoftWithdrawalInput extends SoftWithdrawalData {
   privateKey?: Buffer;
-  signature?: string | ECDSASignature;
 }

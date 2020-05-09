@@ -19,3 +19,5 @@ export class TransactionQueue {
     });
   }
 }
+
+export default new TransactionQueue();

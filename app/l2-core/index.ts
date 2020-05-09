@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import ParentInterface from "../modules/parent-interface"
-import { Transaction, StateMachine, Block } from "../modules";
+import { StateMachine, Block } from "../modules";
 import { Database } from "../modules/db";
-import { TransactionQueue } from "../modules/transactions-queue";
+import TransactionQueue from "../modules/transactions-queue";
 
 export type Web3Options = {
   peg: any;
@@ -18,19 +18,17 @@ export class DharmaL2Core extends EventEmitter {
 
   constructor(
     public database: Database,
-    public queue: TransactionQueue,
     public parentInterface: ParentInterface,
     private dbPath?: string
   ) {
     super();
-    this._confirmationTimer = setTimeout(this.confirmationLoop, 5000);
+    this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
   }
 
   static async create(web3: Web3Options, dbPath?: string): Promise<DharmaL2Core> {
     const db = await Database.create(dbPath);
-    const queue = new TransactionQueue();
     const parent = new ParentInterface(web3.peg, web3.from, web3.web3);
-    return new DharmaL2Core(db, queue, parent, dbPath);
+    return new DharmaL2Core(db, parent, dbPath);
   }
 
   async confirmationLoop() {
@@ -49,7 +47,7 @@ export class DharmaL2Core extends EventEmitter {
     } catch(err) {
       console.error(err);
     } finally {
-      this._confirmationTimer = setTimeout(this.confirmationLoop, 5000);
+      this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
     }
   }
 
@@ -57,12 +55,16 @@ export class DharmaL2Core extends EventEmitter {
     await this.database.close();
   }
 
+  async getLatestState() {
+    return this.database.getLatestState();
+  }
+
   async processBlock(parentHashOrNumber?: string | number, commit?: boolean): Promise<Block> {
     const parentData = await this.database.getBlockOrDefault(parentHashOrNumber);
     const state = await this.database.getState(parentData.stateRoot);
     const stateMachine = new StateMachine(state);
     const encodedHardTransactions = await this.parentInterface.getHardTransactions(parentData.hardTransactionsCount);
-    const softTransactions = await this.queue.getTransactions(this.maxSoftTransactions);
+    const softTransactions = await TransactionQueue.getTransactions(this.maxSoftTransactions);
     const block = await stateMachine.executeBlock({
       ...parentData,
       hardTransactionsIndex: parentData.hardTransactionsCount,

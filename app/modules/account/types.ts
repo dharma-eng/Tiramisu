@@ -1,4 +1,10 @@
-import { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLFloat, GraphQLList } from "graphql";
+import {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLFloat,
+  GraphQLList,
+} from "graphql";
 import {Account} from "./";
 
 export const AccountType = new GraphQLObjectType({
@@ -20,3 +26,22 @@ export const AccountType = new GraphQLObjectType({
     },
   }),
 });
+
+
+export const GetAccountInput = {
+  address: {
+    type: GraphQLString
+  },
+};
+
+export const PutAccountInput = {
+  address: {
+    type: GraphQLString,
+  },
+  initialSigningKey: {
+    type: GraphQLString,
+  },
+  balance: {
+    type: GraphQLFloat,
+  }
+};

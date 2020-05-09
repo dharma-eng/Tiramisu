@@ -5,11 +5,10 @@ export type SoftChangeSignerData = {
   accountIndex: number;
   signingAddress: string;
   modificationCategory: number;
-  signature?: string;
+  signature?: string | ECDSASignature;
   intermediateStateRoot?: string;
 }
 
 export interface SoftChangeSignerInput extends SoftChangeSignerData {
   privateKey?: Buffer;
-  signature?: string | ECDSASignature;
 }
