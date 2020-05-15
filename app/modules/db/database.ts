@@ -21,7 +21,7 @@ export class Database {
     await this.blocksDB.close();
   }
 
-  static async create(dbPath?: string) {
+  static async create(dbPath?: string): Promise<Database> {
     const blocksDB = new BlockDatabase(dbPath);
     const blockHashDB = await BlockHashDatabase.create(dbPath);
     return new Database(blocksDB, blockHashDB, dbPath);
@@ -29,6 +29,7 @@ export class Database {
 
   async putBlock(block: Block) {
     const blockHash = block.blockHash();
+    console.log(`Putting block in database:\n\tHeight: ${block.header.blockNumber} | Hash: ${blockHash}`)
     await this.blockHashDB.push(block.header.blockNumber, blockHash);
     await this.blocksDB.put(blockHash, block);
   }
@@ -40,7 +41,7 @@ export class Database {
   async getBlock(height: number, index?: number): Promise<Block>
   async getBlock(blockHash: string): Promise<Block>
   async getBlock(hashOrHeight: string | number): Promise<Block>
-  async getBlock(hashOrHeight: string | number, index?: number): Promise<Block> {
+  async getBlock(hashOrHeight: string | number, index: number = 0): Promise<Block> {
     let blockHash: string;
     if (typeof hashOrHeight == 'string') blockHash = hashOrHeight;
     else {
@@ -70,6 +71,18 @@ export class Database {
 
   async getState(rootHash?: string): Promise<State> {
     return State.create(this.dbPath, rootHash);
+  }
+
+  async getBlockStartingState(hashOrNumber?: string | number): Promise<State> {
+    if (typeof hashOrNumber == 'number') {
+      if (hashOrNumber == 0) return State.create(this.dbPath);
+      const previousBlock = await this.getBlock(hashOrNumber - 1);
+      return this.getState(previousBlock.header.stateRoot);
+    }
+    const block = await this.getBlock(hashOrNumber);
+    if (block.header.blockNumber == 0) return State.create();
+    const previousBlock = await this.getBlock(block.header.blockNumber - 1);
+    return this.getState(previousBlock.header.stateRoot);
   }
 }
 
