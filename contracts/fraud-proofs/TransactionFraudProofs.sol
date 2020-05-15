@@ -110,14 +110,19 @@ library TransactionFraudProofs {
   }
 
   function proveHardAddSignerSourceError(
+    State.State storage state,
+    Block.BlockHeader memory badHeader,
     bytes memory inputData,
-    bytes memory outputData
-  ) internal pure returns (bool) {
+    bytes memory outputData,
+    uint256 transactionIndex,
+    bytes memory previousStateProof,
+    bytes memory stateProof
+  ) internal view returns (bool) {
     /**
       Fraud conditions:
       - output tx has unexpected size
       - output tx has unexpected prefix
-      - output account index or signing address don't match input value
+      - output signing address doesn't match input value
     */
     if (
       outputData.length != 94 || inputData.transactionPrefix() != 3
@@ -129,6 +134,19 @@ library TransactionFraudProofs {
     if (
       input.accountIndex != output.accountIndex ||
       input.signingAddress != output.signingAddress
+    ) return true;
+
+    bytes32 previousStateRoot = state.transactionHadPreviousState(
+      previousStateProof, badHeader, transactionIndex
+    );
+
+    (
+      bool empty, uint256 accountIndex,, Account.Account memory account
+    ) = Account.verifyAccountInState(previousStateRoot, stateProof);
+    require(accountIndex == input.accountIndex, "Invalid state proof.");
+    if (
+      output.intermediateStateRoot != bytes32(0) &&
+      (empty || account.contractAddress != input.caller)
     ) return true;
   }
 
@@ -176,7 +194,10 @@ library TransactionFraudProofs {
     } else if (prefix == 2) {
       hasError = proveHardWithdrawSourceError(inputData, transaction);
     } else {
-      hasError = proveHardAddSignerSourceError(inputData, transaction);
+      hasError = proveHardAddSignerSourceError(
+        state, badHeader, inputData, transaction, transactionIndex,
+        previousStateProof, stateProof
+      );
     }
 
     require(hasError, "No error found in transaction source.");
