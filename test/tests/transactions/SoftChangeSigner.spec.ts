@@ -611,6 +611,26 @@ const test = () => describe("Soft Change Signer", () => {
       expect(account.signers.length).to.eql(initialAccount.signers.length);
     });
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const initialAccount = randomAccount();
+      const softChangeSigner = new SoftChangeSigner({
+        accountIndex,
+        nonce: 0,
+        signingAddress: initialAccount.address,
+        modificationCategory: 1,
+        privateKey: initialAccount.privateKey
+      });
+      bytes = softChangeSigner.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const softChangeSigner = SoftChangeSigner.decode(bytes);
+      expect(softChangeSigner.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;
