@@ -12,8 +12,10 @@ import {
 
 import { JsonType } from "../../lib/simple-level";
 
-export type Transaction = HardCreate | HardDeposit | HardWithdraw | HardAddSigner |
-    SoftWithdrawal | SoftCreate | SoftTransfer | SoftChangeSigner;
+export type HardTransactionUnion = HardCreate | HardDeposit | HardWithdraw | HardAddSigner;
+export type SoftTransactionUnion = SoftWithdrawal | SoftCreate | SoftTransfer | SoftChangeSigner;
+
+export type Transaction = HardTransactionUnion | SoftTransactionUnion;
 
 export type TransactionData = HardCreateData | HardDepositData | HardWithdrawData | HardAddSignerData |
     SoftWithdrawalData | SoftCreateData | SoftTransferData | SoftChangeSignerData
@@ -72,5 +74,3 @@ export type Transactions = {
 export interface TransactionMetadataType {
     metadata: object;
 }
-
-
