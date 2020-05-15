@@ -71,6 +71,19 @@ const test = () =>describe("Hard Deposit", () => {
     encoded = hardDeposit.encode(false);
     expect(encoded.length).to.eql(hardDeposit.bytesWithoutPrefix);
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const initialAccount = randomAccount();
+      bytes = hardDeposit.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const hardDeposit = HardDeposit.decode(bytes);
+      expect(hardDeposit.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;

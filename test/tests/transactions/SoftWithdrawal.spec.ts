@@ -258,7 +258,31 @@ const test = () => describe("Soft Withdraw", () => {
     });
   });
 
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const signer = randomAccount();
+      const initialAccount = new Account({
+        address: signer.address,
+        nonce: 0,
+        balance: 20,
+        signers: [signer.address]
+      });
+      const softWithdrawal = new SoftWithdrawal({
+        accountIndex,
+        withdrawalAddress: initialAccount.address,
+        nonce: initialAccount.nonce,
+        value: 50,
+        privateKey: signer.privateKey
+      });
+      bytes = softWithdrawal.encode();
+    });
 
+    it('Should decode the transaction', () => {
+      const softWithdrawal = SoftWithdrawal.decode(bytes);
+      expect(softWithdrawal.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;

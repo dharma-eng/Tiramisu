@@ -253,6 +253,26 @@ const test = () => describe("Hard Add Signer", () => {
       expect(account.signers.length).to.eql(initialAccount.signers.length);
     });
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const newSigner = randomAccount();
+      const hardAddSigner = new HardAddSigner({
+        accountIndex,
+        hardTransactionIndex: 0,
+        callerAddress: initialAccount.address,
+        signingAddress: newSigner.address
+      });
+      bytes = hardAddSigner.encode();
+      console.log(bytes)
+    });
+
+    it('Should decode the transaction', () => {
+      const hardAddSigner = HardAddSigner.decode(bytes);
+      expect(hardAddSigner.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;
