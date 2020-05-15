@@ -1,7 +1,7 @@
 import {HardTransaction} from "../interfaces"
 import {Account} from "../../account";
 import { HardWithdrawData } from "./interfaces";
-import {toBuf, toHex, toInt} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 
 export { HardWithdrawData };
 
@@ -38,6 +38,21 @@ export class HardWithdraw {
             value,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): HardWithdraw {
+        const hardTransactionIndex = toInt(sliceBuffer(buf, 0, 5));
+        const accountIndex = toInt(sliceBuffer(buf, 5, 4));
+        const callerAddress = toHex(sliceBuffer(buf, 9, 20));
+        const value = toInt(sliceBuffer(buf, 29, 7));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 36, 32));
+        return new HardWithdraw({
+            hardTransactionIndex,
+            accountIndex,
+            callerAddress,
+            value,
+            intermediateStateRoot,
+        });
     }
 
     checkValid(account: Account): string {

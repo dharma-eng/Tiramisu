@@ -7,7 +7,7 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util'
-import {toBuf, toHex} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 import {SoftTransaction, CreateTransaction} from "../interfaces";
 import {Account} from "../../account";
 import { SoftCreateData, SoftCreateInput } from "./interfaces";
@@ -62,6 +62,27 @@ export class SoftCreate {
             sig,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): SoftCreate {
+        const nonce = toInt(sliceBuffer(buf, 0, 3));
+        const accountIndex = toInt(sliceBuffer(buf, 3, 4));
+        const toAccountIndex = toInt(sliceBuffer(buf, 7, 4));
+        const value = toInt(sliceBuffer(buf, 11, 7));
+        const accountAddress = toHex(sliceBuffer(buf, 18, 20));
+        const initialSigningKey = toHex(sliceBuffer(buf, 38, 20));
+        const signature = toHex(sliceBuffer(buf, 58, 65));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 123, 32));
+        return new SoftCreate({
+            nonce,
+            accountIndex,
+            toAccountIndex,
+            value,
+            accountAddress,
+            initialSigningKey,
+            signature,
+            intermediateStateRoot
+        });
     }
 
     toMessageHash(): Buffer {

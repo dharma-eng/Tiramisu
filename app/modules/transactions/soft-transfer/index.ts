@@ -1,5 +1,5 @@
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
-import {toBuf, toHex} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 import {SoftTransaction} from "../interfaces";
 import {Account} from "../../account";
 import { SoftTransferData, SoftTransferInput } from "./interfaces";
@@ -50,6 +50,23 @@ export class SoftTransfer {
             sig,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): SoftTransfer {
+        const nonce = toInt(sliceBuffer(buf, 0, 3));
+        const accountIndex = toInt(sliceBuffer(buf, 3, 4));
+        const toAccountIndex = toInt(sliceBuffer(buf, 7, 4));
+        const value = toInt(sliceBuffer(buf, 11, 7));
+        const signature = toHex(sliceBuffer(buf, 18, 65));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 83, 32));
+        return new SoftTransfer({
+            nonce,
+            accountIndex,
+            toAccountIndex,
+            value,
+            signature,
+            intermediateStateRoot
+        });
     }
 
     toMessageHash(): Buffer {

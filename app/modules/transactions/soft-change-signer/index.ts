@@ -7,7 +7,7 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util';
-import {toBuf, toHex} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 import {SoftTransaction} from "../interfaces";
 import {Account} from "../../account";
 import { SoftChangeSignerData, SoftChangeSignerInput } from './interfaces';
@@ -43,8 +43,8 @@ export class SoftChangeSigner {
     }
 
     encode(prefix: boolean = false): Buffer {
-        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
         const modificationCategory = toBuf(this.modificationCategory, 1) as Buffer;
         const sig = toBuf(this.signature, 65) as Buffer;
@@ -58,6 +58,23 @@ export class SoftChangeSigner {
             sig,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): SoftChangeSigner {
+        const nonce = toInt(sliceBuffer(buf, 0, 3));
+        const accountIndex = toInt(sliceBuffer(buf, 3, 4));
+        const signingAddress = toHex(sliceBuffer(buf, 7, 20));
+        const modificationCategory = toInt(sliceBuffer(buf, 27, 1))
+        const signature = toHex(sliceBuffer(buf, 28, 65));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 93, 32));
+        return new SoftChangeSigner({
+            nonce,
+            accountIndex,
+            signingAddress,
+            modificationCategory,
+            signature,
+            intermediateStateRoot,
+        });
     }
 
     toMessageHash(): Buffer {
