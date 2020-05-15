@@ -1,4 +1,4 @@
-import { toBuf, toHex, toInt } from "../../../lib";
+import { toBuf, toHex, toInt, sliceBuffer } from "../../../lib";
 import { HardTransaction } from "../interfaces";
 import { HardAddSignerData } from "./interfaces";
 import { Account } from "../../account";
@@ -37,6 +37,20 @@ export class HardAddSigner {
             signingAddress,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): HardAddSigner {
+        var hardTransactionIndex = toInt(sliceBuffer(buf, 0, 5));
+        var accountIndex = toInt(sliceBuffer(buf, 5, 4));
+        var signingAddress = toHex(sliceBuffer(buf, 9, 20));
+        var intermediateStateRoot = toHex(sliceBuffer(buf, 29, 32));
+        return new HardAddSigner({
+            hardTransactionIndex,
+            accountIndex,
+            callerAddress: null,
+            signingAddress,
+            intermediateStateRoot,
+        });
     }
 
     checkValid(account: Account): string {

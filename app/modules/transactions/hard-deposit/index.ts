@@ -1,6 +1,6 @@
 import {HardTransaction} from "../interfaces";
 import { HardDepositData } from "./interfaces";
-import {toBuf, toHex} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 
 export { HardDepositData };
 
@@ -36,6 +36,19 @@ export class HardDeposit {
             value,
             root
         ]);
+    }
+
+    static decode(buf: Buffer): HardDeposit {
+        const hardTransactionIndex = toInt(sliceBuffer(buf, 0, 5));
+        const accountIndex = toInt(sliceBuffer(buf, 5, 4));
+        const value = toInt(sliceBuffer(buf, 9, 7));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 16, 32));
+        return new HardDeposit({
+            hardTransactionIndex,
+            accountIndex,
+            value,
+            intermediateStateRoot,
+        });
     }
 
     static fromCreate({ hardTransactionIndex, value }, accountIndex: number): HardDeposit {
