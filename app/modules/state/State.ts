@@ -5,7 +5,7 @@ import path from 'path';
 import { Account } from "../account";
 import { getTree } from './state-tree';
 import SimpleLevel, { LevelSideways } from '../../lib/simple-level';
-import { toBuf } from '../../lib';
+import { toBuf, toHex } from '../../lib';
 
 export interface State {
     tree: SparseMerkleTree;
@@ -62,10 +62,11 @@ export class State {
         return copy;
     }
 
-    async commit() {
-        if (!this.dbPath) throw new Error(`In memory commits not supported yet!`);
+    async commit(dbPath: string = this.dbPath) {
+        if (!dbPath) throw new Error(`In memory commits not supported yet!`);
         const rootHash = await this.rootHash();
-        const statePath = path.join(this.dbPath, rootHash);
+        const statePath = path.join(dbPath, rootHash);
+        if (!fs.existsSync(dbPath)) fs.mkdirSync(dbPath)
         if (statePath && !fs.existsSync(statePath)) fs.mkdirSync(statePath);
         const adb = await this._stateDB.copy(path.join(statePath, 'state'));
         const sdb = await this.accountMap.db.copy(path.join(statePath, 'account-map'));
@@ -87,7 +88,9 @@ export class State {
     }
 
     async getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof> {
-        return this.tree.getMerkleProof(new BigNumber(accountIndex), (await this.getAccount(accountIndex)).encode());
+        const account = await this.getAccount(accountIndex);
+        const leaf = account ? account.encode() : Buffer.alloc(32).fill('\x00');
+        return this.tree.getMerkleProof(new BigNumber(accountIndex), leaf);
     }
 
     /* takes Account */
