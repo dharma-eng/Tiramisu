@@ -23,7 +23,7 @@ export class DharmaL2Core extends EventEmitter {
     private dbPath?: string
   ) {
     super();
-    this._confirmationTimer = setTimeout(this.confirmationLoop, 5000);
+    this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
   }
 
   static async create(web3: Web3Options, dbPath?: string): Promise<DharmaL2Core> {
@@ -49,7 +49,7 @@ export class DharmaL2Core extends EventEmitter {
     } catch(err) {
       console.error(err);
     } finally {
-      this._confirmationTimer = setTimeout(this.confirmationLoop, 5000);
+      this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
     }
   }
 
