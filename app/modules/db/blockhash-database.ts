@@ -10,7 +10,7 @@ export class BlockHashDatabase extends SimpleLevel {
   _latest?: number;
 
   constructor(dbPath?: string) {
-    super('blocks', dbPath);
+    super('block-hashes', dbPath);
   }
 
   static async create(dbPath?: string): Promise<BlockHashDatabase> {
