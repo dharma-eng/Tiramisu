@@ -1,9 +1,8 @@
 import MemDown from 'memdown'
 import leveldown from 'leveldown'
-import { AbstractLevelDOWN } from 'abstract-leveldown';
-import levelup, { LevelUp } from 'levelup'
+import { AbstractLevelDOWN, AbstractIteratorOptions } from 'abstract-leveldown';
+import levelup from 'levelup'
 const WriteStream = require('level-ws');
-import { AbstractIteratorOptions } from 'abstract-leveldown';
 import path from 'path';
 /**
  * Checks if an error is a NotFoundError.
@@ -89,18 +88,5 @@ class SimpleLevel {
 
   close = (): Promise<void> => this.db.close();
 }
-
-// class ScratchDB extends SimpleLevel {
-//   constructor(private _upstream: SimpleLevel) {
-//     super();
-//   }
-
-//   public get(key: JsonBaseType): Promise<any> {
-//     return super.get(key).then((value) => {
-//       if (value == null) return this._upstream.get(key);
-//       return value;
-//     })
-//   }
-// }
 
 export default SimpleLevel;
