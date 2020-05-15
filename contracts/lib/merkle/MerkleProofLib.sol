@@ -43,7 +43,12 @@ library MerkleProofLib {
     uint256 path,
     bytes32[] memory siblings
   ) internal pure returns (bool valid, bytes32 updatedRoot) {
-    if (oldLeaf.length == 32) return (false, root);
+    /* Verify that the leaf is not a mid-level node */
+    if (oldLeaf.length == 32) {
+      bytes32 oldValue;
+      assembly { oldValue := mload(add(oldLeaf, 32)) }
+      if (oldValue != bytes32(0)) return (false, root);
+    }
     // First compute the leaf node
     updatedRoot = keccak256(newLeaf);
     bytes32 computedNode = keccak256(oldLeaf);
@@ -74,7 +79,12 @@ library MerkleProofLib {
   function verify(
     bytes32 root, bytes memory leaf, uint256 path, bytes32[] memory siblings
   ) internal pure returns (bool) {
-    if (leaf.length == 32) return false;
+    /* Verify that the leaf is not a mid-level node */
+    if (leaf.length == 32) {
+      bytes32 value;
+      assembly { value := mload(add(leaf, 32)) }
+      if (value != bytes32(0)) return (false);
+    }
     // First compute the leaf node
     bytes32 computedNode = keccak256(leaf);
     for (uint256 i = 0; i < siblings.length; i++) {
