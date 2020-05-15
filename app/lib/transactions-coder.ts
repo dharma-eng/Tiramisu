@@ -5,6 +5,7 @@ import {
 } from "../modules/transactions/";
 
 import { getMerkleRoot } from "./merkle";
+import { sliceBuffer } from "./to";
 
 const TxTypes = [
   HardCreate,
@@ -68,42 +69,53 @@ export function fromTransactionsJson(transactionsJson: TransactionsJson): Transa
   return { ...encodeTransactions(transactions), transactions };
 }
 
-// export type TransactionDecoderOutput = {
-//   metadata: TransactionMetadata;
-//   transactions: Transactions;
-// }
+export type TransactionDecoderOutput = {
+  metadata: TransactionMetadata;
+  transactions: Transactions;
+}
 
-// export class DecodeTransactionError extends Error {
-//   constructor(public transactionIndex: number) { super(); }
-// }
+export class DecodeTransactionError extends Error {
+  constructor(transactionIndex?: number, bufferIndex?: number, expectedSize?: number, bufferLength?: number) {
+    const remainder = bufferLength - bufferIndex;
+    const msg = [
+      `Transaction decoding error at index ${transactionIndex}`,
+      `Expected ${expectedSize} bytes in buffer at index ${bufferIndex}`,
+      `But buffer only had ${remainder} remaining bytes.`
+    ].join('\n');
+    super(msg);
+  }
+}
 
-// const range = (len: number, cb: (n?: number) => void) => new Array(len).fill(null).map((_, i) => cb(i));
+const range = <T = any>(len: number, cb: (n?: number) => T) => new Array(len).fill(null).map((_, i) => cb(i));
 
-// export type Constructor<T> = new (...args) => T;
-// export type TxTypeTuple = [Constructor<Transaction>, number]
-// const txTypes: Array<TxTypeTuple> = [
-//   [HardCreate, 88], [HardDeposit, 48],
-//   [HardWithdraw, 68], [HardAddSigner, 61],
-//   [SoftWithdrawal, 131], [SoftCreate, 155],
-//   [SoftTransfer, 115], [SoftChangeSigner, 125]
-// ];
+export type Constructor<T> = new (...args) => T;
+export type Decoder<T> = (buf: Buffer) => T;
+export type TxTypeTuple = [Decoder<Transaction>, number]
+const txTypes: Array<TxTypeTuple> = [
+  [HardCreate.decode, 88], [HardDeposit.decode, 48],
+  [HardWithdraw.decode, 68], [HardAddSigner.decode, 61],
+  [SoftWithdrawal.decode, 131], [SoftCreate.decode, 155],
+  [SoftTransfer.decode, 115], [SoftChangeSigner.decode, 125]
+];
 
-// export function decodeTransactionsData(buf: Buffer) {
-//   const metadata = new TransactionMetadata(sliceBuffer(buf, 0, 16));
-//   const transactions = {};
-//   let index = 0;
-//   let bufIndex = 16;
-  
-//   keys.reduce((obj, k, i) => {
-//     const [_class, size] = txTypes[i];
-//     const num = metadata.metadata[k];
-//     // if (bufIndex + (num * size) < buf.byteLength) throw new DecodeTransactionError(index);
-//     transactions[k] = range(num, () => {
-//       if (bufIndex + size < buf.byteLength) throw new DecodeTransactionError(index);
-//       index++;
-//       bufIndex += size;
-//       return new _class()
-//     })
-//     for (let x = 0; x < num; x++) transactions[k] 
-//   }, {})
-// }
+export function decodeTransactionsData(buf: Buffer): Transactions {
+  if (buf.length < 16) throw new DecodeTransactionError();
+  const metadata = new TransactionMetadata(sliceBuffer(buf, 0, 16)).metadata;
+  let index = 0;
+  let bufIndex = 16;
+  const transactions: Transactions = keys.reduce((obj, k, i) => {
+    const [decoder, size] = txTypes[i];
+    const num = metadata[k];
+    if (!num) return obj;
+    obj[k] = range(num, (ind) => {
+      if (buf.byteLength < bufIndex + size) throw new DecodeTransactionError(index, bufIndex, size, buf.byteLength);
+      const txBuf = sliceBuffer(buf, bufIndex, size);
+      const tx = decoder(txBuf);
+      index++;
+      bufIndex += size;
+      return tx;
+    });
+    return obj;
+  }, {});
+  return transactions;
+}
