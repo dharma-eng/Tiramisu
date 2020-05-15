@@ -38,7 +38,12 @@ export function getMerkleRoot(leaves: Buffer[]): Buffer {
 
 const isOdd = n => n % 2 == 1;
 
-export function getMerkleProof(leaves: Buffer[], index: number) {
+export type MerkleProof = {
+  root: Buffer;
+  siblings: Buffer[];
+}
+
+export function getMerkleProof(leaves: Buffer[], index: number): MerkleProof {
   let levels = [];
   const putInLevel = (l, n) => {
     if (!levels[l]) levels[l] = [];
@@ -98,4 +103,24 @@ export function getMerkleProof(leaves: Buffer[], index: number) {
     else siblings.push(levels[i][numNext + 1]);
   }
   return { root, siblings };
+}
+
+export class MerkleTree {
+  constructor(public leaves: Buffer[]) {}
+
+  get rootHash(): Buffer {
+    return getMerkleRoot(this.leaves);
+  }
+  
+  get(index: number) {
+    return this.leaves[index];
+  }
+
+  put(index: number, value: Buffer) {
+    this.leaves[index] = value;
+  }
+
+  prove(index: number): MerkleProof {
+    return getMerkleProof(this.leaves, index);
+  }
 }
