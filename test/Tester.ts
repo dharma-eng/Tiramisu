@@ -37,7 +37,7 @@ export class Tester {
     this.networkID = networkID;
   }
 
-  randomAccount(balance = 0) {
+  randomAccount(balance = 0): Account {
     const { address, privateKey } = randomAccount();
     const account = new Account({
       address,
