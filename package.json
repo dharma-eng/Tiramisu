@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build:ts": "tsc",
-    "build:sol": "./node_modules/.bin/truffle compile",
+    "build:sol": "rm -rf build && ./node_modules/.bin/truffle compile",
     "build": "yarn build:ts && yarn build:sol",
     "build:ts:tests": "tsc --project ./tsconfig.test.json",
     "lint": "./node_modules/.bin/solhint \"contracts/**/**/*.sol\"",
@@ -47,6 +47,7 @@
     "start:app": "NODE_ENV=develop nodemon --exec ts-node ./app/index.ts"
   },
   "dependencies": {
+    "ethereumjs-util": "^7.0.0",
     "ethereumjs-utils": "^5.2.5",
     "ethlint": "^1.2.5",
     "keccak256": "^1.0.0",
