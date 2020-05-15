@@ -5,8 +5,11 @@ import "../DharmaPeg.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IDharmaAddressGetter.sol";
 import {
-  HeaderFraudProofs as HeaderFraud
-} from "../fraud-proofs/HeaderFraudProofs.sol";
+  ExecutionFraudProofs as ExecutionFraud
+} from "../fraud-proofs/ExecutionFraudProofs.sol";
+import {
+  BlockErrorLib as HeaderFraud
+} from "../fraud-proofs/BlockErrorLib.sol";
 import {
   TransactionFraudProofs as TransactionFraud
 } from "../fraud-proofs/TransactionFraudProofs.sol";
@@ -14,6 +17,9 @@ import {
   FraudUtilsLib as FraudUtils
 } from "../fraud-proofs/FraudUtilsLib.sol";
 import { AccountLib as Account } from "../lib/AccountLib.sol";
+import {
+  ExecutionErrorLib as ExecutionError
+} from "../fraud-proofs/ExecutionErrorLib.sol";
 
 
 contract MockDharmaPeg is DharmaPeg {
@@ -126,5 +132,60 @@ contract MockDharmaPeg is DharmaPeg {
       previousStateProof,
       stateProof
     );
+  }
+
+  function createdAccountIndexError(
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    uint256 transactionIndex,
+    bytes memory transactionsData
+  ) public {
+    ExecutionFraud.createdAccountIndexError(
+      _state,
+      previousHeader,
+      badHeader,
+      transactionIndex,
+      transactionsData
+    );
+  }
+
+  function createExecutionError(
+    Block.BlockHeader memory badHeader,
+    bytes memory transaction,
+    uint256 transactionIndex,
+    bytes32[] memory siblings,
+    bytes memory previousStateProof,
+    bytes memory stateProof
+  ) public {
+    ExecutionFraud.createExecutionError(
+      _state,
+      badHeader,
+      transaction,
+      transactionIndex,
+      siblings,
+      previousStateProof,
+      stateProof
+    );
+  }
+
+  function proveExecutionError(
+    Block.BlockHeader memory badHeader,
+    bytes memory transaction,
+    uint256 transactionIndex,
+    bytes32[] memory siblings,
+    bytes memory previousRootProof,
+    bytes memory stateProof1,
+    bytes memory stateProof2
+  ) public {
+      ExecutionError.proveExecutionError(
+        _state,
+        badHeader,
+        transaction,
+        transactionIndex,
+        siblings,
+        previousRootProof,
+        stateProof1,
+        stateProof2
+      );
   }
 }
