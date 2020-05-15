@@ -13,7 +13,7 @@ export class Database {
   constructor(
     public blocksDB: BlockDatabase,
     public blockHashDB: BlockHashDatabase,
-    private dbPath?: string
+    public dbPath?: string
   ) {}
 
   async close() {
