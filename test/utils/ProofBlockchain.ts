@@ -64,7 +64,7 @@ export class ProofBlockchain extends Blockchain {
       await machine.executeSingle(transaction);
       if (i == previousIndex) {
         const stateProof = await machine.state.getAccountProof(accountIndex);
-        accountProof = encodeAccountProof(accountIndex, toHex(stateProof.value), stateProof.siblings.map(toHex));
+        accountProof = encodeAccountProof(accountIndex, toHex(stateProof.data), stateProof.siblings.map(toHex));
       }
     }
 
@@ -81,7 +81,6 @@ export class ProofBlockchain extends Blockchain {
     });
 
     const leaves = txArray.map(tx => tx.encode(true));
-
     if (transactionMutator) {
       leaves[transactionIndex] = transactionMutator(txArray[transactionIndex])
       block.header.transactionsRoot = getMerkleRoot(leaves);
