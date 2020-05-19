@@ -9,7 +9,7 @@ import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
 
-library TransactionFraudProofs {
+library TransactionErrorLib {
   using Block for bytes;
   using Block for Block.BlockHeader;
   using State for State.State;
@@ -28,7 +28,9 @@ library TransactionFraudProofs {
       - output value does not match input value
       - output addresses do not match input addresses
     */
-    if (outputData.length != 89 || inputData.transactionPrefix() != 0) {
+    if (
+      outputData.length != 89 || inputData.transactionPrefix() != 0
+    ) {
       return true;
     }
     Hard.HardDeposit memory input = Hard.decodeHardDeposit(inputData);
