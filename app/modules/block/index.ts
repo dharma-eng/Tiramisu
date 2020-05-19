@@ -13,6 +13,7 @@ export interface Block {
     addOutput(submittedAt: number): void;
     blockHash(): string;
     proveTransaction(index: number): TransactionProof;
+    toJSON(): BlockJson;
 }
 
 export class Block {
