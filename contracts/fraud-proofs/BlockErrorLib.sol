@@ -218,78 +218,60 @@ library BlockErrorLib {
     assembly {
       let bufPtr := add(indexBuffer, 32)
       let txOffset := add(transactionsData, 48) // skip length and metadata
-      /* Check hard create indices */
-      let len := mload(meta)
-      for {let i := 0} lt(i, len) {i := add(i, 1)} {
-        let txIndex := shr(216, mload(txOffset))
-        // Check if the hardTransactionIndex is less than the previous total
-        if lt(txIndex, prevCount) {
-          fraudProven := 1
-          break
-        }
-        // Check if we have already found this hardTransactionIndex
-        let ptr := add(bufPtr, sub(txIndex, prevCount))
-        if eq(shr(248, mload(ptr)), 1) {
-          fraudProven := 1
-          break
-        }
-        // Mark the index as found
-        mstore8(ptr, 1)
-        txOffset := add(txOffset, 88)
-      }
-      if iszero(fraudProven) {
-        /* Check hard deposit indices */
-        len := mload(add(meta, 32))
+
+      function checkType(offset, buffer, len, size, prevTotal) -> newOffset, fraudulent {
+        newOffset := offset
         for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          if lt(txIndex, prevCount) {
-            fraudProven := 1
+          let txIndex := shr(216, mload(newOffset))
+          // Check if the hardTransactionIndex is less than the previous total
+          if lt(txIndex, prevTotal) {
+            fraudulent := 1
             break
           }
-          let ptr := add(bufPtr, sub(txIndex, prevCount))
+          // Check if we have already found this hardTransactionIndex
+          let ptr := add(buffer, sub(txIndex, prevTotal))
           if eq(shr(248, mload(ptr)), 1) {
-            fraudProven := 1
+            fraudulent := 1
             break
           }
+          // Mark the index as found
           mstore8(ptr, 1)
-          txOffset := add(txOffset, 48)
+          newOffset := add(newOffset, size)
         }
       }
+      txOffset, fraudProven := checkType(
+        txOffset,
+        bufPtr,
+        mload(meta),
+        88,
+        prevCount
+      )
       if iszero(fraudProven) {
-        /* Check hard withdraw indices */
-        len := mload(add(meta, 64))
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          if lt(txIndex, prevCount) {
-            fraudProven := 1
-            break
-          }
-          let ptr := add(bufPtr, sub(txIndex, prevCount))
-          if eq(shr(248, mload(ptr)), 1) {
-            fraudProven := 1
-            break
-          }
-          mstore8(ptr, 1)
-          txOffset := add(txOffset, 68)
-        }
+        txOffset, fraudProven := checkType(
+          txOffset,
+          bufPtr,
+          mload(add(meta, 32)),
+          48,
+          prevCount
+        )
       }
       if iszero(fraudProven) {
-        /* Check hard add signer indices */
-        len := mload(add(meta, 64))
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          if lt(txIndex, prevCount) {
-            fraudProven := 1
-            break
-          }
-          let ptr := add(bufPtr, sub(txIndex, prevCount))
-          if eq(shr(248, mload(ptr)), 1) {
-            fraudProven := 1
-            break
-          }
-          mstore8(ptr, 1)
-          txOffset := add(txOffset, 61)
-        }
+        txOffset, fraudProven := checkType(
+          txOffset,
+          bufPtr,
+          mload(add(meta, 64)),
+          68,
+          prevCount
+        )
+      }
+      if iszero(fraudProven) {
+        txOffset, fraudProven := checkType(
+          txOffset,
+          bufPtr,
+          mload(add(meta, 96)),
+          61,
+          prevCount
+        )
       }
     }
     require(fraudProven == 1, "Fraud not found in hard tx range.");
@@ -327,63 +309,30 @@ library BlockErrorLib {
     uint8 fraudProven = 0;
     assembly {
       let txOffset := add(transactionsData, 48) // skip length and metadata
-      /* Check hard create indices */
-      let len := mload(meta)
-      let lastIndex := 0
-      for {let i := 0} lt(i, len) {i := add(i, 1)} {
-        let txIndex := shr(216, mload(txOffset))
-        // Ensure that each hard create has an index higher than the last
-        if iszero(gt(txIndex, lastIndex)) {
-          fraudProven := 1
-          break
-        }
-        lastIndex := txIndex
-        txOffset := add(txOffset, 88)
-      }
-      if iszero(fraudProven) {
-        /* Check hard deposit indices */
-        len := mload(add(meta, 32))
-        lastIndex := 0
+      function checkType(offset, len, size) -> newOffset, fraudulent {
+        let lastIndex := 0
+        newOffset := offset
         for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          // Ensure that each hard deposit has an index higher than the last
+          let txIndex := shr(216, mload(newOffset))
+          // Ensure that each transaction has an index higher than the last
           if iszero(gt(txIndex, lastIndex)) {
-            fraudProven := 1
+            fraudulent := 1
             break
           }
           lastIndex := txIndex
-          txOffset := add(txOffset, 48)
+          newOffset := add(newOffset, 88)
         }
       }
-      if iszero(fraudProven) {
-        /* Check hard withdraw indices */
-        len := mload(add(meta, 64))
-        lastIndex := 0
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          // Ensure that each hard withdraw has an index higher than the last
-          if iszero(gt(txIndex, lastIndex)) {
-            fraudProven := 1
-            break
-          }
-          lastIndex := txIndex
-          txOffset := add(txOffset, 68)
-        }
+
+      txOffset, fraudProven := checkType(txOffset, mload(meta), 88)
+      if iszero(fraudProven) { 
+        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 32)), 48)
       }
       if iszero(fraudProven) {
-        /* Check hard add signer indices */
-        len := mload(add(meta, 64))
-        lastIndex := 0
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(txOffset))
-          // Ensure that each hard add signer has an index higher than the last
-          if iszero(gt(txIndex, lastIndex)) {
-            fraudProven := 1
-            break
-          }
-          lastIndex := txIndex
-          txOffset := add(txOffset, 61)
-        }
+        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 64)), 68)
+      }
+      if iszero(fraudProven) {
+        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 96)), 61)
       }
     }
     require(fraudProven == 1, "Fraud not found in hard tx range.");
