@@ -86,11 +86,23 @@ export class SoftCreate {
     }
 
     toMessageHash(): Buffer {
-        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
-        const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
+        const prefix = toBuf(this.prefix, 1);
         const nonce = toBuf(this.nonce, 3) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
+        const toIndex = Buffer.alloc(4, 0, 'hex');
         const value = toBuf(this.value, 7) as Buffer;
-        const msg = Buffer.concat([fromIndex, toIndex, nonce, value]);
+        const contractAddress = toBuf(this.accountAddress, 20) as Buffer;
+        const signingAddress = toBuf(this.initialSigningKey, 20) as Buffer;
+
+        const msg = Buffer.concat([
+            prefix,
+            nonce,
+            fromIndex,
+            toIndex,
+            value,
+            contractAddress,
+            signingAddress,
+        ]);
         return keccak256(msg);
     }
 

@@ -78,11 +78,13 @@ export class SoftChangeSigner {
     }
 
     toMessageHash(): Buffer {
+        const prefix = toBuf(this.prefix, 1);
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const signingAddress = toBuf(this.signingAddress, 20) as Buffer;
         const modificationCategory = toBuf(this.modificationCategory, 1) as Buffer;
         const msg = Buffer.concat([
+            prefix,
             nonce,
             fromIndex,
             signingAddress,
