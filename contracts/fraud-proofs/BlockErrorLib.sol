@@ -179,17 +179,10 @@ library BlockErrorLib {
         previousHeader.hardTransactionsCount + hardTxSum
       ), "Hard transactions count not invalid."
     );
-<<<<<<< HEAD
 
     return state.revertBlock(badHeader);
   }
 
-  /* solhint-disable function-max-lines */ // TODO: simplify this function
-=======
-    return state.revertBlock(badHeader);
-  }
-
->>>>>>> 77cabed4401f3a833b560171afbd18260261ee48
   /**
    * @dev proveHardTransactionsRangeError
    * Proves that a block has a missing or duplicate hard transaction index.
