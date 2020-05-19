@@ -15,6 +15,80 @@ library ExecutionErrorLib {
   using Account for bytes32;
   using utils for State.State;
 
+
+
+  /**
+   * Determine how many successful create transactions were executed prior to `index`.
+   */
+  function executedCreatesBeforeIndex(
+    bytes memory txData,
+    uint256 index
+  ) internal pure returns (uint256 pointer, uint256 creates, bool hard) {
+    Tx.TransactionsMetadata memory meta = txData.decodeTransactionsMetadata();
+    assembly { pointer := add(txData, 48) }
+    uint256 currentIndex = 0;
+
+    if (index < meta.hardCreateCount) {
+      while (currentIndex < index) {
+        assembly { if iszero(iszero(mload(add(pointer, 56)))) { creates := add(creates, 1) } }
+        currentIndex++;
+      }
+      pointer += index * 88;
+      return (pointer, creates, true);
+    }
+
+    while(currentIndex <= meta.hardCreateCount) {
+      assembly { if iszero(iszero(mload(add(pointer, 56)))) { creates := add(creates, 1) } }
+      currentIndex++;
+      pointer += 88;
+    }
+    currentIndex += (
+      meta.hardDepositCount + meta.hardWithdrawCount +
+      meta.hardAddSignerCount + meta.softWithdrawCount
+    );
+    require(
+      index >= currentIndex &&
+      index < currentIndex + meta.softCreateCount,
+      "Not a valid create index."
+    );
+
+    pointer += (
+      (meta.hardDepositCount * 48) + (meta.hardWithdrawCount * 68) +
+      (meta.hardAddSignerCount * 61) + (meta.softWithdrawCount * 131)
+    );
+  }
+
+  /**
+   * Prove that the account index in a create transaction was not equal to the
+   * state size of the previous block plus the sum of create
+   * transactions executed previously in the same block.
+   */
+  function proveCreateIndexError(
+    State.State storage state,
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    uint256 transactionIndex,
+    bytes memory transactionsData
+  ) internal {
+    state.blockIsPendingAndHasParent(badHeader, previousHeader);
+
+    require(
+      badHeader.hasTransactionsData(transactionsData),
+      "Header does not match transactions data."
+    );
+    (
+      uint256 pointer, uint256 creates, bool hard
+    ) = executedCreatesBeforeIndex(transactionsData, transactionIndex);
+    uint256 expectedIndex = previousHeader.stateSize + creates;
+    uint256 accountIndex;
+
+    if (hard) assembly { accountIndex := shr(224, mload(add(pointer, 5))) }
+    else assembly { accountIndex := shr(224, mload(add(pointer, 3))) }
+
+    require(expectedIndex != accountIndex, "Transaction had correct index.");
+    return state.revertBlock(badHeader);
+  }
+
   /**
    * @dev Validate a hard create execution error proof.
    * @param priorStateRoot State root prior to the transaction.
@@ -219,8 +293,15 @@ library ExecutionErrorLib {
       bool receiverEmpty,
       uint256 receiverIndex,
       bytes32[] memory receiverSiblings,
+      Account.Account memory provenAccount
     ) = intermediateRoot.verifyAccountInState(receiverProof);
-    require(receiverIndex == transaction.toIndex, "Proof must be of receiver.");
+    if (receiverIndex != transaction.toIndex) {
+      require(
+        provenAccount.contractAddress == transaction.contractAddress,
+        "Wrong account proven."
+      );
+      return;
+    }
     if (!receiverEmpty) return;
     Account.Account memory receiver = Account.newAccount(
       transaction.contractAddress,
@@ -298,7 +379,10 @@ library ExecutionErrorLib {
     require(accountIndex == transaction.fromIndex, "Wrong account proven.");
     if (account.nonce != transaction.nonce) return;
     if (transaction.modificationCategory == 0) {
-      if (account.hasSigner(transaction.signingAddress)) return;
+      if (
+        account.hasSigner(transaction.signingAddress) ||
+        account.signers.length == 10
+      ) return;
       account.addSigner(transaction.signingAddress);
     } else if (transaction.modificationCategory == 1) {
       if (!account.hasSigner(transaction.signingAddress)) return;
@@ -314,28 +398,14 @@ library ExecutionErrorLib {
 
   function proveExecutionError(
     State.State storage state,
-    Block.BlockHeader memory badHeader,
+    Block.BlockHeader memory header,
+    bytes memory transactionProof,
     bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory siblings,
-    bytes memory previousRootProof,
     bytes memory stateProof1,
     bytes memory stateProof2
   ) internal {
-    require(
-      state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
-      "Block not pending."
-    );
-    require(
-      Merkle.verify(
-        badHeader.transactionsRoot, transaction, transactionIndex, siblings
-      ),
-      "Invalid transaction proof."
-    );
-    bytes32 previousStateRoot = state.transactionHadPreviousState(
-      previousRootProof,
-      badHeader,
-      transactionIndex
+    bytes32 previousStateRoot = state.validateTransactionStateProof(
+      header, transactionProof, transaction
     );
     uint8 prefix = transaction.transactionPrefix();
     if (prefix == 0) {
@@ -370,6 +440,6 @@ library ExecutionErrorLib {
       Tx.SoftChangeSigner memory _tx = Tx.decodeSoftChangeSigner(transaction);
       validateExecutionErrorProof(previousStateRoot, stateProof1, _tx);
     }
-    state.revertBlock(badHeader);
+    state.revertBlock(header);
   }
 }
