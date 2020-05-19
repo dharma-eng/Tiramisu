@@ -71,7 +71,10 @@ library FraudUtilsLib {
     bytes memory previousStateProof,
     bytes memory stateProof
   ) internal view returns (
-    bool empty, uint256 accountIndex, bytes32[] memory siblings, Account.Account memory account
+    bool empty,
+    uint256 accountIndex,
+    bytes32[] memory siblings,
+    Account.Account memory account
   ) {
     bytes32 previousStateRoot = transactionHadPreviousState(
       state, previousStateProof, badHeader, transactionIndex
@@ -104,14 +107,20 @@ library FraudUtilsLib {
     bytes memory proofBytes,
     bytes memory transactionBytes
   ) internal view returns (bytes32 root) {
-    TransactionStateProof memory proof = abi.decode((proofBytes), (TransactionStateProof));
+    TransactionStateProof memory proof = abi.decode(
+      (proofBytes), (TransactionStateProof)
+    );
+
     require(
       state.blockIsPending(header.blockNumber, header.blockHash()),
       "Block not pending."
     );
     require(
       Merkle.verify(
-        header.transactionsRoot, transactionBytes, proof.transactionIndex, proof.siblings
+        header.transactionsRoot,
+        transactionBytes,
+        proof.transactionIndex,
+        proof.siblings
       ),
       "Invalid transaction proof."
     );
