@@ -10,4 +10,9 @@ contract PublicLibMock {
   ) public view returns (bytes32) {
     return TX.deriveTransactionsRoot(transactionsData);
   }
+
+  function recoverSignature(bytes memory txData)
+  public pure returns (address signer) {
+    return TX.recoverSignature(txData);
+  }
 }
