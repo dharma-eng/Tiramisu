@@ -221,8 +221,7 @@ library TransactionErrorLib {
       state.blockIsPending(badHeader.blockNumber, badHeader.blockHash()),
       "Block not pending."
     );
-    uint8 prefix = transaction.transactionPrefix();
-    require(prefix >= 4, "Input not a soft transaction.");
+
     require(
       Merkle.verify(
         badHeader.transactionsRoot, transaction, transactionIndex, siblings
