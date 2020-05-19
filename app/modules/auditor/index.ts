@@ -3,10 +3,11 @@ import ParentInterface, { BlockSubmissionEvent } from "../parent-interface";
 import { Database } from "../db";
 import BlockAuditor from "./block-auditor";
 import AuditProofProvider from "./provider";
-import { ProvableError } from "./types";
+import { ProvableError, ErrorProof } from "./types";
 import { ExecutionAuditor } from "./execution-auditor";
 import Block from '../block';
 import { State } from '../state';
+import { getErrorProofFunctionInput } from './function-mapper';
 
 export class Auditor extends EventEmitter {
   private _provider: AuditProofProvider;
@@ -23,8 +24,8 @@ export class Auditor extends EventEmitter {
   }
 
   async handleBlockSubmission(event: BlockSubmissionEvent) {
-    console.log(`Got block submission event!`)
-    console.log(`Getting submitted block data from transaction: ${event.transactionHash}.`)
+    // console.log(`Got block submission event!`)
+    // console.log(`Getting submitted block data from transaction: ${event.transactionHash}.`)
     this.emit('block-submission', event);
     const calldata = await this._parentInterface.getTransactionInput(event.transactionHash);
     this.auditSubmittedBlock(calldata, event.blockNumber);
@@ -36,8 +37,14 @@ export class Auditor extends EventEmitter {
     });
     const state = await ExecutionAuditor.auditBlockExecution(this._provider, parentBlock, block).catch(err => {
       throw err
-    });;
+    });
     return { block, state };
+  }
+
+  async proveError(proof: ErrorProof): Promise<any> {
+    const input = getErrorProofFunctionInput(proof);
+    const receipt = await this._parentInterface.proveError(input);
+    return (receipt.events && receipt.events.BlockReverted) || receipt;
   }
 
   async auditSubmittedBlock(
@@ -55,8 +62,8 @@ export class Auditor extends EventEmitter {
         this.emit('audit:block-error', err.errorProof)
         // TODO - handle error proof submission
         console.log(`Caught provable error: TYPE ${err.errorProof._type}`);
-        console.log(`Proof of error:`)
-        console.log(err.errorProof);
+        // console.log(`Proof of error:`)
+        // console.log(err.errorProof);
       } else {
         this.emit('audit:uncaught-error', err);
         console.error(`Caught unknown error`);
