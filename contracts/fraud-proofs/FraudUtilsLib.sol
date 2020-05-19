@@ -76,32 +76,42 @@ library FraudUtilsLib {
   }
 
   struct TransactionStateProof {
-    Block.BlockHeader header;
     uint256 transactionIndex;
     bytes32[] siblings;
     bytes previousRootProof;
   }
 
+  /**
+   * @dev validateTransactionStateProof
+   * Decodes and validates a TransactionStateProof, which contains
+   * an inclusion proof for a transaction and the state root prior to
+   * its execution.
+   * @param state storage struct representing the peg state
+   * @param proofBytes encoded TransactionStateProof
+   * @param transactionBytes encoded transaction to verify inclusion proof of
+   * @return root state root prior to the transaction
+   */
   function validateTransactionStateProof(
     State.State storage state,
+    Block.BlockHeader memory header,
     bytes memory proofBytes,
     bytes memory transactionBytes
-  ) internal view returns (bytes32) {
+  ) internal view returns (bytes32 root) {
     TransactionStateProof memory proof = abi.decode((proofBytes), (TransactionStateProof));
     require(
-      state.blockIsPending(proof.header.blockNumber, proof.header.blockHash()),
+      state.blockIsPending(header.blockNumber, header.blockHash()),
       "Block not pending."
     );
     require(
       Merkle.verify(
-        proof.header.transactionsRoot, transactionBytes, proof.transactionIndex, proof.siblings
+        header.transactionsRoot, transactionBytes, proof.transactionIndex, proof.siblings
       ),
       "Invalid transaction proof."
     );
     return transactionHadPreviousState(
       state,
       proof.previousRootProof,
-      proof.header,
+      header,
       proof.transactionIndex
     );
   }
