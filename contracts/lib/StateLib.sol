@@ -70,7 +70,9 @@ library StateLib {
     bytes32[] storage blockHashes = state.blockHashes;
     uint256 len = blockHashes.length;
     /* The events that read from state are expensive -- fix this. */
-    emit BlockReverted(header.blockNumber, state.blockHashes[header.blockNumber]);
+    emit BlockReverted(
+      header.blockNumber, state.blockHashes[header.blockNumber]
+    );
     delete blockHashes[header.blockNumber];
 
     // NOTE: this loop might be susceptible to gas exhaustion... investigate!

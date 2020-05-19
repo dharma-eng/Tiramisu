@@ -142,6 +142,7 @@ contract MockDharmaPeg is DharmaPeg {
       _state, previousSource, blockHeader, transactionIndex
     );
   }
+
   function createdAccountIndexError(
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
@@ -164,13 +165,13 @@ contract MockDharmaPeg is DharmaPeg {
     bytes memory stateProof1,
     bytes memory stateProof2
   ) public {
-      ExecutionError.proveExecutionError(
-        _state,
-        header,
-        transactionProof,
-        transaction,
-        stateProof1,
-        stateProof2
-      );
+    ExecutionError.proveExecutionError(
+      _state,
+      header,
+      transactionProof,
+      transaction,
+      stateProof1,
+      stateProof2
+    );
   }
 }

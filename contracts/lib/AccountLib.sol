@@ -53,7 +53,7 @@ library AccountLib {
         empty := eq(mload(add(data, 32)), 0)
       }
     }
-    
+
     if (empty) {
       address[] memory signers = new address[](0);
       account = Account(address(0), 0, 0, signers);
