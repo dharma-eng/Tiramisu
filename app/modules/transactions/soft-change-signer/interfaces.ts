@@ -9,6 +9,10 @@ export type SoftChangeSignerData<SigType = string> = {
   intermediateStateRoot?: string;
 }
 
+<<<<<<< HEAD
 export type SoftChangeSignerInput = SoftChangeSignerData<string | ECDSASignature> & {
+=======
+export type SoftChangeSignerInput = SoftChangeSignerData & {
+>>>>>>> 77cabed4401f3a833b560171afbd18260261ee48
   privateKey?: Buffer;
 }
