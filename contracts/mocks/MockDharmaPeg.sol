@@ -133,7 +133,6 @@ contract MockDharmaPeg is DharmaPeg {
     );
   }
 
-<<<<<<< HEAD
   function transactionHadPreviousState(
     bytes memory previousSource,
     Block.BlockHeader memory blockHeader,
@@ -143,7 +142,6 @@ contract MockDharmaPeg is DharmaPeg {
       _state, previousSource, blockHeader, transactionIndex
     );
   }
-=======
   function createdAccountIndexError(
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
@@ -175,5 +173,4 @@ contract MockDharmaPeg is DharmaPeg {
         stateProof2
       );
   }
->>>>>>> update(MockDharmaPeg): added execution error proof
 }
