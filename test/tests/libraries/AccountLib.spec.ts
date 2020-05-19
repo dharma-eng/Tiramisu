@@ -46,17 +46,18 @@ export const test = () => describe('AccountLib.sol Test', async () => {
     const state = await tester.newState();
     const account = randomAccount();
     const index = await state.putAccount(account);
-    const { rootHash, value, siblings } = await state.getAccountProof(index);
-    const proof = encodeStateProof(index, value, siblings);
+    const rootHash = await state.rootHash();
+    const { data, siblings } = await state.getAccountProof(index);
+    const proof = encodeStateProof(index, data, siblings);
     const { accountIndex, empty, account: outputAccount } = await accountLib.methods.verifyAccountInState(toHex(rootHash), proof).call();
     const { contractAddress, nonce, balance, signers } = outputAccount;
-    const inputHex = value.toString('hex');
-    const outputHex = new Account({
+    const inputHex = toHex(data);
+    const outputHex = toHex(new Account({
       address: contractAddress,
       nonce: +nonce,
       balance: +balance,
       signers
-    }).encode().toString('hex');
+    }).encode());
     expect(outputHex).to.eql(inputHex);
     expect(index).to.eql(+accountIndex);
     expect(empty).to.be.false;
