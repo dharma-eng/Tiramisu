@@ -2,7 +2,7 @@ import { ECDSASignature } from 'ethereumjs-util';
 
 export type SoftCreateData<SigType = string> = {
   accountIndex: number;
-  toAccountIndex: number;
+  toAccountIndex?: number;
   nonce: number;
   value: number;
   accountAddress: string;

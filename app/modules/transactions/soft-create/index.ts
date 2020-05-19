@@ -38,8 +38,9 @@ export class SoftCreate {
         this.reject = reject;
     }
 
-    addOutput(intermediateStateRoot: string): void {
+    addOutput(intermediateStateRoot: string, toIndex: number): void {
         this.intermediateStateRoot = toHex(intermediateStateRoot);
+        this.toAccountIndex = toIndex;
     }
 
     encode(prefix: boolean = false): Buffer {
