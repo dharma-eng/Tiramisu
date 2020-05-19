@@ -29,7 +29,7 @@ export class Database {
 
   async putBlock(block: Block) {
     const blockHash = block.blockHash();
-    console.log(`Putting block in database:\n\tHeight: ${block.header.blockNumber} | Hash: ${blockHash}`)
+    // console.log(`Putting block in database:\n\tHeight: ${block.header.blockNumber} | Hash: ${blockHash}`)
     await this.blockHashDB.push(block.header.blockNumber, blockHash);
     await this.blocksDB.put(blockHash, block);
   }
