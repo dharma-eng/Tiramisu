@@ -1,16 +1,16 @@
 import { ECDSASignature } from 'ethereumjs-util';
 
-export type SoftCreateData = {
+export type SoftCreateData<SigType = string> = {
   accountIndex: number;
   toAccountIndex: number;
   nonce: number;
   value: number;
   accountAddress: string;
   initialSigningKey: string;
-  signature?: string | ECDSASignature;
+  signature?: SigType;
   intermediateStateRoot?: string;
 }
 
-export type SoftCreateInput = SoftCreateData & {
+export type SoftCreateInput = SoftCreateData<string | ECDSASignature> & {
   privateKey?: Buffer;
 }
