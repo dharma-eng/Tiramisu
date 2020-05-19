@@ -11,6 +11,6 @@ export type SoftCreateData = {
   intermediateStateRoot?: string;
 }
 
-export interface SoftCreateInput extends SoftCreateData {
+export type SoftCreateInput = SoftCreateData & {
   privateKey?: Buffer;
 }

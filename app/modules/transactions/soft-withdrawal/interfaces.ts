@@ -9,6 +9,6 @@ export type SoftWithdrawalData = {
   intermediateStateRoot?: string;
 }
 
-export interface SoftWithdrawalInput extends SoftWithdrawalData {
+export type SoftWithdrawalInput = SoftWithdrawalData & {
   privateKey?: Buffer;
 }
