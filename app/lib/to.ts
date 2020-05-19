@@ -30,7 +30,7 @@ export const toHex = (value: BufferLike): string => {
   }
   if (Buffer.isBuffer(value)) return bufferToHex(value);
   if (BigNumber.isBigNumber(value)) return toPrefixed(value.toString('hex'));
-  throw new Error('Did not recognize type.');
+  throw new Error(`Did not recognize input type: ${value}.`);
 }
 
 export const toBuf = (value: BufferLike, length?: number): Buffer => {
