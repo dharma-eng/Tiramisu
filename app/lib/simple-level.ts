@@ -49,7 +49,11 @@ export class LevelSideways extends levelup {
 
 export type JsonBaseType = boolean | string | number | null;
 export type JsonType = JsonBaseType | Array<JsonType> | { [key: string]: JsonType }
-export type JsonLike = JsonType | { toJSON(key?: any): JsonType };
+export type JsonLike = { toJSON(): JsonType } | JsonType;
+
+export interface JsonAble {
+  toJSON(): JsonType;
+}
 
 class SimpleLevel {
   db: LevelSideways;
@@ -65,7 +69,7 @@ class SimpleLevel {
     return db;
   }
 
-  async put(key: JsonBaseType, value: JsonLike): Promise<void> {
+  async put(key: JsonBaseType, value: JsonAble | JsonLike): Promise<void> {
     return new Promise((resolve, reject) => {
       const k = JSON.stringify(key);
       const v = JSON.stringify(value);
