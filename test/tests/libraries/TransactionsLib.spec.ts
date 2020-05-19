@@ -10,7 +10,8 @@ import {
   SoftWithdrawal,
   SoftChangeSigner,
   SoftCreate,
-  toHex
+  toHex,
+  sliceBuffer
 } from '../../../app';
 import { randomAccount, randomHexBuffer } from '../../utils/random';
 
@@ -100,6 +101,115 @@ export const test = () => describe('TransactionsLib', () => {
     it('Should derive the tx root', async () => {
       const txRoot = await libMock.methods.deriveTransactionsRoot(block.transactionsData).call();
       expect(txRoot).to.eql(`0x${block.header.transactionsRoot.toString('hex')}`)
+    })
+  })
+
+  describe('Test recoverSignature', async () => {
+    let acct1, acct2, addr1, addr2;
+    before(() => {
+      acct1 = randomAccount();
+      acct2 = randomAccount();
+      addr1 = acct1.address;
+      addr2 = acct2.address;
+    })
+
+    describe('Soft Withdrawal', async () => {
+      let transaction: SoftWithdrawal;
+      before(() => {
+        transaction = new SoftWithdrawal({
+          accountIndex: 0,
+          withdrawalAddress: addr1,
+          nonce: 0,
+          value: 50,
+          privateKey: acct1.privateKey
+        });
+      })
+      
+      it('Should recover the signature of a valid transaction', async () => {
+        const address = await libMock.methods.recoverSignature(transaction.encode(true)).call();
+        expect(address.toLowerCase()).to.eq(addr1.toLowerCase());
+      });
+      
+      it('Should recover a null signature for an invalid transaction', async () => {
+        const data = transaction.encode(true);
+        const address = await libMock.methods.recoverSignature(sliceBuffer(data, 0, data.length - 1)).call();
+        expect(address).to.eq(`0x${'00'.repeat(20)}`);
+      });
+    });
+
+    describe('Soft Create', async () => {
+      let transaction: SoftCreate;
+      before(() => {
+        transaction = new SoftCreate({
+          accountIndex: 0,
+          toAccountIndex: 1,
+          nonce: 1,
+          value: 50,
+          accountAddress: addr2,
+          initialSigningKey: addr2,
+          privateKey: acct1.privateKey
+        })
+      })
+      
+      it('Should recover the signature of a valid transaction', async () => {
+        const address = await libMock.methods.recoverSignature(transaction.encode(true)).call();
+        expect(address.toLowerCase()).to.eq(addr1.toLowerCase());
+      });
+      
+      it('Should recover a null signature for an invalid transaction', async () => {
+        const data = transaction.encode(true);
+        const address = await libMock.methods.recoverSignature(sliceBuffer(data, 0, data.length - 1)).call();
+        expect(address).to.eq(`0x${'00'.repeat(20)}`);
+      });
+    })
+
+    describe('Soft Transfer', async () => {
+      let transaction: SoftTransfer;
+
+      before(() => {
+        transaction = new SoftTransfer({
+          accountIndex: 0,
+          toAccountIndex: 1,
+          nonce: 2,
+          value: 50,
+          privateKey: acct1.privateKey
+        })
+      });
+      
+      it('Should recover the signature of a valid transaction', async () => {
+        const address = await libMock.methods.recoverSignature(transaction.encode(true)).call();
+        expect(address.toLowerCase()).to.eq(addr1.toLowerCase());
+      });
+      
+      it('Should recover a null signature for an invalid transaction', async () => {
+        const data = transaction.encode(true);
+        const address = await libMock.methods.recoverSignature(sliceBuffer(data, 0, data.length - 1)).call();
+        expect(address).to.eq(`0x${'00'.repeat(20)}`);
+      });
+    });
+
+    describe('Soft Change Signer', async () => {
+      let transaction: SoftChangeSigner;
+      before(() => {
+        transaction = new SoftChangeSigner({
+          accountIndex: 0,
+          nonce: 3,
+          signingAddress: toHex(randomHexBuffer(20)),
+          modificationCategory: 0,
+          privateKey: acct1.privateKey
+        });
+      });
+      
+      it('Should recover the signature of a valid transaction', async () => {
+        const address = await libMock.methods.recoverSignature(transaction.encode(true)).call();
+        expect(address.toLowerCase()).to.eq(addr1.toLowerCase());
+      });
+      
+      it('Should recover a null signature for an invalid transaction', async () => {
+        const data = transaction.encode(true);
+        const address = await libMock.methods.recoverSignature(sliceBuffer(data, 0, data.length - 1)).call();
+        expect(address).to.eq(`0x${'00'.repeat(20)}`);
+      });
     })
   })
 });
