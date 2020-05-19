@@ -2,7 +2,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Tester from '../../Tester';
 import { Block, Commitment, Blockchain, HardCreate, getMerkleRoot, getMerkleProof, encodeTransactions, transactionsToArray, SoftCreate, Account } from '../../../app';
-import { randomHexBuffer, ProofBlockchain, randomHexString } from '../../utils';
+import { randomHexBuffer, ProofBlockchain, randomHexString, encodeAccountProof } from '../../utils';
+import { encodeTransactionStateProof } from '../../../app/modules/auditor/coder';
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
@@ -179,7 +180,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
     });
   });
 
-  describe('Create Execution Error', async () => {
+  /* describe('Create Execution Error', async () => {
     let account1: Account, account2: Account;
 
     beforeEach(async () => {
@@ -209,13 +210,13 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
       if (proofSetup) await proofSetup();
       else await hardDeposit(account1, 50)
       let block: Block;
-      let previousStateProof;
+      let previousRootProof;
       let accountProof;
       let transactionProof;
       let transactionData;
 
       if (getPriorStateProof) {
-        ({ block, transactionData, accountProof, previousStateProof, transactionProof } = await blockchain.processBlockForProof({
+        ({ block, transactionData, accountProof, previousStateProof: previousRootProof, transactionProof } = await blockchain.processBlockForProof({
           accountIndex,
           transactionIndex,
           transactionMutator
@@ -223,7 +224,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
       } else {
         block = await blockchain.processBlock();
         accountProof = '0x';
-        previousStateProof = '0x';
+        previousRootProof = '0x';
         const transaction = block.transactions[soft ? 'softCreates' : 'hardCreates'][transactionIndex]
         const leaves = transactionsToArray(block.transactions).map(tx => tx.encode(true));
         if (transactionMutator) leaves[transactionIndex] = transactionMutator(transaction);
@@ -234,14 +235,26 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
       const n = await getBlockCount();
       await blockchain.submitBlock(block);
       expect(await getBlockCount()).to.eql(n+1);
-      const promise = blockchain.peg.methods.createExecutionError(
+      const promise = blockchain.peg.methods.proveExecutionError(
         block.commitment,
+        encodeTransactionStateProof({
+          previousRootProof,
+          transactionIndex,
+          siblings: transactionProof
+        }),
         transactionData,
-        transactionIndex,
-        transactionProof,
-        previousStateProof,
-        accountProof
-      ).send({ from, gas: 6e6 });
+        accountProof,
+        '0x'
+      )
+          
+      // const promise = blockchain.peg.methods.createExecutionError(
+      //   block.commitment,
+      //   transactionData,
+      //   transactionIndex,
+      //   transactionProof,
+      //   previousRootProof,
+      //   accountProof
+      // ).send({ from, gas: 6e6 });
       if (expectFailure) {
         expect(promise).to.eventually.be.rejectedWith(`VM Exception while processing transaction: revert ${expectFailure}`);
         expect(await getBlockCount()).to.eql(n+1);
@@ -307,7 +320,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         }
       });
     });
-  });
+  }); */
 });
 
 if (process.env.NODE_ENV != 'all' && process.env.NODE_ENV != 'coverage') test();
