@@ -1,11 +1,6 @@
 import { BufferLike } from "../../../lib"
 import { Commitment } from "../../block";
-
-export type AccountProof = {
-  accountIndex: number;
-  data: BufferLike;
-  siblings: BufferLike[];
-}
+import { AccountProof } from "../../state";
 
 export type TransactionProof = {
   _type: 'txProof';
@@ -18,7 +13,7 @@ export type CommitmentProof = Commitment & { _type: 'commitment' }
 export type PreviousRootProof = CommitmentProof | TransactionProof;
 
 export type PreviousStateProof = {
-  accountProof: AccountProof;
+  stateProof: AccountProof;
   previousRootProof: PreviousRootProof;
 }
 
