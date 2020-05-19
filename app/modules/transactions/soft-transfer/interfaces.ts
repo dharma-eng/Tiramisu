@@ -9,7 +9,7 @@ export type SoftTransferData = {
   intermediateStateRoot?: string;
 }
 
-export interface SoftTransferInput extends SoftTransferData {
+export type SoftTransferInput = SoftTransferData & {
   privateKey?: Buffer;
   signature?: string | ECDSASignature;
 }
