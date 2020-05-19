@@ -43,7 +43,7 @@ library BlockErrorLib {
     require(root != badHeader.stateRoot, "Block had correct state root.");
     state.revertBlock(badHeader);
   }
-  
+
   /**
    * @dev proveTransactionsRootError
    * Proves that the transactions root in a block header does not
@@ -214,67 +214,44 @@ library BlockErrorLib {
 
     uint256 prevCount = previousHeader.hardTransactionsCount;
     bytes memory indexBuffer = new bytes(hardTxSum);
-    uint8 fraudProven = 0;
-    assembly {
-      let bufPtr := add(indexBuffer, 32)
-      let txOffset := add(transactionsData, 48) // skip length and metadata
 
-      function checkType(offset, buffer, len, size, prevTotal) -> newOffset, fraudulent {
-        newOffset := offset
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(newOffset))
-          // Check if the hardTransactionIndex is less than the previous total
-          if lt(txIndex, prevTotal) {
-            fraudulent := 1
-            break
-          }
-          // Check if we have already found this hardTransactionIndex
-          let ptr := add(buffer, sub(txIndex, prevTotal))
-          if eq(shr(248, mload(ptr)), 1) {
-            fraudulent := 1
-            break
-          }
-          // Mark the index as found
-          mstore8(ptr, 1)
-          newOffset := add(newOffset, size)
-        }
-      }
-      txOffset, fraudProven := checkType(
-        txOffset,
-        bufPtr,
-        mload(meta),
-        88,
-        prevCount
-      )
-      if iszero(fraudProven) {
-        txOffset, fraudProven := checkType(
-          txOffset,
-          bufPtr,
-          mload(add(meta, 32)),
-          48,
-          prevCount
-        )
-      }
-      if iszero(fraudProven) {
-        txOffset, fraudProven := checkType(
-          txOffset,
-          bufPtr,
-          mload(add(meta, 64)),
-          68,
-          prevCount
-        )
-      }
-      if iszero(fraudProven) {
-        txOffset, fraudProven := checkType(
-          txOffset,
-          bufPtr,
-          mload(add(meta, 96)),
-          61,
-          prevCount
-        )
-      }
+    uint256 bufPtr;
+    uint256 txOffset;
+    uint256 len;
+    bool fraudProven = false;
+
+    assembly {
+      bufPtr := add(indexBuffer, 32)
+      txOffset := add(transactionsData, 48) // skip length and metadata
+      len := mload(meta)
     }
-    require(fraudProven == 1, "Fraud not found in hard tx range.");
+
+    (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+      txOffset, bufPtr, len, 88, prevCount
+    );
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 32)) }
+      (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+        txOffset, bufPtr, len, 48, prevCount
+      );
+    }
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 64)) }
+      (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+        txOffset, bufPtr, len, 68, prevCount
+      );
+    }
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 96)) }
+      (, fraudProven) = _checkTypeForTransactionsRangeError(
+        txOffset, bufPtr, len, 61, prevCount
+      );
+    }
+
+    require(fraudProven, "Fraud not found in hard tx range.");
     return state.revertBlock(badHeader);
   }
 
@@ -306,36 +283,93 @@ library BlockErrorLib {
     Tx.TransactionsMetadata memory meta = transactionsData
       .decodeTransactionsMetadata();
 
-    uint8 fraudProven = 0;
+    uint256 len;
+    uint256 txOffset;
+    bool fraudProven = false;
     assembly {
-      let txOffset := add(transactionsData, 48) // skip length and metadata
-      function checkType(offset, len, size) -> newOffset, fraudulent {
-        let lastIndex := 0
-        newOffset := offset
-        for {let i := 0} lt(i, len) {i := add(i, 1)} {
-          let txIndex := shr(216, mload(newOffset))
-          // Ensure that each transaction has an index higher than the last
-          if iszero(gt(txIndex, lastIndex)) {
-            fraudulent := 1
-            break
-          }
-          lastIndex := txIndex
-          newOffset := add(newOffset, 88)
-        }
+      txOffset := add(transactionsData, 48) // skip length and metadata
+      len := mload(meta)
+    }
+
+    (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+      txOffset, len, 88
+    );
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 32))}
+      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+        txOffset, len, 48
+      );
+    }
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 64))}
+      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+        txOffset, len, 68
+      );
+    }
+
+    if (!fraudProven) {
+      assembly { len := mload(add(meta, 96))}
+      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+        txOffset, len, 61
+      );
+    }
+
+    require(fraudProven, "Fraud not found in hard tx range.");
+    return state.revertBlock(badHeader);
+  }
+
+  function _checkTypeForTransactionsRangeError(
+    uint256 offset, uint256 buffer, uint256 len, uint256 size, uint256 prevTotal
+  ) internal view returns (uint256 newOffset, bool fraudulent) {
+    uint256 txIndex;
+    uint256 foundIndex;
+    uint256 ptr;
+
+    newOffset = offset;
+    for (uint256 i = 0; i < len; i++) {
+      assembly { txIndex := shr(216, mload(newOffset)) }
+      // Check if the hardTransactionIndex is less than the previous total
+      if (txIndex < prevTotal) {
+        fraudulent = true;
+        break;
       }
 
-      txOffset, fraudProven := checkType(txOffset, mload(meta), 88)
-      if iszero(fraudProven) { 
-        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 32)), 48)
+      // Check if we have already found this hardTransactionIndex
+      ptr = buffer + (txIndex - prevTotal);
+
+      assembly { foundIndex := shr(248, mload(ptr)) }
+
+      if (foundIndex == 1) {
+        fraudulent = true;
+        break;
       }
-      if iszero(fraudProven) {
-        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 64)), 68)
-      }
-      if iszero(fraudProven) {
-        txOffset, fraudProven := checkType(txOffset, mload(add(meta, 96)), 61)
-      }
+
+      // Mark the index as found
+      assembly { mstore8(ptr, 1) }
+
+      newOffset += size;
     }
-    require(fraudProven == 1, "Fraud not found in hard tx range.");
-    return state.revertBlock(badHeader);
+  }
+
+  function _checkTypeForTransactionsOrderError(
+    uint256 offset, uint256 len, uint256 size
+  ) internal view returns (uint256 newOffset, bool fraudulent) {
+    uint256 txIndex;
+    uint256 lastIndex = 0;
+    uint256 newOffset = offset;
+    for (uint256 i = 0; i < len; i++) {
+      assembly { txIndex := shr(216, mload(newOffset)) }
+
+      // Ensure that each transaction has an index higher than the last
+      if (txIndex < lastIndex) {
+        fraudulent = true;
+        break;
+      }
+
+      lastIndex = txIndex;
+      newOffset += 88;
+    }
   }
 }
