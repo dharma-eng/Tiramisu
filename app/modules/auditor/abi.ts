@@ -28,7 +28,7 @@ export const TransactionProofAbi = {
 
 export const TransactionStateProofAbi = {
   TransactionStateProof: {
-    header: CommitmentAbi.Commitment,
+    // header: CommitmentAbi.Commitment,
     transactionIndex: 'uint256',
     siblings: 'bytes32[]',
     previousRootProof: 'bytes'
