@@ -4,15 +4,13 @@ pragma experimental ABIEncoderV2;
 import "../DharmaPeg.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IDharmaAddressGetter.sol";
+
 import {
-  ExecutionFraudProofs as ExecutionFraud
-} from "../fraud-proofs/ExecutionFraudProofs.sol";
-import {
-  BlockErrorLib as HeaderFraud
+  BlockErrorLib as BlockError
 } from "../fraud-proofs/BlockErrorLib.sol";
 import {
-  TransactionFraudProofs as TransactionFraud
-} from "../fraud-proofs/TransactionFraudProofs.sol";
+  TransactionErrorLib as TransactionError
+} from "../fraud-proofs/TransactionErrorLib.sol";
 import {
   FraudUtilsLib as FraudUtils
 } from "../fraud-proofs/FraudUtilsLib.sol";
@@ -52,7 +50,7 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveStateSizeError(
+    BlockError.proveStateSizeError(
       _state, previousHeader, badHeader, transactionsData
     );
   }
@@ -61,7 +59,7 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveTransactionsRootError(
+    BlockError.proveTransactionsRootError(
       _state, badHeader, transactionsData
     );
   }
@@ -71,7 +69,7 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveHardTransactionsCountError(
+    BlockError.proveHardTransactionsCountError(
       _state, previousHeader, badHeader, transactionsData
     );
   }
@@ -81,8 +79,19 @@ contract MockDharmaPeg is DharmaPeg {
     Block.BlockHeader memory badHeader,
     bytes memory transactionsData
   ) public {
-    HeaderFraud.proveHardTransactionsRangeError(
+    BlockError.proveHardTransactionsRangeError(
       _state, previousHeader, badHeader, transactionsData
+    );
+  }
+
+  function proveTransactionsDataLengthError(
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) public {
+    BlockError.proveTransactionsDataLengthError(
+      _state,
+      badHeader,
+      transactionsData
     );
   }
 
@@ -94,7 +103,7 @@ contract MockDharmaPeg is DharmaPeg {
     bytes memory previousStateProof,
     bytes memory stateProof
   ) public {
-    TransactionFraud.proveHardTransactionSourceError(
+    TransactionError.proveHardTransactionSourceError(
       _state,
       badHeader,
       transaction,
@@ -123,7 +132,7 @@ contract MockDharmaPeg is DharmaPeg {
     bytes memory previousStateProof,
     bytes memory stateProof
   ) public {
-    TransactionFraud.proveSignatureError(
+    TransactionError.proveSignatureError(
       _state,
       badHeader,
       transaction,
@@ -140,7 +149,7 @@ contract MockDharmaPeg is DharmaPeg {
     uint256 transactionIndex,
     bytes memory transactionsData
   ) public {
-    ExecutionFraud.createdAccountIndexError(
+    ExecutionError.proveCreateIndexError(
       _state,
       previousHeader,
       badHeader,
@@ -149,41 +158,18 @@ contract MockDharmaPeg is DharmaPeg {
     );
   }
 
-  function createExecutionError(
-    Block.BlockHeader memory badHeader,
-    bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory siblings,
-    bytes memory previousStateProof,
-    bytes memory stateProof
-  ) public {
-    ExecutionFraud.createExecutionError(
-      _state,
-      badHeader,
-      transaction,
-      transactionIndex,
-      siblings,
-      previousStateProof,
-      stateProof
-    );
-  }
-
   function proveExecutionError(
-    Block.BlockHeader memory badHeader,
+    Block.BlockHeader memory header,
+    bytes memory transactionProof,
     bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory siblings,
-    bytes memory previousRootProof,
     bytes memory stateProof1,
     bytes memory stateProof2
   ) public {
       ExecutionError.proveExecutionError(
         _state,
-        badHeader,
+        header,
+        transactionProof,
         transaction,
-        transactionIndex,
-        siblings,
-        previousRootProof,
         stateProof1,
         stateProof2
       );
