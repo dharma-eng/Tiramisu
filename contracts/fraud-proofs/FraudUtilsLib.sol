@@ -46,7 +46,7 @@ library FraudUtilsLib {
         transactionIndex - 1,
         proof.siblings
       ),
-      "Invalid merkle root."
+      "Invalid merkle proof."
     );
 
     bytes memory data = proof.transactionData;
