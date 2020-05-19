@@ -1,18 +1,24 @@
-import { AccountProof, TransactionProof, PreviousStateProof, PreviousRootProof, TransactionStateProof } from "./types";
+import { TransactionProof, PreviousStateProof, PreviousRootProof, TransactionStateProof, ErrorProof } from "./types";
 import Block, { Commitment, Header } from "../block";
 import { BufferLike, toBuf, sliceBuffer, toHex, decodeTransactionsData, keccak256 } from "../../lib";
 import { AccountProofAbi, CommitmentAbi, TransactionProofAbi, TransactionStateProofAbi, BlockInputAbi } from "./abi";
+import { AccountProof } from "../state";
 
 const ABI = require('web3-eth-abi');
 
-const encodeCommitment = (commitment: Commitment): string =>
+export const encodeCommitment = (commitment: Commitment): string =>
   ABI.encodeParameter(CommitmentAbi, commitment);
 
-const encodeAccountProof = (proof: AccountProof): string =>
+export const encodeAccountProof = (proof: AccountProof): string =>
   ABI.encodeParameter(AccountProofAbi, proof);
 
-const encodeTransactionProof = (proof: TransactionProof): string =>
+export const encodeTransactionProof = (proof: TransactionProof): string =>
   ABI.encodeParameter(TransactionProofAbi, proof);
+
+export const encodePreviousRootProof = (proof: PreviousRootProof): string =>
+  proof._type == 'commitment'
+    ? encodeCommitment(proof)
+    : encodeTransactionProof(proof)
 
 export function encodeTransactionStateProof({
   previousRootProof: rootProof, header, transactionIndex, siblings
@@ -20,12 +26,9 @@ export function encodeTransactionStateProof({
   return ABI.encodeParameter(
     TransactionStateProofAbi,
     {
-      header,
       transactionIndex,
       siblings,
-      previousRootProof: (rootProof._type == 'commitment')
-        ? encodeCommitment(rootProof)
-        : encodeTransactionProof(rootProof)
+      previousRootProof: encodePreviousRootProof(rootProof)
     }
   );
 }
@@ -61,7 +64,7 @@ export function decodeBlockSubmitCalldata(calldata: BufferLike, submittedAt: num
   };
   const commitment = {
     ...header,
-    transactionsHash: toHex(keccak256(blockInput.transactionsData)),
+    transactionsHash: toHex(keccak256(toBuf(blockInput.transactionsData))),
     submittedAt
   };
   return {
@@ -80,3 +83,4 @@ export function decodeSubmittedBlock(submitted: SubmittedBlock): Block {
   const block = new Block({ commitment, transactions });
   return block;
 }
+
