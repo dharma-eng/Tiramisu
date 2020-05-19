@@ -1,15 +1,15 @@
 import { StateMachine, State } from "../state";
 import { sliceBuffer, getMerkleRoot, decodeHardTransactions } from "../../lib";
 import Block from "../block";
-import { TransactionMetadata, HardTransactionUnion, HardCreate, HardDeposit, HardWithdraw, HardAddSigner, SoftWithdrawal, SoftCreate, SoftTransfer, SoftChangeSigner } from "../transactions";
+import { TransactionMetadata, HardTransactionUnion, HardCreate, HardDeposit, HardWithdraw, HardAddSigner, SoftWithdrawal, SoftCreate, SoftTransfer, SoftChangeSigner, SoftTransactionUnion } from "../transactions";
 import AuditProofProvider from "./provider";
 import {
-  ErrorProof, ProvableError, TransactionStateProof, AccountProof, PreviousRootProof, PreviousStateProof, CommitmentProof, TransactionProof,
+  ErrorProof, ProvableError, TransactionStateProof, PreviousRootProof, PreviousStateProof, CommitmentProof, TransactionProof,
   HardDepositExecutionError
 } from "./types";
-import { ProofData_Basic, HardCreateExecutionError, CreateIndexError } from "./types/execution-errors";
-import { HardTransactionSourceError } from "./types/transaction-errors";
-
+import { ProofData_Basic, HardCreateExecutionError, CreateIndexError, SoftWithdrawalExecutionError, SoftCreateExecutionError, SoftTransferExecutionError, SoftChangeSignerExecutionError } from "./types/execution-errors";
+import { HardTransactionSourceError, TransactionSignatureError } from "./types/transaction-errors";
+import Account from '../account';
 const ABI = require('web3-eth-abi');
 
 
@@ -34,7 +34,7 @@ export class ExecutionAuditor extends StateMachine {
     /* Retrieve the actual hard transactions recorded on the peg contract. */
     const { hardTransactionsCount } = parentBlock.header;
     const hardTransactionsLength = block.transactionsArray.filter(tx => tx.prefix < 4).length;
-    console.log(`Getting inputs from peg -- Index: ${hardTransactionsCount} | Length: ${hardTransactionsLength}`)
+    // console.log(`Getting inputs from peg -- Index: ${hardTransactionsCount} | Length: ${hardTransactionsLength}`)
     const encodedInputs = await provider.getHardTransactions(
       hardTransactionsCount, hardTransactionsLength
     );
@@ -67,20 +67,15 @@ export class ExecutionAuditor extends StateMachine {
     accountIndex: number
   ): Promise<PreviousStateProof> {
     let rootProof: PreviousRootProof;
-    let accountProof: AccountProof;
     if (transactionIndex == 0) {
-      rootProof = this.parentBlock.commitment as CommitmentProof;
+      rootProof = { ...this.parentBlock.commitment, _type: 'commitment' } as CommitmentProof;
     } else {
       rootProof = this.block.proveTransaction(transactionIndex - 1) as TransactionProof;
     }
-    const merkleProof = await this.state.getAccountProof(accountIndex);
-    accountProof = {
-      accountIndex,
-      data: merkleProof.value,
-      siblings: merkleProof.siblings
-    };
+    const stateProof = await this.state.getAccountProof(accountIndex);
+    
     return {
-      accountProof,
+      stateProof,
       previousRootProof: rootProof
     };
   }
@@ -160,8 +155,10 @@ export class ExecutionAuditor extends StateMachine {
     // precalculate proof data which might not be used.
     const err = await this.getBasicProof(index, transaction.accountIndex) as HardCreateExecutionError;
     err._type = "hard_create";
+
+    const root = '' + transaction.intermediateStateRoot;
     await this.hardCreate(transaction);
-    if (transaction.intermediateStateRoot != await this.state.rootHash()) this.fail(err);
+    if (transaction.intermediateStateRoot != root) this.fail(err);
   }
 
   async validateHardDeposit(transaction: HardDeposit, index: number) {
@@ -227,8 +224,9 @@ export class ExecutionAuditor extends StateMachine {
     ) {
       this.fail(err);
     }
+    const root = '' + transaction.intermediateStateRoot;
     await this.hardWithdraw(transaction);
-    if (transaction.intermediateStateRoot != await this.state.rootHash()) this.fail(err);
+    if (transaction.intermediateStateRoot != root) this.fail(err);
   }
 
   async validateHardAddSigner(transaction: HardAddSigner, index: number) {
@@ -242,16 +240,17 @@ export class ExecutionAuditor extends StateMachine {
       callerMismatch
     ) {
       const { transaction, siblings } = this.block.proveTransaction(index);
-      const { accountProof, previousRootProof } = callerMismatch
+      const { stateProof, previousRootProof } = callerMismatch
         ? await this.getPreviousStateProof(index, real.accountIndex)
-        : { accountProof: '0x', previousRootProof: '0x' }
+        : { stateProof: '0x', previousRootProof: '0x' }
       const err = {
         header: this.block.commitment,
         transactionIndex: index,
         transaction,
         siblings,
-        stateProof: accountProof,
-        previousRootProof
+        stateProof,
+        previousRootProof,
+        _type: 'hard_transaction_source'
       } as HardTransactionSourceError;
       this.fail(err);
     }
@@ -275,23 +274,172 @@ export class ExecutionAuditor extends StateMachine {
     ) {
       this.fail(err);
     }
+    const root = '' + transaction.intermediateStateRoot;
     await this.hardAddSigner(transaction);
-    if (transaction.intermediateStateRoot != await this.state.rootHash()) this.fail(err);
+    if (
+      transaction.intermediateStateRoot != root
+    ) this.fail(err);
+  }
+
+  async checkSignature(transaction: SoftTransactionUnion, index: number): Promise<Account> {
+    let signer: string;
+    try {
+      signer = transaction.getSignerAddress()
+      if (!signer) throw new Error()
+    } catch (err) {
+      this.fail({
+        header: this.block.commitment,
+        ...this.block.proveTransaction(index),
+        transactionIndex: index,
+        _type: 'transaction_signature',
+      } as TransactionSignatureError)
+    }
+    const account = await this.state.getAccount(transaction.accountIndex);
+    if (!account.hasSigner(signer)) {
+      const err = await this.getBasicProof(index, transaction.accountIndex);
+      this.fail({
+        ...err,
+        _type: 'transaction_signature'
+      } as TransactionSignatureError);
+    }
+    return account;
   }
 
   async validateSoftWithdrawal(transaction: SoftWithdrawal, index: number) {
-
+    const account = await this.checkSignature(transaction, index);
+    const err = {
+      ...(await this.getBasicProof(index, transaction.accountIndex)),
+      _type: 'soft_withdrawal'
+    } as SoftWithdrawalExecutionError;
+    if (
+      account.balance < transaction.value ||
+      account.nonce != transaction.nonce
+    ) {
+      this.fail(err);
+    }
+    account.balance -= transaction.value;
+    account.nonce += 1;
+    await this.state.updateAccount(transaction.accountIndex, account);
+    if (
+      transaction.intermediateStateRoot != await this.state.rootHash()
+    ) this.fail(err);
   }
 
   async validateSoftCreate(transaction: SoftCreate, index: number) {
-
+    // Check if the transaction had a valid signature (encoding & account match)
+    const account = await this.checkSignature(transaction, index);
+    // Set up the error proof
+    // TODO commit/revert on sparse merkle tree so we don't have to pre-calc
+    // proofs we may never use.
+    const { stateProof, ...rest } = await this.getBasicProof(index, transaction.accountIndex);
+    const err = {
+      ...rest,
+      senderProof: stateProof,
+      _type: 'soft_create'
+    } as SoftCreateExecutionError
+    // Check if transaction was allowable given the caller's account
+    if (
+      account.balance < transaction.value ||
+      account.nonce != transaction.nonce
+    ) this.fail(err);
+    // Update the account & state
+    // we don't use the underlying state machine because we need to get intermediate state proofs
+    account.balance -= transaction.value;
+    account.nonce += 1;
+    await this.state.updateAccount(transaction.accountIndex, account);
+    /*
+      The reason this does both index checks is because the latter is much more expensive,
+      even though it is sufficient to cover the former case.
+    */
+    // Check if the `toAccountIndex` already existed.
+    const existingIndex = await this.state.getAccountIndexByAddress(transaction.accountAddress);
+    if (existingIndex != null) {
+      err.receiverProof = await this.state.getAccountProof(existingIndex);
+      this.fail(err);
+    }
+    // TODO replace this with something more elegant
+    // Check if the created account index is correct
+    if (transaction.toAccountIndex != this.state.size) {
+      const err = {
+        _type: "create_index_error",
+        previousHeader: this.parentBlock.commitment,
+        header: this.block.commitment,
+        transactionIndex: index,
+        transactionsData: this.block.transactionsData
+      } as CreateIndexError;
+      this.fail(err);
+    }
+    // Get the proof of the null leaf the account will be inserted into.
+    err.receiverProof = await this.state.getAccountProof(transaction.toAccountIndex);
+    // Insert the account into the state.
+    const newAccount = new Account({
+      address: transaction.accountAddress,
+      nonce: 0,
+      balance: transaction.value,
+      signers: [transaction.initialSigningKey]
+    }) as Account;
+    await this.state.putAccount(newAccount);
+    // Compare the output root.
+    if (
+      transaction.intermediateStateRoot != await this.state.rootHash()
+    ) this.fail(err);
   }
 
   async validateSoftTransfer(transaction: SoftTransfer, index: number) {
-
+    // Check if the transaction had a valid signature (encoding & account match)
+    const account = await this.checkSignature(transaction, index);
+    // Set up the error proof
+    // TODO commit/revert on sparse merkle tree so we don't have to pre-calc
+    // proofs we may never use.
+    const { stateProof, ...rest } = await this.getBasicProof(index, transaction.accountIndex);
+    const err = {
+      ...rest,
+      senderProof: stateProof,
+      _type: 'soft_transfer'
+    } as SoftTransferExecutionError;
+    // Check if transaction was allowable given the caller's account
+    if (
+      account.balance < transaction.value ||
+      account.nonce != transaction.nonce
+    ) this.fail(err);
+    // Update the account & state
+    // we don't use the underlying state machine because we need to get intermediate state proofs
+    account.balance -= transaction.value;
+    account.nonce += 1;
+    await this.state.updateAccount(transaction.accountIndex, account);
+    err.receiverProof = await this.state.getAccountProof(transaction.toAccountIndex);
+    const receiver = await this.state.getAccount(transaction.toAccountIndex);
+    if (!receiver) this.fail(err);
+    receiver.balance += transaction.value;
+    await this.state.updateAccount(transaction.toAccountIndex, receiver);
+    if (
+      transaction.intermediateStateRoot != await this.state.rootHash()
+    ) this.fail(err);
   }
 
   async validateSoftChangeSigner(transaction: SoftChangeSigner, index: number) {
-
+    // Check if the transaction had a valid signature (encoding & account match)
+    const account = await this.checkSignature(transaction, index);
+    const err = {
+      ...(await this.getBasicProof(index, transaction.accountIndex)),
+      _type: 'soft_change_signer'
+    } as SoftChangeSignerExecutionError;
+    if (!account || account.nonce != transaction.nonce) this.fail(err);
+    const { signingAddress } = transaction;
+    if (transaction.modificationCategory == 0) {
+      if (
+        account.hasSigner(signingAddress) ||
+        account.signers.length == 10
+      ) this.fail(err);
+      account.addSigner(signingAddress)
+    } else if (transaction.modificationCategory == 1) {
+      if (!account.hasSigner(signingAddress)) this.fail(err);
+      account.removeSigner(signingAddress)
+    } else this.fail(err);
+    account.nonce += 1;
+    await this.state.updateAccount(transaction.accountIndex, account);
+    if (
+      transaction.intermediateStateRoot != await this.state.rootHash()
+    ) this.fail(err);
   }
 }
