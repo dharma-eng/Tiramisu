@@ -5,8 +5,9 @@
     bytes32[] memory siblings,
     bytes memory previousStateProof,
     bytes memory stateProof */
-import { TransactionStateProof, AccountProof } from './inclusion-proofs';
+import { TransactionStateProof } from './inclusion-proofs';
 import { ErrorProofData, ErrorType, With_Transactions, With_Parent } from "./base";
+import { AccountProof } from '../../state';
 
 // export type ProofData_ExecutionError = ErrorProofData & TransactionIn
 export type ProofData_Basic = TransactionStateProof & {
@@ -14,6 +15,11 @@ export type ProofData_Basic = TransactionStateProof & {
 };
 
 export type ProofData_CreateIndex = ErrorProofData & With_Parent & With_Transactions & { transactionIndex: number };
+export type ProofData_CallerReceiver = TransactionStateProof & {
+  senderProof: AccountProof;
+  receiverProof?: AccountProof;
+}
+
 
 export type CreateIndexError = ErrorType<"create_index_error", ProofData_CreateIndex>;
 
@@ -23,8 +29,8 @@ export type HardWithdrawalExecutionError = ErrorType<"hard_withdrawal", ProofDat
 export type HardAddSignerExecutionError = ErrorType<"hard_add_signer", ProofData_Basic>;
 
 export type SoftWithdrawalExecutionError = ErrorType<"soft_withdrawal", ProofData_Basic>;
-export type SoftCreateExecutionError = ErrorType<"soft_create", ProofData_Basic>;
-export type SoftDepositExecutionError = ErrorType<"soft_deposit", ProofData_Basic>;
+export type SoftCreateExecutionError = ErrorType<"soft_create", ProofData_CallerReceiver>;
+export type SoftTransferExecutionError = ErrorType<"soft_transfer", ProofData_CallerReceiver>;
 export type SoftChangeSignerExecutionError = ErrorType<"soft_change_signer", ProofData_Basic>;
 
 export type ExecutionError = HardCreateExecutionError |
@@ -33,6 +39,6 @@ export type ExecutionError = HardCreateExecutionError |
   HardAddSignerExecutionError |
   SoftWithdrawalExecutionError |
   SoftCreateExecutionError |
-  SoftDepositExecutionError |
+  SoftTransferExecutionError |
   SoftChangeSignerExecutionError |
   CreateIndexError;
