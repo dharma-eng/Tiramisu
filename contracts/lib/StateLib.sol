@@ -69,6 +69,8 @@ library StateLib {
     /* Works backwards through the block hash array, deleting descendands */
     bytes32[] storage blockHashes = state.blockHashes;
     uint256 len = blockHashes.length;
+    /* The events that read from state are expensive -- fix this. */
+    emit BlockReverted(header.blockNumber, state.blockHashes[header.blockNumber]);
     delete blockHashes[header.blockNumber];
     for (uint256 i = header.blockNumber; i < len; i++) {
       emit BlockReverted(i, state.blockHashes[i]);
