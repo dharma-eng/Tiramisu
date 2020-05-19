@@ -21,8 +21,12 @@ export const encodePreviousRootProof = (proof: PreviousRootProof): string =>
     : encodeTransactionProof(proof)
 
 export function encodeTransactionStateProof({
-  previousRootProof: rootProof, header, transactionIndex, siblings
-}: TransactionStateProof): string {
+  previousRootProof: rootProof, transactionIndex, siblings
+}: {
+  previousRootProof: PreviousRootProof,
+  transactionIndex: number,
+  siblings: Array<BufferLike>
+}): string {
   return ABI.encodeParameter(
     TransactionStateProofAbi,
     {
