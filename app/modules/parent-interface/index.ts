@@ -1,5 +1,6 @@
 import Block from "../block";
 import { toBuf } from "../../lib";
+import { ErrorProofFunctionInput } from "../auditor/types/functions";
 
 export type BlockSubmissionEvent = {
   event: string;
@@ -66,9 +67,12 @@ export class ParentInterface {
   }
 
   async getTransactionInput(transactionHash: string): Promise<Buffer> {
-    console.log('getting transaction input')
     const transaction = await this.web3.eth.getTransaction(transactionHash);
     return toBuf(transaction.input);
+  }
+
+  async proveError(input: ErrorProofFunctionInput): Promise<any> {
+    return this.peg.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
   }
 }
 
