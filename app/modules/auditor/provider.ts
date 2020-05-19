@@ -1,4 +1,4 @@
-import { PreviousStateProof, PreviousRootProof, AccountProof, CommitmentProof, TransactionProof } from "./types";
+import { PreviousStateProof, PreviousRootProof, CommitmentProof, TransactionProof } from "./types";
 import { State, StateMachine } from "../state";
 import Block from "../block";
 import { Database } from "../db";
@@ -23,7 +23,6 @@ export class AuditProofProvider {
     // const block = await this._db.getBlock(blockNumber);
     const blockNumber = block.header.blockNumber;
     let rootProof: PreviousRootProof;
-    let accountProof: AccountProof;
     let state = await this._db.getBlockStartingState(blockNumber);
     if (transactionIndex == 0) {
       const previousBlock = await this._db.getBlock(blockNumber - 1);
@@ -33,14 +32,10 @@ export class AuditProofProvider {
       await this.partialBlockExecute(state, block, transactionIndex);
       // const transaction = block.transactionsArray[transactionIndex - 1];
     }
-    const merkleProof = await state.getAccountProof(accountIndex);
-    accountProof = {
-      accountIndex,
-      data: merkleProof.value,
-      siblings: merkleProof.siblings
-    };
+    const stateProof = await state.getAccountProof(accountIndex);
+
     return {
-      accountProof,
+      stateProof,
       previousRootProof: rootProof
     };
   }
