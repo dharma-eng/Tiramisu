@@ -7,6 +7,7 @@ import { BlockLib as Block } from "../lib/BlockLib.sol";
 import { MerkleProofLib as Merkle } from "../lib/merkle/MerkleProofLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
+
 library ExecutionErrorLib {
   using Block for Block.BlockHeader;
   using State for State.State;
@@ -14,8 +15,6 @@ library ExecutionErrorLib {
   using Account for Account.Account;
   using Account for bytes32;
   using utils for State.State;
-
-
 
   /**
    * Determine how many successful create transactions were executed prior to `index`.
@@ -37,8 +36,12 @@ library ExecutionErrorLib {
       return (pointer, creates, true);
     }
 
-    while(currentIndex <= meta.hardCreateCount) {
-      assembly { if iszero(iszero(mload(add(pointer, 56)))) { creates := add(creates, 1) } }
+    while (currentIndex <= meta.hardCreateCount) {
+      assembly {
+        if iszero(iszero(mload(add(pointer, 56)))) {
+          creates := add(creates, 1)
+        }
+      }
       currentIndex++;
       pointer += 88;
     }
@@ -102,13 +105,13 @@ library ExecutionErrorLib {
     Tx.HardCreate memory transaction
   ) internal pure {
     (
-      bool empty, 
+      bool empty,
       uint256 accountIndex,
       bytes32[] memory siblings,
       Account.Account memory provenAccount
     ) = priorStateRoot.verifyAccountInState(stateProof);
     bool rejected = transaction.intermediateStateRoot == bytes32(0);
-    
+
     if (accountIndex != transaction.accountIndex) {
       require(
         provenAccount.contractAddress == transaction.contractAddress && !rejected,
@@ -142,7 +145,7 @@ library ExecutionErrorLib {
     Tx.HardDeposit memory transaction
   ) internal pure {
     (
-      bool empty, 
+      bool empty,
       uint256 accountIndex,
       bytes32[] memory siblings,
       Account.Account memory account
@@ -158,7 +161,6 @@ library ExecutionErrorLib {
       "Transaction had valid output root."
     );
   }
-
 
   /**
    * @dev Validate a HardWithdrawal execution error proof.
@@ -208,7 +210,7 @@ library ExecutionErrorLib {
     Tx.HardAddSigner memory transaction
   ) internal pure {
     (
-      bool empty, 
+      bool empty,
       uint256 accountIndex,
       bytes32[] memory siblings,
       Account.Account memory account
@@ -288,7 +290,10 @@ library ExecutionErrorLib {
     ) return;
     sender.balance -= transaction.value;
     sender.nonce += 1;
-    bytes32 intermediateRoot = sender.updateAccount(senderIndex, senderSiblings);
+    bytes32 intermediateRoot = sender.updateAccount(
+      senderIndex, senderSiblings
+    );
+
     (
       bool receiverEmpty,
       uint256 receiverIndex,
@@ -342,14 +347,19 @@ library ExecutionErrorLib {
     ) return;
     sender.balance -= transaction.value;
     sender.nonce += 1;
-    bytes32 intermediateRoot = sender.updateAccount(senderIndex, senderSiblings);
+    bytes32 intermediateRoot = sender.updateAccount(
+      senderIndex, senderSiblings
+    );
+
     (
       bool receiverEmpty,
       uint256 receiverIndex,
       bytes32[] memory receiverSiblings,
       Account.Account memory receiver
     ) = intermediateRoot.verifyAccountInState(receiverProof);
-    require(receiverIndex == transaction.toIndex, "Proof must be of receiver.");
+    require(
+      receiverIndex == transaction.toIndex, "Proof must be of receiver."
+    );
     if (receiverEmpty) return;
     receiver.balance += transaction.value;
     require(
