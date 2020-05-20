@@ -183,6 +183,7 @@ library BlockErrorLib {
     return state.revertBlock(badHeader);
   }
 
+  /* solhint-disable function-max-lines */
   /**
    * @dev proveHardTransactionsRangeError
    * Proves that a block has a missing or duplicate hard transaction index.
@@ -226,27 +227,27 @@ library BlockErrorLib {
       len := mload(meta)
     }
 
-    (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+    (txOffset, fraudProven) = checkTypeForTransactionsRangeError(
       txOffset, bufPtr, len, 88, prevCount
     );
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 32)) }
-      (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+      (txOffset, fraudProven) = checkTypeForTransactionsRangeError(
         txOffset, bufPtr, len, 48, prevCount
       );
     }
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 64)) }
-      (txOffset, fraudProven) = _checkTypeForTransactionsRangeError(
+      (txOffset, fraudProven) = checkTypeForTransactionsRangeError(
         txOffset, bufPtr, len, 68, prevCount
       );
     }
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 96)) }
-      (, fraudProven) = _checkTypeForTransactionsRangeError(
+      (, fraudProven) = checkTypeForTransactionsRangeError(
         txOffset, bufPtr, len, 61, prevCount
       );
     }
@@ -255,7 +256,6 @@ library BlockErrorLib {
     return state.revertBlock(badHeader);
   }
 
-  /* solhint-enable function-max-lines */
   /**
    * @dev proveHardTransactionsOrderError
    * Proves that a block has a missing or duplicate hard transaction index.
@@ -291,27 +291,27 @@ library BlockErrorLib {
       len := mload(meta)
     }
 
-    (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+    (txOffset, fraudProven) = checkTypeForTransactionsOrderError(
       txOffset, len, 88
     );
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 32))}
-      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+      (txOffset, fraudProven) = checkTypeForTransactionsOrderError(
         txOffset, len, 48
       );
     }
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 64))}
-      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+      (txOffset, fraudProven) = checkTypeForTransactionsOrderError(
         txOffset, len, 68
       );
     }
 
     if (!fraudProven) {
       assembly { len := mload(add(meta, 96))}
-      (txOffset, fraudProven) = _checkTypeForTransactionsOrderError(
+      (txOffset, fraudProven) = checkTypeForTransactionsOrderError(
         txOffset, len, 61
       );
     }
@@ -320,7 +320,8 @@ library BlockErrorLib {
     return state.revertBlock(badHeader);
   }
 
-  function _checkTypeForTransactionsRangeError(
+  /* solhint-enable function-max-lines */
+  function checkTypeForTransactionsRangeError(
     uint256 offset, uint256 buffer, uint256 len, uint256 size, uint256 prevTotal
   ) internal view returns (uint256 newOffset, bool fraudulent) {
     uint256 txIndex;
@@ -353,7 +354,7 @@ library BlockErrorLib {
     }
   }
 
-  function _checkTypeForTransactionsOrderError(
+  function checkTypeForTransactionsOrderError(
     uint256 offset, uint256 len, uint256 size
   ) internal view returns (uint256 newOffset, bool fraudulent) {
     uint256 txIndex;
