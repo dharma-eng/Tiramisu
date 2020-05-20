@@ -369,7 +369,7 @@ library BlockErrorLib {
       }
 
       lastIndex = txIndex;
-      newOffset += 88;
+      newOffset += size;
     }
   }
 }
