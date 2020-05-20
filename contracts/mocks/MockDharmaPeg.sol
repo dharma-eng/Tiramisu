@@ -133,16 +133,6 @@ contract MockDharmaPeg is DharmaPeg {
     );
   }
 
-  function transactionHadPreviousState(
-    bytes memory previousSource,
-    Block.BlockHeader memory blockHeader,
-    uint256 transactionIndex
-  ) public view returns (bytes32) {
-    return FraudUtils.transactionHadPreviousState(
-      _state, previousSource, blockHeader, transactionIndex
-    );
-  }
-
   function createdAccountIndexError(
     Block.BlockHeader memory previousHeader,
     Block.BlockHeader memory badHeader,
@@ -172,6 +162,16 @@ contract MockDharmaPeg is DharmaPeg {
       transaction,
       stateProof1,
       stateProof2
+    );
+  }
+
+  function transactionHadPreviousState(
+    bytes memory previousSource,
+    Block.BlockHeader memory blockHeader,
+    uint256 transactionIndex
+  ) public view returns (bytes32) {
+    return FraudUtils.transactionHadPreviousState(
+      _state, previousSource, blockHeader, transactionIndex
     );
   }
 }

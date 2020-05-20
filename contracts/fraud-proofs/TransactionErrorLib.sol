@@ -170,7 +170,6 @@ library TransactionErrorLib {
 
     uint8 prefix = transaction.transactionPrefix();
     require(prefix < 4, "Input not a hard transaction.");
-
     require(
       Merkle.verify(
         badHeader.transactionsRoot, transaction, transactionIndex, siblings
@@ -181,7 +180,6 @@ library TransactionErrorLib {
     // Retrieve hard tx index from 40-bit memory region after length and prefix.
     uint256 hardTransactionIndex;
     assembly { hardTransactionIndex := shr(216, mload(add(transaction, 33))) }
-
     if (hardTransactionIndex >= state.hardTransactions.length) {
       return state.revertBlock(badHeader);
     }
