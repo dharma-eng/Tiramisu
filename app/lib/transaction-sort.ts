@@ -13,7 +13,7 @@ export function sortTransactions(transactions) {
     softChangeSigners
   ] = [...arrays];
   
-  const hardSort = (arr) => arr.sort((a, b) => a.hardTransactionIndex - b.hardTransactionIndex);
+  const hardSort = (arr) => !arr ? [] : arr.sort((a, b) => a.hardTransactionIndex - b.hardTransactionIndex);
   [hardCreates, hardDeposits, hardWithdrawals, hardAddSigners].map(a => hardSort(a));
   return {
     hardCreates,

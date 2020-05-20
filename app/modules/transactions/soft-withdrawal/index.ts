@@ -1,5 +1,5 @@
 import { ecrecover, keccak256, ecsign, pubToAddress, fromRpcSig, toRpcSig, ECDSASignature } from 'ethereumjs-util';
-import {toBuf, toHex, toInt} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 import {SoftTransaction} from "../interfaces";
 import {Account} from "../../account";
 import { SoftWithdrawalData, SoftWithdrawalInput } from "./interfaces";
@@ -40,7 +40,7 @@ export class SoftWithdrawal {
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
         const sig = toBuf(this.signature, 65) as Buffer;
-        const root = toBuf(this.intermediateStateRoot) as Buffer;
+        const root = toBuf(this.intermediateStateRoot, 32) as Buffer;
         return Buffer.concat([
             prefix ? toBuf(this.prefix, 1) : Buffer.alloc(0),
             nonce,
@@ -52,12 +52,31 @@ export class SoftWithdrawal {
         ]);
     }
 
+    static decode(buf: Buffer): SoftWithdrawal {
+        const nonce = toInt(sliceBuffer(buf, 0, 3));
+        const accountIndex = toInt(sliceBuffer(buf, 3, 4));
+        const withdrawalAddress = toHex(sliceBuffer(buf, 7, 20));
+        const value = toInt(sliceBuffer(buf, 27, 7));
+        const signature = toHex(sliceBuffer(buf, 34, 65));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 99, 32));
+        return new SoftWithdrawal({
+            nonce,
+            accountIndex,
+            withdrawalAddress,
+            value,
+            signature,
+            intermediateStateRoot
+        });
+    }
+
     toMessageHash(): Buffer {
+        const prefix = toBuf(this.prefix, 1);
         const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
         const withdrawalAddress = toBuf(this.withdrawalAddress, 20) as Buffer;
         const nonce = toBuf(this.nonce, 3) as Buffer;
         const value = toBuf(this.value, 7) as Buffer;
         const msg = Buffer.concat([
+            prefix,
             nonce,
             fromIndex,
             withdrawalAddress,

@@ -53,7 +53,7 @@ library FraudUtilsLib {
         transactionIndex - 1,
         proof.siblings
       ),
-      "Invalid merkle root."
+      "Invalid merkle proof."
     );
 
     bytes memory data = proof.transactionData;
@@ -71,14 +71,64 @@ library FraudUtilsLib {
     bytes memory previousStateProof,
     bytes memory stateProof
   ) internal view returns (
-    bool empty, uint256 accountIndex, Account.Account memory account
+    bool empty,
+    uint256 accountIndex,
+    bytes32[] memory siblings,
+    Account.Account memory account
   ) {
     bytes32 previousStateRoot = transactionHadPreviousState(
       state, previousStateProof, badHeader, transactionIndex
     );
 
-    (empty, accountIndex,, account) = Account.verifyAccountInState(
+    (empty, accountIndex, siblings, account) = Account.verifyAccountInState(
       previousStateRoot, stateProof
+    );
+  }
+
+  struct TransactionStateProof {
+    uint256 transactionIndex;
+    bytes32[] siblings;
+    bytes previousRootProof;
+  }
+
+  /**
+   * @dev validateTransactionStateProof
+   * Decodes and validates a TransactionStateProof, which contains
+   * an inclusion proof for a transaction and the state root prior to
+   * its execution.
+   * @param state storage struct representing the peg state
+   * @param proofBytes encoded TransactionStateProof
+   * @param transactionBytes encoded transaction to verify inclusion proof of
+   * @return root state root prior to the transaction
+   */
+  function validateTransactionStateProof(
+    State.State storage state,
+    Block.BlockHeader memory header,
+    bytes memory proofBytes,
+    bytes memory transactionBytes
+  ) internal view returns (bytes32 root) {
+    TransactionStateProof memory proof = abi.decode(
+      (proofBytes), (TransactionStateProof)
+    );
+
+    require(
+      state.blockIsPending(header.blockNumber, header.blockHash()),
+      "Block not pending."
+    );
+    require(
+      Merkle.verify(
+        header.transactionsRoot,
+        transactionBytes,
+        proof.transactionIndex,
+        proof.siblings
+      ),
+      "Invalid transaction proof."
+    );
+    return transactionHadPreviousState(
+      state,
+      proof.previousRootProof,
+      header,
+      proof.transactionIndex
     );
   }
 }

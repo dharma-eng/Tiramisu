@@ -1,7 +1,8 @@
-import { Transactions } from "../transactions";
-import { toBuf, toHex, keccak256, fromTransactionsJson } from '../../lib';
+import { Transactions, Transaction } from "../transactions";
+import { toBuf, toHex, keccak256, fromTransactionsJson, transactionsToArray, getMerkleProof } from '../../lib';
 import { encodeBlock } from "../../lib/block-coder";
 import { Commitment, Header, BlockInput, BlockJson } from "./interfaces";
+import { TransactionProof } from "../auditor/types";
 const ABI = require('web3-eth-abi');
 
 export interface Block {
@@ -11,6 +12,8 @@ export interface Block {
     transactions: Transactions;
     addOutput(submittedAt: number): void;
     blockHash(): string;
+    proveTransaction(index: number): TransactionProof;
+    toJSON(): BlockJson;
 }
 
 export class Block {
@@ -36,6 +39,18 @@ export class Block {
             this.transactions = transactions;
             this.transactionsData = transactionsData;
         }
+    }
+
+    get transactionsArray(): Array<Transaction> {
+        return transactionsToArray(this.transactions);
+    }
+
+    proveTransaction(index: number): TransactionProof {
+        const leaves = this.transactionsArray.map(t => t.encode(true));
+        return {
+            transaction: leaves[index],
+            siblings: getMerkleProof(leaves, index).siblings
+        } as TransactionProof;
     }
 
     addOutput(submittedAt: number): void {

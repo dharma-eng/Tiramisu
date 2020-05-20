@@ -165,6 +165,25 @@ const test = () =>describe("Hard Withdraw", () => {
       expect(account.nonce).to.eql(initialAccount.nonce);
     });
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const initialAccount = randomAccount();
+      const hardWithdrawal = new HardWithdraw({
+        accountIndex,
+        hardTransactionIndex: 0,
+        callerAddress: initialAccount.address,
+        value: withdrawalAmount
+      });
+      bytes = hardWithdrawal.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const hardWithdrawal = HardWithdraw.decode(bytes);
+      expect(hardWithdrawal.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;

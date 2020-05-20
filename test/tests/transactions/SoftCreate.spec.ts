@@ -324,6 +324,34 @@ const test = () => describe("Soft Create", () => {
       }
     });
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const signer = randomAccount();
+      const initialAccount = new Account({
+        address: signer.address,
+        nonce: 0,
+        balance: 20,
+        signers: [signer.address]
+      });
+      const softCreate = new SoftCreate({
+        accountIndex: 0,
+        nonce: initialAccount.nonce,
+        privateKey: signer.privateKey,
+        toAccountIndex: 0,
+        value: initialAccount.balance,
+        accountAddress: initialAccount.address,
+        initialSigningKey: signer.address
+      });
+      bytes = softCreate.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const softCreate = SoftCreate.decode(bytes);
+      expect(softCreate.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;

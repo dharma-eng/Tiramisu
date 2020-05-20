@@ -43,9 +43,17 @@ library AccountLib {
       Merkle.verify(stateRoot, proof.data, accountIndex, proof.siblings),
       "Invalid state proof."
     );
+    /*
+      Check if the account is empty
+      TODO: Replace empty leaf value with null buffer.
+    */
+    if (proof.data.length == 32) {
+      bytes memory data = proof.data;
+      assembly {
+        empty := eq(mload(add(data, 32)), 0)
+      }
+    }
 
-    empty = proof.data.length == 0;
-    account = decode(proof.data);
     if (empty) {
       address[] memory signers = new address[](0);
       account = Account(address(0), 0, 0, signers);
@@ -65,6 +73,24 @@ library AccountLib {
     }
 
     return false;
+  }
+
+  function addSigner(Account memory account, address signer) internal pure {
+    address[] memory signers = new address[](account.signers.length + 1);
+    uint256 i = 0;
+    for (; i < account.signers.length; i++) signers[i] = account.signers[i];
+    signers[i] = signer;
+    account.signers = signers;
+  }
+
+  function removeSigner(Account memory account, address signer) internal pure {
+    address[] memory signers = new address[](account.signers.length - 1);
+    uint256 i = 0;
+    while (account.signers[i] != signer) i++;
+    uint256 n = 0;
+    for (; n < i; n++) signers[n] = account.signers[n];
+    for (; n < signers.length; n++) signers[n] = account.signers[n+1];
+    account.signers = signers;
   }
 
   function encode(

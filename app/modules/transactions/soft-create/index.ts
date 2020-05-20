@@ -7,7 +7,7 @@ import {
     toRpcSig,
     ECDSASignature
 } from 'ethereumjs-util'
-import {toBuf, toHex} from "../../../lib";
+import {toBuf, toHex, toInt, sliceBuffer} from "../../../lib";
 import {SoftTransaction, CreateTransaction} from "../interfaces";
 import {Account} from "../../account";
 import { SoftCreateData, SoftCreateInput } from "./interfaces";
@@ -38,8 +38,9 @@ export class SoftCreate {
         this.reject = reject;
     }
 
-    addOutput(intermediateStateRoot: string): void {
+    addOutput(intermediateStateRoot: string, toIndex: number): void {
         this.intermediateStateRoot = toHex(intermediateStateRoot);
+        this.toAccountIndex = toIndex;
     }
 
     encode(prefix: boolean = false): Buffer {
@@ -64,12 +65,45 @@ export class SoftCreate {
         ]);
     }
 
+    static decode(buf: Buffer): SoftCreate {
+        const nonce = toInt(sliceBuffer(buf, 0, 3));
+        const accountIndex = toInt(sliceBuffer(buf, 3, 4));
+        const toAccountIndex = toInt(sliceBuffer(buf, 7, 4));
+        const value = toInt(sliceBuffer(buf, 11, 7));
+        const accountAddress = toHex(sliceBuffer(buf, 18, 20));
+        const initialSigningKey = toHex(sliceBuffer(buf, 38, 20));
+        const signature = toHex(sliceBuffer(buf, 58, 65));
+        const intermediateStateRoot = toHex(sliceBuffer(buf, 123, 32));
+        return new SoftCreate({
+            nonce,
+            accountIndex,
+            toAccountIndex,
+            value,
+            accountAddress,
+            initialSigningKey,
+            signature,
+            intermediateStateRoot
+        });
+    }
+
     toMessageHash(): Buffer {
-        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
-        const toIndex = toBuf(this.toAccountIndex, 4) as Buffer;
+        const prefix = toBuf(this.prefix, 1);
         const nonce = toBuf(this.nonce, 3) as Buffer;
+        const fromIndex = toBuf(this.accountIndex, 4) as Buffer;
+        const toIndex = Buffer.alloc(4, 0, 'hex');
         const value = toBuf(this.value, 7) as Buffer;
-        const msg = Buffer.concat([fromIndex, toIndex, nonce, value]);
+        const contractAddress = toBuf(this.accountAddress, 20) as Buffer;
+        const signingAddress = toBuf(this.initialSigningKey, 20) as Buffer;
+
+        const msg = Buffer.concat([
+            prefix,
+            nonce,
+            fromIndex,
+            toIndex,
+            value,
+            contractAddress,
+            signingAddress,
+        ]);
         return keccak256(msg);
     }
 

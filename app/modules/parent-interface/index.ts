@@ -1,4 +1,16 @@
 import Block from "../block";
+import { toBuf } from "../../lib";
+import { ErrorProofFunctionInput } from "../auditor/types/functions";
+
+export type BlockSubmissionEvent = {
+  event: string;
+  signature: string | null;
+  address: string;
+  blockNumber: number;
+  transactionHash: string;
+}
+
+export type SubmissionHandler = (event: BlockSubmissionEvent) => void | Promise<void>;
 
 export class ParentInterface {
   constructor(
@@ -13,9 +25,9 @@ export class ParentInterface {
   /**
    * Gets an array of encoded hard transactions from the chain peg.
    */
-  async getHardTransactions(hardTransactionsIndex: number): Promise<string[]> {
+  async getHardTransactions(hardTransactionsIndex: number, max: number = this.maxHardTransactions): Promise<string[]> {
     const hardTransactions = await this.peg.methods
-        .getHardTransactionsFrom(hardTransactionsIndex, this.maxHardTransactions)
+        .getHardTransactionsFrom(hardTransactionsIndex, max)
         .call();
     return hardTransactions;
   }
@@ -45,6 +57,22 @@ export class ParentInterface {
     await this.peg.methods
       .confirmBlock(header)
       .send({ gas: 5e6, from: this.from });
+  }
+
+  async getSubmissionListener(cb: SubmissionHandler) {
+    // TODO
+    // Handle 'error' & 'changed' events
+    this.peg.events.BlockSubmitted()
+      .on('data', (event: BlockSubmissionEvent) => cb(event));
+  }
+
+  async getTransactionInput(transactionHash: string): Promise<Buffer> {
+    const transaction = await this.web3.eth.getTransaction(transactionHash);
+    return toBuf(transaction.input);
+  }
+
+  async proveError(input: ErrorProofFunctionInput): Promise<any> {
+    return this.peg.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
   }
 }
 

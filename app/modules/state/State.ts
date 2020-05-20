@@ -5,7 +5,13 @@ import path from 'path';
 import { Account } from "../account";
 import { getTree } from './state-tree';
 import SimpleLevel, { LevelSideways } from '../../lib/simple-level';
-import { toBuf } from '../../lib';
+import { toBuf, toHex, BufferLike } from '../../lib';
+
+export type AccountProof = {
+    accountIndex: number;
+    data: BufferLike;
+    siblings: BufferLike[];
+}
 
 export interface State {
     tree: SparseMerkleTree;
@@ -13,7 +19,7 @@ export interface State {
     size: number;
     getAccountIndexByAddress(address: string): Promise<number>;
     getAccount(_accountIndex: any): Promise<Account>;
-    getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof>
+    getAccountProof(accountIndex: number): Promise<AccountProof>
     putAccount(account: Account): Promise<number>;
     rootHash(): Promise<string>;
     updateAccount(_accountIndex: any, account: Account): Promise<void>;
@@ -62,10 +68,11 @@ export class State {
         return copy;
     }
 
-    async commit() {
-        if (!this.dbPath) throw new Error(`In memory commits not supported yet!`);
+    async commit(dbPath: string = this.dbPath) {
+        if (!dbPath) throw new Error(`In memory commits not supported yet!`);
         const rootHash = await this.rootHash();
-        const statePath = path.join(this.dbPath, rootHash);
+        const statePath = path.join(dbPath, rootHash);
+        if (!fs.existsSync(dbPath)) fs.mkdirSync(dbPath)
         if (statePath && !fs.existsSync(statePath)) fs.mkdirSync(statePath);
         const adb = await this._stateDB.copy(path.join(statePath, 'state'));
         const sdb = await this.accountMap.db.copy(path.join(statePath, 'account-map'));
@@ -86,8 +93,11 @@ export class State {
         return Account.decode(leaf);
     }
 
-    async getAccountProof(accountIndex: number): Promise<MerkleTreeInclusionProof> {
-        return this.tree.getMerkleProof(new BigNumber(accountIndex), (await this.getAccount(accountIndex)).encode());
+    async getAccountProof(accountIndex: number): Promise<AccountProof> {
+        const account = await this.getAccount(accountIndex);
+        const leaf = account ? account.encode() : Buffer.alloc(32).fill('\x00');
+        const { value, siblings } = await this.tree.getMerkleProof(new BigNumber(accountIndex), leaf);
+        return { accountIndex, data: value, siblings };
     }
 
     /* takes Account */

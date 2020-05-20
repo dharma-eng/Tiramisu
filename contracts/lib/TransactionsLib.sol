@@ -494,14 +494,25 @@ library TransactionsLib {
     uint8 v;
     bytes32 r;
     bytes32 s;
+    uint8 prefix = transactionPrefix(txData);
+    require(prefix >= 4, "Input not a soft transaction.");
+    if (prefix == 5) {
+      // Hard creates use a null buffer for the `toIndex`
+      assembly {
+        let mask := 0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        let ptr := add(txData, 0x28)
+        let data := mload(ptr)
+        mstore(ptr, and(data, mask))
+      }
+    }
     assembly {
       let ptr := add(txData, 0x20)
       let inputLen := sub(mload(txData), 97)
       msgHash := keccak256(ptr, inputLen)
-      let vOffset := add(ptr, inputLen)
-      v := shr(248, mload(vOffset))
-      r := mload(add(vOffset, 1))
-      s := mload(add(vOffset, 33))
+      let rOffset := add(ptr, inputLen)
+      r := mload(rOffset)
+      s := mload(add(rOffset, 32))
+      v := shr(248, mload(add(rOffset, 64)))
     }
     signer = ecrecover(msgHash, v, r, s);
   }

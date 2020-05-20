@@ -70,6 +70,26 @@ const test = () => describe("Hard Create", () => {
   it("Should have updated the state size", async () => {
     expect(state.size).to.eql(initialStateSize + 1);
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const initialAccount = randomAccount();
+      const hardCreate = new HardCreate({
+        accountIndex: 0,
+        hardTransactionIndex: 0,
+        value: 20,
+        accountAddress: initialAccount.address,
+        initialSigningKey: initialAccount.address
+      });
+      bytes = hardCreate.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const hardCreate = HardCreate.decode(bytes);
+      expect(hardCreate.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;

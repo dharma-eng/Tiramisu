@@ -1,9 +1,8 @@
 import MemDown from 'memdown'
 import leveldown from 'leveldown'
-import { AbstractLevelDOWN } from 'abstract-leveldown';
-import levelup, { LevelUp } from 'levelup'
+import { AbstractLevelDOWN, AbstractIteratorOptions } from 'abstract-leveldown';
+import levelup from 'levelup'
 const WriteStream = require('level-ws');
-import { AbstractIteratorOptions } from 'abstract-leveldown';
 import path from 'path';
 /**
  * Checks if an error is a NotFoundError.
@@ -50,7 +49,11 @@ export class LevelSideways extends levelup {
 
 export type JsonBaseType = boolean | string | number | null;
 export type JsonType = JsonBaseType | Array<JsonType> | { [key: string]: JsonType }
-export type JsonLike = JsonType | { toJSON(key?: any): JsonType };
+export type JsonLike = { toJSON(): JsonType } | JsonType;
+
+export interface JsonAble {
+  toJSON(): JsonType;
+}
 
 class SimpleLevel {
   db: LevelSideways;
@@ -66,7 +69,7 @@ class SimpleLevel {
     return db;
   }
 
-  async put(key: JsonBaseType, value: JsonLike): Promise<void> {
+  async put(key: JsonBaseType, value: JsonAble | JsonLike): Promise<void> {
     return new Promise((resolve, reject) => {
       const k = JSON.stringify(key);
       const v = JSON.stringify(value);
@@ -89,18 +92,5 @@ class SimpleLevel {
 
   close = (): Promise<void> => this.db.close();
 }
-
-// class ScratchDB extends SimpleLevel {
-//   constructor(private _upstream: SimpleLevel) {
-//     super();
-//   }
-
-//   public get(key: JsonBaseType): Promise<any> {
-//     return super.get(key).then((value) => {
-//       if (value == null) return this._upstream.get(key);
-//       return value;
-//     })
-//   }
-// }
 
 export default SimpleLevel;

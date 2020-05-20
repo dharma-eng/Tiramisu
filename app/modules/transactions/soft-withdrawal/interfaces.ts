@@ -1,14 +1,14 @@
 import { ECDSASignature } from 'ethereumjs-util'
 
-export type SoftWithdrawalData = {
+export type SoftWithdrawalData<SigType = string> = {
   nonce: number;
   accountIndex: number;
   withdrawalAddress: string;
   value: number;
-  signature?: string | ECDSASignature;
+  signature?: SigType;
   intermediateStateRoot?: string;
 }
 
-export interface SoftWithdrawalInput extends SoftWithdrawalData {
+export type SoftWithdrawalInput = SoftWithdrawalData<string | ECDSASignature> & {
   privateKey?: Buffer;
 }

@@ -332,7 +332,7 @@ export class StateMachine {
 
         /* Resolve promise, return success */
         transaction.resolve(root);
-        transaction.addOutput(root);
+        transaction.addOutput(root, index);
         return true;
     }
 }

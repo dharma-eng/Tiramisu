@@ -1,12 +1,14 @@
-import SimpleLevel from '../../lib/simple-level';
+import SimpleLevel, { JsonType } from '../../lib/simple-level';
 import Block, { BlockJson } from '../block';
+
+type BlockType = { toJSON(): BlockJson };
 
 export class BlockDatabase extends SimpleLevel {
   constructor(dbPath?: string) {
     super('blocks', dbPath);
   }
 
-  async put(key: string, value: Block): Promise<void> {
+  async put(key: string, value: BlockType): Promise<void> {
     return super.put(key, value);
   }
 

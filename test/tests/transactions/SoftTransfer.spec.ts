@@ -338,6 +338,32 @@ const test = () => describe("Soft Transfer", () => {
       expect(state.size).to.eql(initialStateSize);
     });
   });
+
+  describe("Encode and decode", () => {
+    let bytes: Buffer;
+    it('Should encode a transaction without the prefix', () => {
+      const signer = randomAccount();
+      const initialAccount = new Account({
+        address: signer.address,
+        nonce: 0,
+        balance: 20,
+        signers: [signer.address]
+      });
+      const softTransfer = new SoftTransfer({
+        accountIndex: 0,
+        toAccountIndex: 1,
+        nonce: 3,
+        value: 50,
+        privateKey: initialAccount.privateKey
+      });
+      bytes = softTransfer.encode();
+    });
+
+    it('Should decode the transaction', () => {
+      const softTransfer = SoftTransfer.decode(bytes);
+      expect(softTransfer.encode().equals(bytes)).to.be.true;
+    });
+  });
 });
 
 export default test;
