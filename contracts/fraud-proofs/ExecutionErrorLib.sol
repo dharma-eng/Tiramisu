@@ -406,6 +406,7 @@ library ExecutionErrorLib {
     );
   }
 
+  /* solhint-disable code-complexity */
   function proveExecutionError(
     State.State storage state,
     Block.BlockHeader memory header,
@@ -452,4 +453,5 @@ library ExecutionErrorLib {
     }
     state.revertBlock(header);
   }
+  /* solhint-enable code-complexity */
 }
