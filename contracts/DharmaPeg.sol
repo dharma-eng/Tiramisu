@@ -15,7 +15,7 @@ import "./interfaces/DharmaPegInterface.sol";
 
 /**
  * @title DharmaPeg
- * This contract is the interface between Ethereum and the Dharma blockchain.
+ * @dev This contract is the interface between Ethereum and the Dharma blockchain.
  * It tracks the history of the Dharma chain, is the sole arbiter of block validity
  * and owns all tokens which the Dharma chain manages.
  * New blocks on the sidechain are submitted to this contract and recorded as pending
@@ -64,8 +64,7 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
   }
 
   /**
-   * @dev deposit
-   * Creates a hard deposit/hard create using the caller's address
+   * @dev Creates a hard deposit/hard create using the caller's address
    * as both the account address and initial signing key.
    * @param value Amount of DAI to deposit.
    */
