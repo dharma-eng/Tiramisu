@@ -1,5 +1,19 @@
 ## `DharmaPeg`
 
+This contract is the interface between Ethereum and the Dharma blockchain.
+It tracks the history of the Dharma chain, is the sole arbiter of block validity
+and owns all tokens which the Dharma chain manages.
+New blocks on the sidechain are submitted to this contract and recorded as pending
+for a period of time called the confirmation period, which is defined in Configurable.sol,
+during which anyone can audit the block for errors.
+
+This implements functions which allow accounts on Ethereum to record "hard" transactions
+which the Dharma chain must execute.
+
+If submitted blocks are invalid, anyone may submit a fraud proof to this contract to prove
+that the block contains some error, which will cause the block to be reverted.
+If fraud is proven, the operator (Dharma) will be penalized and the prover will be rewarded.
+
 ### `constructor(uint256 challengePeriod_, uint256 commitmentBond_, uint256 version_, uint256 changeDelay_, contract IDharmaAddressGetter addressHandler_, contract IERC20 daiContract_)` (public)
 
 ### `_deposit(address contractAddress, address signerAddress, uint56 value)` (internal)
