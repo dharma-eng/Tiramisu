@@ -21,7 +21,6 @@ import {
 
 
 contract MockDharmaPeg is DharmaPeg {
-
   constructor(address daiContract) public DharmaPeg(
     0, /* challenge period */
     50, /* commitment bond */
@@ -42,127 +41,6 @@ contract MockDharmaPeg is DharmaPeg {
     delete _state.hardTransactions;
     delete _state.blockHashes;
     delete _state.confirmedBlocks;
-  }
-
-  /* Fraud Proofs */
-  function proveStateSizeError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    BlockError.proveStateSizeError(
-      _state, previousHeader, badHeader, transactionsData
-    );
-  }
-
-  function proveTransactionsRootError(
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    BlockError.proveTransactionsRootError(
-      _state, badHeader, transactionsData
-    );
-  }
-
-  function proveHardTransactionsCountError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    BlockError.proveHardTransactionsCountError(
-      _state, previousHeader, badHeader, transactionsData
-    );
-  }
-
-  function proveHardTransactionsRangeError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    BlockError.proveHardTransactionsRangeError(
-      _state, previousHeader, badHeader, transactionsData
-    );
-  }
-
-  function proveTransactionsDataLengthError(
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) public {
-    BlockError.proveTransactionsDataLengthError(
-      _state,
-      badHeader,
-      transactionsData
-    );
-  }
-
-  function proveHardTransactionSourceError(
-    Block.BlockHeader memory badHeader,
-    bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory siblings,
-    bytes memory previousStateProof,
-    bytes memory stateProof
-  ) public {
-    TransactionError.proveHardTransactionSourceError(
-      _state,
-      badHeader,
-      transaction,
-      transactionIndex,
-      siblings,
-      previousStateProof,
-      stateProof
-    );
-  }
-
-  function proveSignatureError(
-    Block.BlockHeader memory badHeader,
-    bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory siblings,
-    bytes memory previousStateProof,
-    bytes memory stateProof
-  ) public {
-    TransactionError.proveSignatureError(
-      _state,
-      badHeader,
-      transaction,
-      transactionIndex,
-      siblings,
-      previousStateProof,
-      stateProof
-    );
-  }
-
-  function createdAccountIndexError(
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    uint256 transactionIndex,
-    bytes memory transactionsData
-  ) public {
-    ExecutionError.proveCreateIndexError(
-      _state,
-      previousHeader,
-      badHeader,
-      transactionIndex,
-      transactionsData
-    );
-  }
-
-  function proveExecutionError(
-    Block.BlockHeader memory header,
-    bytes memory transactionProof,
-    bytes memory transaction,
-    bytes memory stateProof1,
-    bytes memory stateProof2
-  ) public {
-    ExecutionError.proveExecutionError(
-      _state,
-      header,
-      transactionProof,
-      transaction,
-      stateProof1,
-      stateProof2
-    );
   }
 
   function transactionHadPreviousState(
