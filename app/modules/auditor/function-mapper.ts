@@ -1,7 +1,5 @@
 import { ErrorProof } from "./types";
 import { encodeAccountProof, encodeTransactionStateProof, encodePreviousRootProof } from './coder';
-import { BufferLike } from "../../lib";
-import { Commitment } from "../block";
 import { ErrorProofFunctionInput, BlockErrorLibFunctionName } from "./types/functions";
 
 const blockErrorNamesMap = {
@@ -44,6 +42,16 @@ export function getErrorProofFunctionInput(proof: ErrorProof): ErrorProofFunctio
           proof.receiverProof ? encodeAccountProof(proof.receiverProof) : '0x'
         ]
       };
+    case 'create_index_error':
+      return {
+        name: 'proveCreateIndexError',
+        data: [
+          proof.previousHeader,
+          proof.header,
+          proof.transactionIndex,
+          proof.transactionsData
+        ]
+      }
     case 'hard_transactions_count':
     case 'state_size':
     case 'hard_transactions_range':
