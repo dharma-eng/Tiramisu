@@ -5,13 +5,11 @@ import { BlockLib as Block } from "./lib/BlockLib.sol";
 import { StateLib as State } from "./lib/StateLib.sol";
 import "./Configurable.sol";
 import "./interfaces/StateManagerInterface.sol";
+import "./lib/Stateful.sol";
 
-
-contract StateManager is StateManagerInterface, Configurable {
+contract StateManager is Stateful, StateManagerInterface, Configurable {
   using Block for Block.BlockHeader;
   using State for State.State;
-
-  State.State internal _state;
 
   /* State Utility Functions */
   /**
