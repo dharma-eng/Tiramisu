@@ -8,12 +8,13 @@ import {
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
+import "./fraud-proofs/FraudProver.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 import "./interfaces/DharmaPegInterface.sol";
 
 
-contract DharmaPeg is DharmaPegInterface, Owned, StateManager {
+contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
   using HardTx for bytes;
   using HardTx for HardTx.HardDeposit;
   using HardTx for HardTx.HardWithdrawal;
