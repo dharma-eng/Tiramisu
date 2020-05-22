@@ -7,6 +7,7 @@ import "./Configurable.sol";
 import "./interfaces/StateManagerInterface.sol";
 import "./lib/Stateful.sol";
 
+
 contract StateManager is Stateful, StateManagerInterface, Configurable {
   using Block for Block.BlockHeader;
   using State for State.State;

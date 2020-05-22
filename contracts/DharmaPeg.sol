@@ -13,6 +13,7 @@ import "./lib/Owned.sol";
 import "./StateManager.sol";
 import "./interfaces/DharmaPegInterface.sol";
 
+
 /**
  * @title DharmaPeg
  * @dev This contract is the interface between Ethereum and the Dharma blockchain.
@@ -24,7 +25,7 @@ import "./interfaces/DharmaPegInterface.sol";
  *
  * This implements functions which allow accounts on Ethereum to record "hard" transactions
  * which the Dharma chain must execute.
- * 
+ *
  * If submitted blocks are invalid, anyone may submit a fraud proof to this contract to prove
  * that the block contains some error, which will cause the block to be reverted.
  * If fraud is proven, the operator (Dharma) will be penalized and the prover will be rewarded.
@@ -49,18 +50,6 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
     changeDelay = changeDelay_;
     addressHandler = addressHandler_;
     daiContract = daiContract_;
-  }
-
-  function _deposit(
-    address contractAddress, address signerAddress, uint56 value
-  ) internal {
-    /* TODO - replace storage of full data with storage of a hash, and emit the
-       data in the event */
-    HardTx.HardDeposit memory hardDeposit = HardTx.HardDeposit(
-      contractAddress, signerAddress, value
-    );
-    emit NewHardTransaction(_state.hardTransactions.length);
-    _state.hardTransactions.push(hardDeposit.encode());
   }
 
   /**
@@ -270,5 +259,17 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
     Block.BlockInput memory input
   ) public override onlyOwner {
     _putPendingBlock(input);
+  }
+
+  function _deposit(
+    address contractAddress, address signerAddress, uint56 value
+  ) internal {
+    /* TODO - replace storage of full data with storage of a hash, and emit the
+       data in the event */
+    HardTx.HardDeposit memory hardDeposit = HardTx.HardDeposit(
+      contractAddress, signerAddress, value
+    );
+    emit NewHardTransaction(_state.hardTransactions.length);
+    _state.hardTransactions.push(hardDeposit.encode());
   }
 }

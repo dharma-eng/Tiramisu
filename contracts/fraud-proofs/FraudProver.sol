@@ -19,6 +19,7 @@ import {
 
 import "../lib/Stateful.sol";
 
+
 contract FraudProver is Stateful {
   /* <-- Block Errors --> */
 

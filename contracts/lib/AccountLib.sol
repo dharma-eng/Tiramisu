@@ -55,9 +55,9 @@ library AccountLib {
    * Verifies that an account exists in the provided state root and returns
    * the account struct, the index of the account in the tree, the merkle proof
    * (which is used for updates, where necessary) and whether the account was empty.
-   * @notice The proof is ABI encoded because of errors I ran into with ABIEncoderV2.
+   * @notice The proof is ABI encoded due to ABIEncoderV2 errors.
    * @notice If the account does not exist (because the leaf at the index is null),
-   * but a valid merkle proof is provided, this will return `empty=true` along with 
+   * but a valid merkle proof is provided, this will return `empty=true` along with
    * a default account struct.
    * @param stateRoot Root hash of the state tree.
    * @param encoded Encoded StateProof object
@@ -92,7 +92,7 @@ library AccountLib {
     }
     siblings = proof.siblings;
   }
-  
+
   /**
    * @dev hasSigner
    * Returns a boolean stating whether `signer` is in the `signers`
