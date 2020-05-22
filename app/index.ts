@@ -1,5 +1,5 @@
 import {setupServer, NODE_ENV} from "./setup";
-import TiramisuCore from "./l2-core";
+import TiramisuCore from "./tiramisu-core";
 
 if (NODE_ENV === "develop") {
   setupServer();
