@@ -1,18 +1,23 @@
-import { StateMachine, State } from "../state";
-import { sliceBuffer, getMerkleRoot, decodeHardTransactions } from "../../lib";
 import Block from "../block";
-import { TransactionMetadata, HardTransactionUnion, HardCreate, HardDeposit, HardWithdraw, HardAddSigner, SoftWithdrawal, SoftCreate, SoftTransfer, SoftChangeSigner, SoftTransactionUnion } from "../transactions";
-import AuditProofProvider from "./provider";
-import {
-  ErrorProof, ProvableError, TransactionStateProof, PreviousRootProof, PreviousStateProof, CommitmentProof, TransactionProof,
-  HardDepositExecutionError
-} from "./types";
-import { ProofData_Basic, HardCreateExecutionError, CreateIndexError, SoftWithdrawalExecutionError, SoftCreateExecutionError, SoftTransferExecutionError, SoftChangeSignerExecutionError } from "./types/execution-errors";
-import { HardTransactionSourceError, TransactionSignatureError } from "./types/transaction-errors";
 import Account from '../account';
+import AuditProofProvider from "./provider";
+import { StateMachine, State } from "../state";
+import { decodeHardTransactions } from "../../lib";
+import { HardTransactionSourceError, TransactionSignatureError } from "./types/transaction-errors";
+import {
+  HardTransactionUnion, HardCreate, HardDeposit, HardWithdraw, HardAddSigner,
+  SoftWithdrawal, SoftCreate, SoftTransfer, SoftChangeSigner, SoftTransactionUnion
+} from "../transactions";
+import {
+  ErrorProof, ProvableError, PreviousRootProof, PreviousStateProof,
+  CommitmentProof, TransactionProof, HardDepositExecutionError
+} from "./types";
+import {
+  ProofData_Basic, HardCreateExecutionError, CreateIndexError, SoftWithdrawalExecutionError,
+  SoftCreateExecutionError, SoftTransferExecutionError, SoftChangeSignerExecutionError
+} from "./types/execution-errors";
+
 const ABI = require('web3-eth-abi');
-
-
 
 export class ExecutionAuditor extends StateMachine {
   private constructor(

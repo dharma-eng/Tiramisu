@@ -62,6 +62,7 @@ library ExecutionErrorLib {
   }
 
   /**
+   * @dev proveCreateIndexError
    * Prove that the account index in a create transaction was not equal to the
    * state size of the previous block plus the sum of create
    * transactions executed previously in the same block.

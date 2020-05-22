@@ -3,7 +3,6 @@ pragma solidity ^0.6.0;
 import { BlockLib as Block } from "../lib/BlockLib.sol";
 import { StateLib as State } from "../lib/StateLib.sol";
 import { TransactionsLib as Tx } from "../lib/TransactionsLib.sol";
-import { MerkleTreeLib as Merkle } from "../lib/merkle/MerkleTreeLib.sol";
 import { FraudUtilsLib as utils } from "./FraudUtilsLib.sol";
 
 
@@ -42,6 +41,44 @@ library BlockErrorLib {
     assembly { root := mload(add(transactionsData, mload(transactionsData))) }
     require(root != badHeader.stateRoot, "Block had correct state root.");
     state.revertBlock(badHeader);
+  }
+
+  /**
+   * @dev proveStateSizeError
+   * Proves that the state size in a block header does not match the expected state size based on
+   * the creation transactions in the block.
+   * @param state storage struct representing the peg state
+   * @param previousHeader block header prior to the fraudulent header
+   * @param badHeader block header with error
+   * @param transactionsData transactions buffer from the block
+   */
+  function proveStateSizeError(
+    State.State storage state,
+    Block.BlockHeader memory previousHeader,
+    Block.BlockHeader memory badHeader,
+    bytes memory transactionsData
+  ) internal {
+    state.blockIsPendingAndHasParent(badHeader, previousHeader);
+
+    require(
+      badHeader.hasTransactionsData(transactionsData),
+      "Header does not match transactions data."
+    );
+
+    Tx.TransactionsMetadata memory meta = transactionsData
+      .decodeTransactionsMetadata();
+
+    uint256 failures = transactionsData.countCreateTransactionsWithEmptyRoot(
+      meta
+    );
+
+    uint256 expectedIncrease = (
+      (meta.hardCreateCount + meta.softCreateCount) - failures
+    );
+
+    if (badHeader.stateSize != (previousHeader.stateSize + expectedIncrease)) {
+      state.revertBlock(badHeader);
+    }
   }
 
   /**
@@ -103,44 +140,6 @@ library BlockErrorLib {
       require(transactionsData.length != expectedLength + 16, "Transactions data had correct length.");
     }
     state.revertBlock(badHeader);
-  }
-
-  /**
-   * @dev proveStateSizeError
-   * Proves that the state size in a block header does not match the expected state size based on
-   * the creation transactions in the block.
-   * @param state storage struct representing the peg state
-   * @param previousHeader block header prior to the fraudulent header
-   * @param badHeader block header with error
-   * @param transactionsData transactions buffer from the block
-   */
-  function proveStateSizeError(
-    State.State storage state,
-    Block.BlockHeader memory previousHeader,
-    Block.BlockHeader memory badHeader,
-    bytes memory transactionsData
-  ) internal {
-    state.blockIsPendingAndHasParent(badHeader, previousHeader);
-
-    require(
-      badHeader.hasTransactionsData(transactionsData),
-      "Header does not match transactions data."
-    );
-
-    Tx.TransactionsMetadata memory meta = transactionsData
-      .decodeTransactionsMetadata();
-
-    uint256 failures = transactionsData.countCreateTransactionsWithEmptyRoot(
-      meta
-    );
-
-    uint256 expectedIncrease = (
-      (meta.hardCreateCount + meta.softCreateCount) - failures
-    );
-
-    if (badHeader.stateSize != (previousHeader.stateSize + expectedIncrease)) {
-      state.revertBlock(badHeader);
-    }
   }
 
   /**
@@ -323,7 +322,7 @@ library BlockErrorLib {
   /* solhint-enable function-max-lines */
   function checkTypeForTransactionsRangeError(
     uint256 offset, uint256 buffer, uint256 len, uint256 size, uint256 prevTotal
-  ) internal view returns (uint256 newOffset, bool fraudulent) {
+  ) internal pure returns (uint256 newOffset, bool fraudulent) {
     uint256 txIndex;
     uint256 foundIndex;
     uint256 ptr;
@@ -356,10 +355,10 @@ library BlockErrorLib {
 
   function checkTypeForTransactionsOrderError(
     uint256 offset, uint256 len, uint256 size
-  ) internal view returns (uint256 newOffset, bool fraudulent) {
+  ) internal pure returns (uint256 newOffset, bool fraudulent) {
     uint256 txIndex;
     uint256 lastIndex = 0;
-    uint256 newOffset = offset;
+    newOffset = offset;
     for (uint256 i = 0; i < len; i++) {
       assembly { txIndex := shr(216, mload(newOffset)) }
 

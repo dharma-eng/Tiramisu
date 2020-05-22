@@ -25,6 +25,7 @@
   "scripts": {
     "build:ts": "tsc",
     "build:sol": "rm -rf build && ./node_modules/.bin/truffle compile",
+    "build:docs": "solidity-docgen -i ./contracts -o ./sol-docs",
     "build": "yarn build:ts && yarn build:sol",
     "build:ts:tests": "tsc --project ./tsconfig.test.json",
     "lint": "./node_modules/.bin/solium -d . && ./node_modules/.bin/solhint \"contracts/**/**/*.sol\"",
@@ -89,6 +90,7 @@
     "prettier": "1.16.4",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.2",
+    "solidity-docgen": "^0.5.3",
     "source-map-support": "^0.5.18",
     "truffle-typings": "^1.0.8",
     "ts-node": "^8.9.0",
