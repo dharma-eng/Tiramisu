@@ -1,21 +1,18 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import {
-  IDharmaAddressGetter as DharmaAddressHandler
-} from "./interfaces/IDharmaAddressGetter.sol";
-
+import "./interfaces/AddressGetterInterface.sol";
 import "./interfaces/IERC20.sol";
 
 
 contract Configurable {
   /* <-- Storage --> */
   /**
-   * @dev daiDecimals
-   * @notice Decimal places for DAI on the L2.
+   * @dev tokenDecimals
+   * @notice Decimal places for the token on Tiramisu.
    * This value should not be mutable.
    */
-  uint256 public daiDecimals = 0;
+  uint256 public tokenDecimals = 0;
 
   /**
     * @dev challengePeriod
@@ -25,14 +22,14 @@ contract Configurable {
 
   /**
    * @dev commitmentBond
-   * @notice Amount of DAI which must be locked on each block.
+   * @notice Amount of tokens which must be locked on each block.
    * This is also the fraud proof reward.
    */
   uint256 public commitmentBond;
 
   /**
    * @dev version
-   * @notice Current version number for the Dharma L2 system.
+   * @notice Current version number for the Tiramisu system.
    */
   uint256 public version;
 
@@ -44,15 +41,15 @@ contract Configurable {
 
   /**
    * @dev addressHandler
-   * @notice Contract which handles verification and derivation of Dharma smart contract addresses.
+   * @notice Contract which handles verification and derivation of L1 addresses.
    */
-  DharmaAddressHandler public addressHandler;
+  AddressGetterInterface public addressHandler;
 
   /**
-   * @dev daiContract
-   * @notice Dharma Dai contract.
+   * @dev tokenContract
+   * @notice The address of the token contract used by Tiramisu.
    */
-  IERC20 public daiContract;
+  IERC20 public tokenContract;
 
   /**
    * @dev _pendingChanges
@@ -71,7 +68,7 @@ contract Configurable {
     VERSION,
     CHANGE_DELAY,
     ADDRESS_HANDLER,
-    DAI_CONTRACT
+    TOKEN_CONTRACT
   }
 
   /**
@@ -109,11 +106,11 @@ contract Configurable {
     else if (pending.field == ConfigField.ADDRESS_HANDLER) {
       address handler;
       assembly { handler := mload(add(pending, 0x20)) }
-      addressHandler = DharmaAddressHandler(handler);
-    } else if (pending.field == ConfigField.DAI_CONTRACT) {
+      addressHandler = AddressGetterInterface(handler);
+    } else if (pending.field == ConfigField.TOKEN_CONTRACT) {
       address handler;
       assembly { handler := mload(add(pending, 0x20)) }
-      daiContract = IERC20(handler);
+      tokenContract = IERC20(handler);
     }
     _pendingChanges[changeHash] = false;
   }

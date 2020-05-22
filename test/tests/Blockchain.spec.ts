@@ -22,7 +22,7 @@ const test = () => describe("Blockchain Tests", () => {
 
     describe("Hard Transaction Retrieval", async () => {
       after(async () => {
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .resetChain()
           .send({ from, gas: 5e6 });
       });
@@ -36,9 +36,9 @@ const test = () => describe("Blockchain Tests", () => {
         return hardTx;
       };
 
-      it("Should retrieve a deposit from the mock peg and cast it to a HardCreate.", async () => {
+      it("Should retrieve a deposit from MockTiramisu and cast it to a HardCreate.", async () => {
         const { address } = tester.randomAccount();
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .mockDeposit(address, address, 500)
           .send({ from, gas: 5e6 });
 
@@ -49,10 +49,10 @@ const test = () => describe("Blockchain Tests", () => {
         expect(hardTx.value).to.eql(500);
       });
 
-      it("Should retrieve a deposit from the mock peg and cast it to a HardDeposit.", async () => {
+      it("Should retrieve a deposit from MockTiramisu and cast it to a HardDeposit.", async () => {
         const newAccount = tester.randomAccount();
         const accountIndex = await blockchain.state.putAccount(newAccount);
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .mockDeposit(newAccount.address, newAccount.address, 500)
           .send({ from, gas: 5e6 });
 
@@ -61,11 +61,11 @@ const test = () => describe("Blockchain Tests", () => {
         expect(hardTx.value).to.eql(500);
       });
 
-      it("Should retrieve a HardWithdraw from the mock peg", async () => {
+      it("Should retrieve a HardWithdraw from MockTiramisu", async () => {
         const accountIndex = 3;
         const value = 9;
 
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .forceWithdrawal(accountIndex, value)
           .send({ from, gas: 5e6 });
 
@@ -75,11 +75,11 @@ const test = () => describe("Blockchain Tests", () => {
         expect(hardTx.value).to.eql(value);
       });
 
-      it("Should retrieve a HardAddSigner from the mock peg.", async () => {
+      it("Should retrieve a HardAddSigner from MockTiramisu", async () => {
         let accountIndex = 5;
         let signingAddress = tester.randomAccount().address;
 
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .forceAddSigner(accountIndex, signingAddress)
           .send({ from, gas: 5e6 });
 
@@ -103,13 +103,13 @@ const test = () => describe("Blockchain Tests", () => {
       });
 
       async function hardDeposit(account, value) {
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .mockDeposit(account.address, account.address, value)
           .send({ from, gas: 5e6 });
       }
 
       async function hardWithdraw(accountIndex, value, caller = from) {
-        const receipt = await blockchain.peg.methods
+        const receipt = await blockchain.tiramisuContract.methods
           .forceWithdrawal(accountIndex, value)
           .send({ from: caller, gas: 5e6 });
         console.log(receipt.events.NewHardTransaction);
@@ -168,13 +168,13 @@ const test = () => describe("Blockchain Tests", () => {
       });
 
       describe("Block Submission", async () => {
-        it("Should submit a block to the chain peg", async () => {
+        it("Should submit a block to the Tiramisu contract", async () => {
           await blockchain.submitBlock(block);
         });
 
         it("Should locally calculate the correct block hash", async () => {
           const blockHash = block.blockHash(blockchain.web3);
-          const committedHash = await blockchain.peg.methods
+          const committedHash = await blockchain.tiramisuContract.methods
             .getBlockHash(0)
             .call();
           expect(blockHash).to.eql(committedHash);
@@ -182,7 +182,7 @@ const test = () => describe("Blockchain Tests", () => {
 
         it("Should confirm a block", async () => {
           await blockchain.confirmBlock(block);
-          const lastConfirmedBlock = await blockchain.peg.methods
+          const lastConfirmedBlock = await blockchain.tiramisuContract.methods
             .getConfirmedBlockCount()
             .call();
           expect(lastConfirmedBlock).to.eql("1");
@@ -219,14 +219,14 @@ const test = () => describe("Blockchain Tests", () => {
           });
 
           it("Should execute the withdrawal using the merkle proof", async () => {
-            await blockchain.peg.methods
+            await blockchain.tiramisuContract.methods
               .executeWithdrawal(block.commitment, leaf1, 0, siblings)
               .send({ from, gas: 5e5 });
           });
 
-          it(`Should have sent the DAI from the withdrawal to the withdrawal address`, async () => {
-            const daiContract = await blockchain.dai;
-            const balance = await daiContract.methods
+          it(`Should have sent the tokens from the withdrawal to the withdrawal address`, async () => {
+            const tokenContract = await blockchain.token;
+            const balance = await tokenContract.methods
               .balanceOf(account1.address)
               .call();
             expect(balance).to.eql("50");
@@ -247,7 +247,7 @@ const test = () => describe("Blockchain Tests", () => {
 
           it("Should execute a hard withdrawal transaction.", async () => {
             const accountIndex = await blockchain.state.putAccount(account);
-            await blockchain.peg.methods
+            await blockchain.tiramisuContract.methods
               .forceWithdrawal(accountIndex, 50)
               .send({ from: hardAddress, gas: 5e6 });
             block = await blockchain.processBlock();
@@ -270,14 +270,14 @@ const test = () => describe("Blockchain Tests", () => {
           });
 
           it("Should execute the withdrawal using the merkle proof", async () => {
-            await blockchain.peg.methods
+            await blockchain.tiramisuContract.methods
               .executeWithdrawal(block.commitment, leaf1, 0, siblings)
               .send({ from, gas: 5e5 });
           });
 
-          it(`Should have sent the DAI from the withdrawal to the withdrawal address`, async () => {
-            const daiContract = await blockchain.dai;
-            const balance = await daiContract.methods
+          it(`Should have sent the tokens from the withdrawal to the withdrawal address`, async () => {
+            const tokenContract = await blockchain.token;
+            const balance = await tokenContract.methods
               .balanceOf(hardAddress)
               .call();
             expect(balance).to.eql("50");

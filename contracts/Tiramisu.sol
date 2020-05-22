@@ -2,35 +2,34 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import { BlockLib as Block } from "./lib/BlockLib.sol";
-import {
-  IDharmaAddressGetter as DharmaAddress
-} from "./interfaces/IDharmaAddressGetter.sol";
 import { HardTransactionsLib as HardTx } from "./lib/HardTransactionsLib.sol";
 import { MerkleProofLib as Merkle } from "./lib/merkle/MerkleProofLib.sol";
 import { TransactionsLib as TX } from "./lib/TransactionsLib.sol";
+import "./interfaces/AddressGetterInterface.sol";
 import "./fraud-proofs/FraudProver.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
-import "./interfaces/DharmaPegInterface.sol";
+import "./interfaces/TiramisuInterface.sol";
 
 
 /**
- * @title DharmaPeg
- * @dev This contract is the interface between Ethereum and the Dharma blockchain.
- * It tracks the history of the Dharma chain, is the sole arbiter of block validity
- * and owns all tokens which the Dharma chain manages.
- * New blocks on the sidechain are submitted to this contract and recorded as pending
- * for a period of time called the confirmation period, which is defined in Configurable.sol,
- * during which anyone can audit the block for errors.
+ * @title Tiramisu
+ * @dev This contract interfaces between Ethereum and a Tiramisu blockchain.
+ * It tracks the history of the Tiramisu chain, is the sole arbiter of block
+ * validity and tracks all tokens managed by the Tiramisu chain.
+ * New blocks on the sidechain are submitted to this contract and recorded as
+ * pending for a period of time called the confirmation period, which is defined
+ * in Configurable.sol, during which anyone can audit the block for errors.
  *
- * This implements functions which allow accounts on Ethereum to record "hard" transactions
- * which the Dharma chain must execute.
+ * This implements functions which allow accounts on Ethereum to record "hard"
+ * transactions which the Tiramisu chain must execute.
  *
- * If submitted blocks are invalid, anyone may submit a fraud proof to this contract to prove
- * that the block contains some error, which will cause the block to be reverted.
- * If fraud is proven, the operator (Dharma) will be penalized and the prover will be rewarded.
+ * If submitted blocks are invalid, anyone may submit a fraud proof to this
+ * contract to prove that the block contains some error, which will cause the
+ * block to be reverted. If fraud is proven, the operator will be penalized and
+ * the prover will be rewarded.
  */
-contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
+contract Tiramisu is FraudProver, TiramisuInterface, Owned, StateManager {
   using HardTx for bytes;
   using HardTx for HardTx.HardDeposit;
   using HardTx for HardTx.HardWithdrawal;
@@ -41,21 +40,21 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
     uint256 commitmentBond_,
     uint256 version_,
     uint256 changeDelay_,
-    DharmaAddressHandler addressHandler_,
-    IERC20 daiContract_
+    AddressGetterInterface addressHandler_,
+    IERC20 tokenContract_
   ) public {
     challengePeriod = challengePeriod_;
     commitmentBond = commitmentBond_;
     version = version_;
     changeDelay = changeDelay_;
     addressHandler = addressHandler_;
-    daiContract = daiContract_;
+    tokenContract = tokenContract_;
   }
 
   /**
    * @dev Creates a hard deposit/hard create using the caller's address
    * as both the account address and initial signing key.
-   * @param value Amount of DAI to deposit.
+   * @param value Amount of tokens to deposit.
    */
   function deposit(uint56 value) external override {
     address contractAddress = addressHandler.getContractAddressForSigner(
@@ -64,7 +63,9 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
 
     /* Note - need to add unit conversion for correct decimal values */
     require(
-      daiContract.transferFrom(contractAddress, address(this), uint256(value)),
+      tokenContract.transferFrom(
+        contractAddress, address(this), uint256(value)
+      ),
       "Transfer Failed."
     );
 
@@ -79,7 +80,7 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
    * as that would make it possible to claim an account that the caller
    * does not own.
    * @param signerAddress Initial signing key for the account.
-   * @param value Amount of DAI to deposit.
+   * @param value Amount of tokens to deposit.
    */
   function deposit(address signerAddress, uint56 value) external override {
     /* Need to figure out better logic for address mapping. */
@@ -90,7 +91,7 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
 
     /* Note - need to add unit conversion for correct decimal values */
     require(
-      daiContract.transferFrom(msg.sender, address(this), uint256(value)),
+      tokenContract.transferFrom(msg.sender, address(this), uint256(value)),
       "Transfer Failed."
     );
 
@@ -120,10 +121,10 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
   /**
    * @dev forceWithdrawal
    * Creates a HardWithdrawal transaction which, if the caller is the
-   * owner of the specified account, will withdraw the amount of DAI
-   * specified to L1.
+   * owner of the specified account, will withdraw the amount of tokens
+   * specified to the L1.
    * @param accountIndex Index of the account to withdraw from.
-   * @param value Amount of DAI to withdraw.
+   * @param value Amount of tokens to withdraw.
    */
   function forceWithdrawal(
     uint32 accountIndex, uint56 value
@@ -244,9 +245,9 @@ contract DharmaPeg is FraudProver, DharmaPegInterface, Owned, StateManager {
     header.transactionsRoot = newRoot;
     /* Update block hash with new header. */
     _state.blockHashes[header.blockNumber] = Block.blockHash(header);
-    /* Transfer DAI to the recipient. */
+    /* Transfer tokens to the recipient. */
     /* TODO - Add decimal conversion */
-    daiContract.transfer(receiver, value);
+    tokenContract.transfer(receiver, value);
   }
 
   /**

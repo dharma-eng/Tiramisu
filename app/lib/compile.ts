@@ -7,7 +7,7 @@ const dir = path.join(__dirname, "..", "..", "contracts");
 export function compileBase(override = false) {
   const _path = path.join(__dirname, "./standard.json");
   if (!override && fs.existsSync(_path)) return require(_path);
-  const code = compile(dir, "DharmaPeg.sol");
+  const code = compile(dir, "Tiramisu.sol");
   fs.writeFileSync(_path, JSON.stringify(code, null, 2));
   return code;
 }
@@ -17,7 +17,7 @@ export function compileBaseMock(override = false) {
   if (!override && fs.existsSync(_path)) return require(_path);
   const code = compile(
     path.join(dir, "mocks"),
-    ["MockDharmaPeg", "MockDharmaDai"],
+    ["MockTiramisu", "MockToken"],
     dir
   );
   fs.writeFileSync(_path, JSON.stringify(code, null, 2));

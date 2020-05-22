@@ -1,11 +1,12 @@
 {
-  "name": "L2",
-  "version": "0.0.1",
+  "name": "Tiramisu",
+  "version": "0.1.0",
+  "description": "Tiramisu is a \"Layer Two\" system for scalable token transfers that prioritizes simplicity.",
   "author": "Dharma Labs",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dharmaprotocol/L2.git"
+    "url": "https://github.com/dharma-eng/Tiramisu.git"
   },
   "mocha": {
     "enableTimeouts": false

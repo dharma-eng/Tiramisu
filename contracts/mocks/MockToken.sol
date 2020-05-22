@@ -76,7 +76,7 @@ library SafeMath {
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract MockDharmaDai is IERC20 {
+contract MockToken is IERC20 {
   using SafeMath for uint256;
 
   mapping (address => uint256) private _balances;

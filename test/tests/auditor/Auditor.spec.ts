@@ -23,13 +23,13 @@ describe('Test', async () => {
   let db: Database;
 
   async function hardDeposit(account, value) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .mockDeposit(account.address, account.address, value)
       .send({ from, gas: 5e6 });
   }
 
   async function getBlockCount(): Promise<number> {
-    return blockchain.peg.methods.getBlockCount().call().then(x => +x);
+    return blockchain.tiramisuContract.methods.getBlockCount().call().then(x => +x);
   }
 
   async function resetBlockchain() {
@@ -37,7 +37,7 @@ describe('Test', async () => {
     if (auditor) auditor = null;
     if (blockchain) await blockchain.state.close();
     ({ blockchain, web3, tester, from } = await Tester.create({ blockchain: true }));
-    parentInterface = new ParentInterface(blockchain.peg, from, web3, 10);
+    parentInterface = new ParentInterface(blockchain.tiramisuContract, from, web3, 10);
     if (fs.existsSync(dbPath)) rimraf.sync(dbPath);
     fs.mkdirSync(dbPath);
     db = await Database.create(dbPath);
@@ -93,7 +93,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `hard_transaction_source` error and prove the error on the peg.', async () => {
+    it('Should catch a `hard_transaction_source` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       expect(val._type).to.eq('hard_transaction_source');
       await auditor.proveError(val);
@@ -118,14 +118,14 @@ describe('Test', async () => {
     it('Should submit a block with a bad transactions buffer', async () => {
       await hardDeposit(account2, 50);
       const block = await blockchain.processBlock();
-      
+
       block.transactionsData = sliceBuffer(block.transactionsData, 0, block.transactionsData.length - 2);
       await blockchain.submitBlock(block);
       badBlock = block;
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `transactions_length` error and prove the error on the peg.', async () => {
+    it('Should catch a `transactions_length` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)
@@ -168,7 +168,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `hard_create` error and prove the error on the peg.', async () => {
+    it('Should catch a `hard_create` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)
@@ -203,7 +203,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `state_size` error and prove the error on the peg.', async () => {
+    it('Should catch a `state_size` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)
@@ -238,7 +238,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `transactions_root` error and prove the error on the peg.', async () => {
+    it('Should catch a `transactions_root` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)
@@ -273,7 +273,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `hard_transactions_count` error and prove the error on the peg.', async () => {
+    it('Should catch a `hard_transactions_count` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)
@@ -321,7 +321,7 @@ describe('Test', async () => {
       expect(await getBlockCount()).to.eq(2);
     });
 
-    it('Should catch a `transaction_signature` error and prove the error on the peg.', async () => {
+    it('Should catch a `transaction_signature` error and prove the error on the Tiramisu contract.', async () => {
       const val = await prom;
       if (val instanceof Block) {
         console.log(`Block interpreted as valid D:`)

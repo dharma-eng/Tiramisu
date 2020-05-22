@@ -15,9 +15,9 @@ library BlockErrorLib {
 
   /**
    * @dev proveStateRootError
-   * Proves that the state size in a block header does not match the expected state size based on
-   * the creation transactions in the block.
-   * @param state storage struct representing the peg state
+   * Proves that the state size in a block header does not match the expected
+   * state size based on the total number of creation transactions in the block.
+   * @param state storage struct representing the state of Tiramisu
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
    */
@@ -37,7 +37,8 @@ library BlockErrorLib {
     );
 
     bytes32 root;
-    // get the last 32 bytes of transactionsData, which will be the state root of the last transaction
+    // get the last 32 bytes of transactionsData, which will be the state root
+    // of the last transaction
     assembly { root := mload(add(transactionsData, mload(transactionsData))) }
     require(root != badHeader.stateRoot, "Block had correct state root.");
     state.revertBlock(badHeader);
@@ -45,9 +46,9 @@ library BlockErrorLib {
 
   /**
    * @dev proveStateSizeError
-   * Proves that the state size in a block header does not match the expected state size based on
-   * the creation transactions in the block.
-   * @param state storage struct representing the peg state
+   * Proves that the state size in a block header does not match the expected
+   * state size based on the creation transactions in the block.
+   * @param state storage struct representing the state of Tiramisu
    * @param previousHeader block header prior to the fraudulent header
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
@@ -85,7 +86,7 @@ library BlockErrorLib {
    * @dev proveTransactionsRootError
    * Proves that the transactions root in a block header does not
    * match the result of merkleizing the transactions data.
-   * @param state storage struct representing the peg state
+   * @param state storage struct representing the state of Tiramisu
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
    */
@@ -115,7 +116,7 @@ library BlockErrorLib {
    * "invalid" means that it either did not contain the transaction metadata
    * or that the length is not consistent with the length expected from the
    * metadata.
-   * @param state storage struct representing the peg state
+   * @param state storage struct representing the state of Tiramisu
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
    */
@@ -145,9 +146,9 @@ library BlockErrorLib {
   /**
    * @dev proveHardTransactionsCountError
    * Proves that the `hardTransactionsCount` in the block header is not equal to
-   * the total number of hard transactions in the metadata plus the previous block's
-   * hard transactions count.
-   * @param state storage struct representing the peg state
+   * the total number of hard transactions in the metadata plus the previous
+   block's hard transactions count.
+   * @param state storage struct representing the state of Tiramisu
    * @param previousHeader header of the previous block
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
@@ -186,7 +187,7 @@ library BlockErrorLib {
   /**
    * @dev proveHardTransactionsRangeError
    * Proves that a block has a missing or duplicate hard transaction index.
-   * @param state storage struct representing the peg state
+   * @param state storage struct representing the state of Tiramisu
    * @param previousHeader header of the previous block
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
@@ -259,8 +260,8 @@ library BlockErrorLib {
    * @dev proveHardTransactionsOrderError
    * Proves that a block has a missing or duplicate hard transaction index.
    * TODO - Replace this with something more specific, current approach
-   * is a shoddy brute force search.
-   * @param state storage struct representing the peg state
+   * is a basic brute force search.
+   * @param state storage struct representing the state of Tiramisu
    * @param badHeader block header with error
    * @param transactionsData transactions buffer from the block
    */

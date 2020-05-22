@@ -65,37 +65,37 @@ export class Tester {
   }
 
   async newBlockchain() {
-    const { dai, peg } = this.usingExternalHost
+    const { token, tiramisuContract } = this.usingExternalHost
       ? await getContractsFromExternalHost()
       : await deployContracts(this);
-    if (this.usingExternalHost) await peg.methods.resetChain().send({ from: this.from, gas: 5e6 });
-    await dai.methods
-      .freeCoins(peg.options.address, 5000)
+    if (this.usingExternalHost) await tiramisuContract.methods.resetChain().send({ from: this.from, gas: 5e6 });
+    await token.methods
+      .freeCoins(tiramisuContract.options.address, 5000)
       .send({ from: this.from, gas: 5e6 });
     const state = await this.newState();
     return new Blockchain({
       web3: this.web3,
       fromAddress: this.from,
-      dai,
-      peg,
+      token,
+      tiramisuContract,
       state
     });
   }
 
   async newProofBlockchain() {
-    const { dai, peg } = this.usingExternalHost
+    const { token, tiramisuContract } = this.usingExternalHost
       ? await getContractsFromExternalHost()
       : await deployContracts(this);
-    if (this.usingExternalHost) await peg.methods.resetChain().send({ from: this.from, gas: 6e6 });
-    await dai.methods
-      .freeCoins(peg.options.address, 5000)
+    if (this.usingExternalHost) await tiramisuContract.methods.resetChain().send({ from: this.from, gas: 6e6 });
+    await token.methods
+      .freeCoins(tiramisuContract.options.address, 5000)
       .send({ from: this.from, gas: 6e6 });
     const state = await this.newState();
     return new ProofBlockchain({
       web3: this.web3,
       fromAddress: this.from,
-      dai,
-      peg,
+      token,
+      tiramisuContract,
       state
     });
   }
@@ -110,10 +110,10 @@ export class Tester {
     if (web3 || blockchain) {
       res = await getWeb3();
       Object.assign(tester, res);
-      let { dai, peg } = res.usingExternalHost
+      let { token, tiramisuContract } = res.usingExternalHost
         ? await getContractsFromExternalHost(tester)
         : await deployContracts(tester);
-      Object.assign(res, { dai, peg });
+      Object.assign(res, { token, tiramisuContract });
     }
 
     if (state) state = await tester.newState();

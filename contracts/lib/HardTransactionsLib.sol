@@ -14,12 +14,11 @@ library HardTransactionsLib {
    * @dev Deposit
    * @notice Data structure representing a hard deposit or hard create
    * transaction.
-   * @param contractAddress The primary address of an account on the L2 system,
-   * which will generally represent a Dharma smart wallet.
-   * @param signerAddress The initial signer address for the Dharma wallet. This
-   * will only be used in hard create transactions. It is recorded due to the
-   * uncertainty about the state of the sidechain.
-   * @param value The DAI value for the deposit.
+   * @param contractAddress The primary address of an account on Tiramisu.
+   * @param signerAddress The initial signer address. This will only be used in
+   * hard create transactions. It is recorded due to the uncertainty about the
+   * state of the sidechain.
+   * @param value The token value for the deposit.
    */
   struct HardDeposit {
     address contractAddress;
@@ -30,12 +29,12 @@ library HardTransactionsLib {
   /**
    * @dev HardWithdrawal
    * @notice Data structure representing a hard withdrawal transaction.
-   * @param accountIndex Index of the account on the L2 chain.
+   * @param accountIndex Index of the account on the Tiramisu chain.
    * It is presumed that the user has access to this.
    * @param caller Address of the contract which initiated the withdrawal.
    * This is needed to check if the caller has approval once the transaction is
    * executed or rejected.
-   * @param value Amount of dai to withdraw from the account.
+   * @param value Amount of tokens to withdraw from the account.
    */
   struct HardWithdrawal {
     uint32 accountIndex;
@@ -46,7 +45,7 @@ library HardTransactionsLib {
   /**
    * @dev HardAddSigner
    * @notice Data structure representing a hard 'add signer' transaction.
-   * @param accountIndex Index of the account on the L2 chain.
+   * @param accountIndex Index of the account on the Tiramisu chain.
    * It is presumed that the user has access to this.
    * @param caller Address of the contract which initiated the transaction.
    * This is needed to check if the caller has approval once the transaction is

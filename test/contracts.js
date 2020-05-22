@@ -5,11 +5,14 @@ async function getContractFromExternalHost(contractName, ...args) {
 }
 
 async function getContractsFromExternalHost() {
-  const dai = await getContractFromExternalHost("MockDharmaDai");
-  const peg = await getContractFromExternalHost("MockDharmaPeg", dai.address);
+  const token = await getContractFromExternalHost("MockToken");
+  const tiramisuContract = await getContractFromExternalHost(
+    "MockTiramisu",
+    token.address
+  );
   return {
-    dai: dai.contract,
-    peg: peg.contract
+    token: token.contract,
+    tiramisuContract: tiramisuContract.contract
   };
 }
 
@@ -30,15 +33,15 @@ async function deployContract(tester, contractName, args) {
 }
 
 async function deployContracts(tester) {
-  const dai = await deployContract(tester, "MockDharmaDai", [
+  const token = await deployContract(tester, "MockToken", [
     5000,
-    "DharmaDai",
-    "DDAI"
+    "Mock ERC20 Token",
+    "MOCK"
   ]);
-  const peg = await deployContract(tester, "MockDharmaPeg", [
-    dai.options.address
+  const tiramisuContract = await deployContract(tester, "MockTiramisu", [
+    token.options.address
   ]);
-  return { dai, peg };
+  return { token, tiramisuContract };
 }
 
 module.exports = {
