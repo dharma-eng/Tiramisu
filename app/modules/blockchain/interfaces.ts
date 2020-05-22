@@ -7,8 +7,8 @@ export interface BlockchainType {
   maxHardTransactions: number;
   address: string;
   web3: any;
-  dai: any;
-  peg: any;
+  token: any;
+  tiramisuContract: any;
   state: State;
   stateMachine: any; //TODO: update to StateMachine type
   version: number;

@@ -11,21 +11,21 @@ export class Blockchain implements BlockchainType {
     maxHardTransactions: number;
     address: string;
     web3: any;
-    dai: any;
-    peg: any;
+    token: any;
+    tiramisuContract: any;
     state: State;
     stateMachine: any; //TODO: update to StateMachine type
     version: number;
     blockNumber: number;
 
-    constructor({ web3, fromAddress, dai, peg, state }) {
+    constructor({ web3, fromAddress, token, tiramisuContract, state }) {
         this.queue = [];
         this.hardTransactionsIndex = 0;
         this.maxHardTransactions = 10;
         this.address = fromAddress;
         this.web3 = web3;
-        this.dai = dai;
-        this.peg = peg;
+        this.token = token;
+        this.tiramisuContract = tiramisuContract;
         this.state = state;
         this.stateMachine = new StateMachine(state);
         this.version = 0;
@@ -34,7 +34,7 @@ export class Blockchain implements BlockchainType {
 
     async getHardTransactions(): Promise<Transaction[]> {
         /* only deposits and creates supported for now */
-        const hardTransactions = await this.peg.methods
+        const hardTransactions = await this.tiramisuContract.methods
             .getHardTransactionsFrom(
                 this.hardTransactionsIndex,
                 this.maxHardTransactions
@@ -91,7 +91,7 @@ export class Blockchain implements BlockchainType {
     }
 
     async submitBlock(block: Block): Promise<void> {
-        const receipt = await this.peg.methods
+        const receipt = await this.tiramisuContract.methods
             .submitBlock(block)
             .send({ gas: 5e6, from: this.address });
         const {
@@ -104,7 +104,7 @@ export class Blockchain implements BlockchainType {
 
     async confirmBlock(block: Block): Promise<void> {
         const header = block.commitment;
-        await this.peg.methods
+        await this.tiramisuContract.methods
             .confirmBlock(header)
             .send({ gas: 5e6, from: this.address });
     }

@@ -10,14 +10,14 @@ export const test = () => describe("Header Fraud Proof Tests", () => {
   let web3: any, tester: Tester, from: string, blockchain: Blockchain;
 
   async function resetBlockchain() {
-    const { dai, peg } = blockchain;
-    await peg.methods.resetChain().send({ from, gas: 5e6 });
+    const { token, tiramisuContract } = blockchain;
+    await tiramisuContract.methods.resetChain().send({ from, gas: 5e6 });
     const state = await tester.newState();
-    blockchain = new Blockchain({ web3, fromAddress: from, dai, peg, state });
+    blockchain = new Blockchain({ web3, fromAddress: from, token, tiramisuContract, state });
   }
 
   async function hardDeposit(account, value) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .mockDeposit(account.address, account.address, value)
       .send({ from, gas: 5e6 });
   }
@@ -53,19 +53,19 @@ transactionsData */
       badBlock = await blockchain.processBlock();
       badBlock.header.stateSize += 1;
       await blockchain.submitBlock(badBlock);
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
     });
 
     it('Should prove fraud by calling proveStateSizeError', async () => {
-      await blockchain.peg.methods
+      await blockchain.tiramisuContract.methods
         .proveStateSizeError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 });
     });
 
     it('Should have updated the block count', async () => {
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('1');
     });
   });
@@ -94,19 +94,19 @@ transactionsData */
       badBlock = await blockchain.processBlock();
       badBlock.header.transactionsRoot = randomHexBuffer(32);
       await blockchain.submitBlock(badBlock);
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
     });
 
     it('Should prove fraud by calling proveTransactionsRootError', async () => {
-      await blockchain.peg.methods
+      await blockchain.tiramisuContract.methods
         .proveTransactionsRootError(
           badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 });
     });
 
     it('Should have updated the block count', async () => {
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('1');
     });
   });
@@ -135,22 +135,22 @@ transactionsData */
       badBlock = await blockchain.processBlock();
       badBlock.header.hardTransactionsCount = 5;
       await blockchain.submitBlock(badBlock);
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
     });
 
     it('Should prove fraud by calling proveHardTransactionsCountError', async () => {
-      await blockchain.peg.methods
+      await blockchain.tiramisuContract.methods
         .proveHardTransactionsCountError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 });
     });
 
     it('Should have updated the block count', async () => {
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('1');
     });
-    
+
     it('Should not revert a block with a valid hard transactions count', async () => {
       await resetBlockchain();
       await hardDeposit(account1, 100);
@@ -161,9 +161,9 @@ transactionsData */
       await hardDeposit(account2, 100);
       badBlock = await blockchain.processBlock();
       await blockchain.submitBlock(badBlock);
-      let blockCount = await blockchain.peg.methods.getBlockCount().call();
+      let blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
-      const promise = blockchain.peg.methods
+      const promise = blockchain.tiramisuContract.methods
         .proveHardTransactionsCountError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 })
@@ -203,22 +203,22 @@ transactionsData */
         transactions: { hardCreates: [tx0], hardDeposits: [tx1] }
       });
       await blockchain.submitBlock(badBlock);
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
     });
 
     it('Should prove fraud by calling proveHardTransactionsRangeError', async () => {
-      await blockchain.peg.methods
+      await blockchain.tiramisuContract.methods
         .proveHardTransactionsRangeError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 });
     });
 
     it('Should have updated the block count', async () => {
-      const blockCount = await blockchain.peg.methods.getBlockCount().call();
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('1');
     });
-    
+
     it('Should not revert a valid block', async () => {
       await resetBlockchain();
       await hardDeposit(account1, 100);
@@ -230,9 +230,9 @@ transactionsData */
       await hardDeposit(account1, 100);
       badBlock = await blockchain.processBlock();
       await blockchain.submitBlock(badBlock);
-      let blockCount = await blockchain.peg.methods.getBlockCount().call();
+      let blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
       expect(blockCount).to.eql('2');
-      const promise = blockchain.peg.methods
+      const promise = blockchain.tiramisuContract.methods
         .proveHardTransactionsRangeError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
         ).send({ from, gas: 5e6 })

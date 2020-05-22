@@ -1,4 +1,4 @@
-import { L2CorePromise, SoftCreate, toHex, UNSIGNED } from "../../../index";
+import { TiramisuCorePromise, SoftCreate, toHex, UNSIGNED } from "../../../index";
 import TransactionQueue from "../../transactions-queue";
 
 //TODO generalize to getUnsignedTransferTransaction -- node will tell you if need to create the account or  not
@@ -7,9 +7,9 @@ export async function getUnsignedSoftCreateResolver(
   { accountAddress, toAccountAddress, initialSigningKey, value },
   auth
 ) {
-  //TODO: update pulling in L2Core
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  //TODO: update pulling in TiramisuCore
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 
@@ -57,9 +57,9 @@ export async function submitSoftCreateResolver(
   { accountAddress, nonce, value, toAccountIndex, toAccountAddress, initialSigningKey, signature },
   auth
 ) {
-  //TODO: update pulling in L2Core
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  //TODO: update pulling in TiramisuCore
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 

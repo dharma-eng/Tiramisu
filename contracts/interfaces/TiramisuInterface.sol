@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 import { BlockLib as Block } from "../lib/BlockLib.sol";
 
 
-interface DharmaPegInterface {
+interface TiramisuInterface {
   /* NOTE: include `bytes hardTransaction`? */
   event NewHardTransaction(uint256 hardTransactionIndex);
 

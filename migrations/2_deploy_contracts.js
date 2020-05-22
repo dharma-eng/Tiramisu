@@ -1,11 +1,11 @@
-const MockDharmaPeg = artifacts.require("MockDharmaPeg");
-const MockDharmaDai = artifacts.require("MockDharmaDai");
+const MockTiramisu = artifacts.require("MockTiramisu");
+const MockToken = artifacts.require("MockToken");
 const MerkleProofLib = artifacts.require("MerkleProofLib");
 
 module.exports = function(deployer) {
   deployer.deploy(MerkleProofLib);
-  deployer.link(MerkleProofLib, MockDharmaPeg);
+  deployer.link(MerkleProofLib, MockTiramisu);
   deployer
-    .deploy(MockDharmaDai, 5000, "Dharma Dai", "DDAI")
-    .then((deployed) => deployer.deploy(MockDharmaPeg, deployed.address));
+    .deploy(MockToken, 5000, "Mock ERC20 Token", "MOCK")
+    .then(deployed => deployer.deploy(MockTiramisu, deployed.address));
 };

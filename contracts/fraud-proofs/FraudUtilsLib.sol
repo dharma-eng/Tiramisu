@@ -96,7 +96,7 @@ library FraudUtilsLib {
    * Decodes and validates a TransactionStateProof, which contains
    * an inclusion proof for a transaction and the state root prior to
    * its execution.
-   * @param state storage struct representing the peg state
+   * @param state storage struct representing the state of Tiramisu
    * @param proofBytes encoded TransactionStateProof
    * @param transactionBytes encoded transaction to verify inclusion proof of
    * @return root state root prior to the transaction

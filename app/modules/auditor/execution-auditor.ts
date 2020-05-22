@@ -36,10 +36,10 @@ export class ExecutionAuditor extends StateMachine {
   ): Promise<State> {
     /* Retrieve the state tree the block started with. */
     const state = await provider.getBlockStartingState(block.header.blockNumber);
-    /* Retrieve the actual hard transactions recorded on the peg contract. */
+    /* Retrieve the actual hard transactions recorded on the Tiramisu contract. */
     const { hardTransactionsCount } = parentBlock.header;
     const hardTransactionsLength = block.transactionsArray.filter(tx => tx.prefix < 4).length;
-    // console.log(`Getting inputs from peg -- Index: ${hardTransactionsCount} | Length: ${hardTransactionsLength}`)
+    // console.log(`Getting inputs from Tiramisu -- Index: ${hardTransactionsCount} | Length: ${hardTransactionsLength}`)
     const encodedInputs = await provider.getHardTransactions(
       hardTransactionsCount, hardTransactionsLength
     );
@@ -47,7 +47,7 @@ export class ExecutionAuditor extends StateMachine {
     // so that rather than naively assign types, it will determine which tx type to assign accounts
     // by looking ahead and backwards in the array
     const decodedInputs = await decodeHardTransactions(state, hardTransactionsCount, encodedInputs);
-  
+
     /* Map the transactions to their indices for quick lookup and comparison */
     const inputsMap = decodedInputs.reduce((obj, val) => ({
       ...obj,

@@ -21,8 +21,8 @@ library AccountLib {
   /**
    * @dev newAccount
    * Creates a new account struct with the provided inputs.
-   * @param contractAddress Address of the Dharma smart wallet that owns
-   * the account.
+   * @param contractAddress Address of the L1 account that owns the Tiramisu
+   * account.
    * @param signerAddress Initial signing key for the account.
    * @param balance Initial balance of the account.
    */

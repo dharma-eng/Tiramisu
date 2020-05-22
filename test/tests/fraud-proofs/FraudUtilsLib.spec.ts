@@ -17,7 +17,7 @@ export const test = () => describe('FraudUtilsLib', async () => {
   });
 
   async function hardDeposit(account, value) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .mockDeposit(account.address, account.address, value)
       .send({ from, gas: 5e6 });
   }
@@ -93,13 +93,13 @@ export const test = () => describe('FraudUtilsLib', async () => {
     });
 
     it('Should prove the state prior to the second transaction by proving the first transaction', async () => {
-      const stateRoot = await blockchain.peg.methods.transactionHadPreviousState(lastTransactionProof, block.commitment, 1).call();
+      const stateRoot = await blockchain.tiramisuContract.methods.transactionHadPreviousState(lastTransactionProof, block.commitment, 1).call();
       expect(toHex(stateRoot)).to.eql(toHex(lastTransaction.intermediateStateRoot));
     });
 
     it('Should prove the state prior to the first transaction by proving the last block', async () => {
       const _block = encodeBlock(lastBlock);
-      const stateRoot = await blockchain.peg.methods.transactionHadPreviousState(_block, block.commitment, 0).call();
+      const stateRoot = await blockchain.tiramisuContract.methods.transactionHadPreviousState(_block, block.commitment, 0).call();
       expect(toHex(stateRoot)).to.eql(toHex(lastBlock.commitment.stateRoot));
     });
   });

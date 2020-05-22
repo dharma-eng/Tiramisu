@@ -1,4 +1,4 @@
-import { L2CorePromise, SoftChangeSigner, toHex, UNSIGNED } from "../../../index";
+import { TiramisuCorePromise, SoftChangeSigner, toHex, UNSIGNED } from "../../../index";
 import TransactionQueue from "../../transactions-queue"
 
 export async function getUnsignedSoftChangeSignerResolver(
@@ -6,9 +6,9 @@ export async function getUnsignedSoftChangeSignerResolver(
   { accountAddress, signingAddress, modificationCategory },
   auth
 ) {
-  //TODO: update pulling in L2Core
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  //TODO: update pulling in TiramisuCore
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 
@@ -51,8 +51,8 @@ export async function submitSoftChangeSignerResolver(
   { accountAddress, signingAddress, modificationCategory, nonce, signature },
   auth
 ) {
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 

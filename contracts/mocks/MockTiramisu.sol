@@ -1,9 +1,9 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "../DharmaPeg.sol";
+import "../Tiramisu.sol";
 import "../interfaces/IERC20.sol";
-import "../interfaces/IDharmaAddressGetter.sol";
+import "../interfaces/AddressGetterInterface.sol";
 
 import {
   BlockErrorLib as BlockError
@@ -20,14 +20,14 @@ import {
 } from "../fraud-proofs/ExecutionErrorLib.sol";
 
 
-contract MockDharmaPeg is DharmaPeg {
-  constructor(address daiContract) public DharmaPeg(
+contract MockTiramisu is Tiramisu {
+  constructor(address tokenContract) public Tiramisu(
     0, /* challenge period */
     50, /* commitment bond */
     0, /* version */
     0, /* config change delay */
-    IDharmaAddressGetter(address(0)), /* dharma addressHandler */
-    IERC20(daiContract)
+    AddressGetterInterface(address(0)), /* addressHandler */
+    IERC20(tokenContract)
   ) /* solhint-disable no-empty-blocks */ {
   } /* solhint-enable no-empty-blocks */
 

@@ -14,7 +14,7 @@ export type SubmissionHandler = (event: BlockSubmissionEvent) => void | Promise<
 
 export class ParentInterface {
   constructor(
-    public peg: any,
+    public tiramisuContract: any,
     public from: string,
     public web3: any,
     public maxHardTransactions: number = 10
@@ -23,20 +23,20 @@ export class ParentInterface {
   currentBlockNumber = async (): Promise<number> => this.web3.eth.getBlockNumber();
 
   /**
-   * Gets an array of encoded hard transactions from the chain peg.
+   * Gets an array of encoded hard transactions from the Tiramisu contract.
    */
   async getHardTransactions(hardTransactionsIndex: number, max: number = this.maxHardTransactions): Promise<string[]> {
-    const hardTransactions = await this.peg.methods
+    const hardTransactions = await this.tiramisuContract.methods
         .getHardTransactionsFrom(hardTransactionsIndex, max)
         .call();
     return hardTransactions;
   }
 
   /**
-   * Submits a block to the chain peg.
+   * Submits a block to the Tiramisu contract.
    */
   async submitBlock(block: Block): Promise<void> {
-    const receipt = await this.peg.methods
+    const receipt = await this.tiramisuContract.methods
       .submitBlock(block)
       .send({ gas: 5e6, from: this.from });
     const {
@@ -48,13 +48,13 @@ export class ParentInterface {
   }
 
   /**
-   * Confirms a block on the chain peg.
+   * Confirms a block on the Tiramisu contract.
    * @notice This currently always works because of the configuration we're using.
    *         Once we work out the config details, we'll need some pre-execution verification that the block is ready.
    */
   async confirmBlock(block: Block): Promise<void> {
     const header = block.commitment;
-    await this.peg.methods
+    await this.tiramisuContract.methods
       .confirmBlock(header)
       .send({ gas: 5e6, from: this.from });
   }
@@ -62,7 +62,7 @@ export class ParentInterface {
   async getSubmissionListener(cb: SubmissionHandler) {
     // TODO
     // Handle 'error' & 'changed' events
-    this.peg.events.BlockSubmitted()
+    this.tiramisuContract.events.BlockSubmitted()
       .on('data', (event: BlockSubmissionEvent) => cb(event));
   }
 
@@ -72,7 +72,7 @@ export class ParentInterface {
   }
 
   async proveError(input: ErrorProofFunctionInput): Promise<any> {
-    return this.peg.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
+    return this.tiramisuContract.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
   }
 }
 

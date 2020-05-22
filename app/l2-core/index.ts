@@ -5,12 +5,12 @@ import { Database } from "../modules/db";
 import TransactionQueue from "../modules/transactions-queue";
 
 export type Web3Options = {
-  peg: any;
+  tiramisuContract: any;
   from: string;
   web3: any;
 }
 
-export class DharmaL2Core extends EventEmitter {
+export class TiramisuCore extends EventEmitter {
   private _confirmationTimer: NodeJS.Timeout;
   private maxSoftTransactions = 10;
   private confirmationPeriod = 0;
@@ -25,10 +25,12 @@ export class DharmaL2Core extends EventEmitter {
     this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
   }
 
-  static async create(web3: Web3Options, dbPath?: string): Promise<DharmaL2Core> {
+  static async create(web3: Web3Options, dbPath?: string): Promise<TiramisuCore> {
     const db = await Database.create(dbPath);
-    const parent = new ParentInterface(web3.peg, web3.from, web3.web3);
-    return new DharmaL2Core(db, parent, dbPath);
+    const parent = new ParentInterface(
+      web3.tiramisuContract, web3.from, web3.web3
+    );
+    return new TiramisuCore(db, parent, dbPath);
   }
 
   async confirmationLoop() {
@@ -84,4 +86,4 @@ export class DharmaL2Core extends EventEmitter {
   }
 }
 
-export default DharmaL2Core;
+export default TiramisuCore;

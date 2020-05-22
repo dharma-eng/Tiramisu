@@ -6,9 +6,9 @@ import { BlockLib as Block } from "./BlockLib.sol";
 
 /**
  * @title StateLib
- * @dev Library for basic interaction with the Dharma Peg state.
- * This library defines the basic state structure for the peg contract, as well as some basic query and
- * utility functions for interacting with the state.
+ * @dev Library for basic interaction with the Tiramisu state.
+ * This library defines the basic state structure for Tiramisu, as well as some
+ * basic query and utility functions for interacting with the state.
  */
 library StateLib {
   using Block for Block.BlockHeader;
@@ -58,8 +58,9 @@ library StateLib {
 
   /**
    * @dev revertBlock
-   * @notice Reverts a block and its descendants by removing them from the blocks array.
-   * This function assumes that the header has already been verified as being pending.
+   * @notice Reverts a block and its descendants by removing them from the
+   * blocks array. This function assumes that the header has already been
+   * verified as being pending.
    * This function does not execute any reward logic.
    * @param header Header of the block to revert
    */

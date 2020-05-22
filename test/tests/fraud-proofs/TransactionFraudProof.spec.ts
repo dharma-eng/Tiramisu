@@ -31,19 +31,19 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
   });
 
   async function hardDeposit(account, value) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .mockDeposit(account.address, account.address, value)
       .send({ from, gas: 5e6 });
   }
 
   async function hardWithdraw(accountIndex, value, caller = from) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .forceWithdrawal(accountIndex, value)
       .send({ from: caller, gas: 5e6 });
   }
 
   async function getBlockCount(): Promise<number> {
-    return blockchain.peg.methods.getBlockCount().call().then(x => +x);
+    return blockchain.tiramisuContract.methods.getBlockCount().call().then(x => +x);
   }
 
   describe('Hard Transaction Source Error', async () => {
@@ -61,13 +61,13 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     it('Should prove hard tx index is greater than hard tx length', async () => {
       await hardDeposit(account1, 50);
       const block = await blockchain.processBlock();
-      await blockchain.peg.methods.resetChain().send({ from });
+      await blockchain.tiramisuContract.methods.resetChain().send({ from });
       await blockchain.submitBlock(block);
       expect(await getBlockCount()).to.eql(1);
       const transaction = block.transactions.hardCreates[0];
       const leaf = transaction.encode(true);
       const siblings = getMerkleProof([leaf], 0).siblings;
-      await blockchain.peg.methods.proveHardTransactionSourceError(
+      await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
         block.commitment,
         leaf,
         0,
@@ -88,7 +88,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         await blockchain.submitBlock(block);
         expect(await getBlockCount()).to.eql(1);
         const siblings = getMerkleProof([leaf], 0).siblings;
-        await blockchain.peg.methods.proveHardTransactionSourceError(
+        await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           leaf,
           0,
@@ -184,7 +184,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         const n = await getBlockCount();
         await blockchain.submitBlock(block);
         expect(await getBlockCount()).to.eql(n+1);
-        await blockchain.peg.methods.proveHardTransactionSourceError(
+        await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           transactionData,
           transactionIndex,
@@ -284,7 +284,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
         expect(await getBlockCount()).to.eql(1);
-        await blockchain.peg.methods.proveHardTransactionSourceError(
+        await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           transactionData,
           1,
@@ -341,7 +341,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
     describe('Hard Add Signer Source Error', async () => {
       async function executeFraudProof(errorInducer: (transaction: HardAddSigner) => Buffer) {
         await hardDeposit(account1, 50);
-        await blockchain.peg.methods
+        await blockchain.tiramisuContract.methods
           .forceAddSigner(0, randomHexString(20))
           .send({ from, gas: 5e6 });
         const block = await blockchain.processBlock();
@@ -353,7 +353,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
         expect(await getBlockCount()).to.eql(1);
-        await blockchain.peg.methods.proveHardTransactionSourceError(
+        await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           transactionData,
           1,
@@ -433,7 +433,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
         expect(await getBlockCount()).to.eql(1);
-        await blockchain.peg.methods.proveSignatureError(
+        await blockchain.tiramisuContract.methods.proveSignatureError(
           block.commitment,
           transactionData,
           1,

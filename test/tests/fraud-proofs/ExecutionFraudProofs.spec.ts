@@ -11,20 +11,20 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
   let web3: any, tester: Tester, from: string, blockchain: ProofBlockchain;
 
   async function resetBlockchain() {
-    const { dai, peg } = blockchain;
-    await peg.methods.resetChain().send({ from, gas: 5e6 });
+    const { token, tiramisuContract } = blockchain;
+    await tiramisuContract.methods.resetChain().send({ from, gas: 5e6 });
     const state = await tester.newState();
-    blockchain = new ProofBlockchain({ web3, fromAddress: from, dai, peg, state });
+    blockchain = new ProofBlockchain({ web3, fromAddress: from, token, tiramisuContract, state });
   }
 
   async function hardDeposit(account, value) {
-    await blockchain.peg.methods
+    await blockchain.tiramisuContract.methods
       .mockDeposit(account.address, account.address, value)
       .send({ from, gas: 5e6 });
   }
 
   async function getBlockCount(): Promise<number> {
-    return blockchain.peg.methods.getBlockCount().call().then(x => +x);
+    return blockchain.tiramisuContract.methods.getBlockCount().call().then(x => +x);
   }
 
   before(async () => {
@@ -42,7 +42,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         account1 = tester.randomAccount();
         account2 = tester.randomAccount();
       });
-  
+
       it("Should process, submit and confirm an initial block.", async () => {
         await hardDeposit(account1, 100);
         let block = await blockchain.processBlock();
@@ -66,9 +66,9 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         badBlock = block;
         expect(await getBlockCount()).to.eq(2);
       });
-  
+
       it('Should prove a hard create has a bad account index by calling `createdAccountIndexError`', async () => {
-        await blockchain.peg.methods.createdAccountIndexError(
+        await blockchain.tiramisuContract.methods.createdAccountIndexError(
           previousHeader,
           badBlock.commitment,
           0,
@@ -114,9 +114,9 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         badBlock = block;
         expect(await getBlockCount()).to.eq(2);
       });
-  
+
       it('Should prove a hard create has a bad account index by calling `createdAccountIndexError`', async () => {
-        await blockchain.peg.methods.createdAccountIndexError(
+        await blockchain.tiramisuContract.methods.createdAccountIndexError(
           previousHeader,
           badBlock.commitment,
           1,
@@ -155,9 +155,9 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         badBlock = block;
         expect(await getBlockCount()).to.eq(2);
       });
-  
+
       it('Should fail to revert a valid block.', async () => {
-        const promise = blockchain.peg.methods.createdAccountIndexError(
+        const promise = blockchain.tiramisuContract.methods.createdAccountIndexError(
           previousHeader,
           badBlock.commitment,
           1,
@@ -166,9 +166,9 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Transaction had correct index.')
         expect(await getBlockCount()).to.eq(2);
       });
-  
+
       it('Should reject a call with an out of range transaction.', async () => {
-        const promise = blockchain.peg.methods.createdAccountIndexError(
+        const promise = blockchain.tiramisuContract.methods.createdAccountIndexError(
           previousHeader,
           badBlock.commitment,
           3,
@@ -235,7 +235,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
       const n = await getBlockCount();
       await blockchain.submitBlock(block);
       expect(await getBlockCount()).to.eql(n+1);
-      const promise = blockchain.peg.methods.proveExecutionError(
+      const promise = blockchain.tiramisuContract.methods.proveExecutionError(
         block.commitment,
         encodeTransactionStateProof({
           previousRootProof,
@@ -246,8 +246,8 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         accountProof,
         '0x'
       )
-          
-      // const promise = blockchain.peg.methods.createExecutionError(
+
+      // const promise = blockchain.tiramisuContract.methods.createExecutionError(
       //   block.commitment,
       //   transactionData,
       //   transactionIndex,

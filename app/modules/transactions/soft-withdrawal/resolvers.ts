@@ -1,4 +1,4 @@
-import { L2CorePromise, toHex, UNSIGNED } from "../../../index";
+import { TiramisuCorePromise, toHex, UNSIGNED } from "../../../index";
 import SoftWithdrawal from "./";
 import TransactionQueue from "../../transactions-queue";
 
@@ -7,9 +7,9 @@ export async function getUnsignedSoftWithdrawalResolver(
   { accountAddress, withdrawalAddress, value },
   auth
 ) {
-  //TODO: update pulling in L2Core
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  //TODO: update pulling in TiramisuCore
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 
@@ -52,9 +52,9 @@ export async function submitSoftWithdrawalResolver(
   { accountAddress, withdrawalAddress, value, nonce, signature },
   auth
 ) {
-  //TODO: update pulling in L2Core
-  const L2Core = await L2CorePromise;
-  const state = await L2Core.getLatestState();
+  //TODO: update pulling in TiramisuCore
+  const TiramisuCore = await TiramisuCorePromise;
+  const state = await TiramisuCore.getLatestState();
 
   const accountIndex = await state.getAccountIndexByAddress(accountAddress);
 
