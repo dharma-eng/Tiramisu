@@ -30,7 +30,7 @@
     "build:ts:tests": "tsc --project ./tsconfig.test.json",
     "lint": "./node_modules/.bin/solium -d . && ./node_modules/.bin/solhint \"contracts/**/**/*.sol\"",
     "migrate": "./node_modules/.bin/truffle migrate -- --network development",
-    "mocha:ts": "mocha -r ts-node/register",
+    "mocha:ts": "mocha --timeout 10000 -r ts-node/register",
     "test:blockchain": "yarn mocha:ts -- ./test/tests/Blockchain.spec.ts",
     "test:db": "yarn mocha:ts -- ./test/tests/db/*.spec.ts",
     "test:state": "yarn mocha:ts -- ./test/tests/State.spec.ts",
