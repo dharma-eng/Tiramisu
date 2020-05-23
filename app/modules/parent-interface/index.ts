@@ -74,6 +74,17 @@ export class ParentInterface {
   async proveError(input: ErrorProofFunctionInput): Promise<any> {
     return this.tiramisuContract.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
   }
+
+  async submitWithdrawals(
+    parent: Block,
+    block: Block
+  ): Promise<any> {
+    return this.peg.methods.executeWithdrawals(
+      parent.commitment,
+      block.commitment,
+      block.transactionsData
+    );
+  }
 }
 
 export default ParentInterface;

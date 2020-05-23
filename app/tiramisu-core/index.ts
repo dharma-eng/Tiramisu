@@ -41,6 +41,15 @@ export class TiramisuCore extends EventEmitter {
         const n = await this.parentInterface.currentBlockNumber();
         if (block.commitment.submittedAt + this.confirmationPeriod > n) {
           await this.parentInterface.confirmBlock(block);
+          if (
+            block.transactions.hardWithdrawals?.length ||
+            block.transactions.softWithdrawals?.length
+          ) {
+            await this.parentInterface.submitWithdrawals(
+              await this.database.getBlock(block.header.blockNumber - 1),
+              block
+            );
+          }
           this.emit('block-confirmed', block.blockHash());
         } else {
           this.awaitingConfirmation.unshift(hash);
@@ -55,6 +64,7 @@ export class TiramisuCore extends EventEmitter {
 
   async close() {
     await this.database.close();
+    delete this._confirmationTimer;
   }
 
   async getLatestState() {
@@ -74,7 +84,7 @@ export class TiramisuCore extends EventEmitter {
       softTransactions
     });
     if (commit) {
-      await state.commit();
+      await state.commit(this.dbPath);
       await this.parentInterface.submitBlock(block);
       await this.database.putBlock(block);
       const hash = block.blockHash();
