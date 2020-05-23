@@ -189,7 +189,7 @@ const test = () => describe("Blockchain Tests", () => {
         });
       });
 
-      describe("Withdrawal Processing", async () => {
+      /* describe("Withdrawal Processing", async () => {
         describe("Soft Withdrawal", async () => {
           let withdrawal, withdrawalPromise, leaf1, siblings;
           it("Should execute a soft withdrawal transaction.", async () => {
@@ -283,7 +283,7 @@ const test = () => describe("Blockchain Tests", () => {
             expect(balance).to.eql("50");
           });
         });
-      });
+      }); */
     });
   });
 
