@@ -122,10 +122,8 @@ export class BlockAuditor {
         _type: 'hard_transactions_count'
       } as HardTransactionsCountError)
     }
-    const hardCreates = transactions.hardCreates?.filter(t =>
-      t.intermediateStateRoot && t.intermediateStateRoot != `0x${'00'.repeat(32)}`
-    ).length;
-    const totalCreates = hardCreates + meta.softCreates;
+    
+    const totalCreates = meta.hardCreates + meta.softCreates;
     if (stateSize + totalCreates != header.stateSize) {
       this.fail({
         previousHeader: parentBlock.commitment,

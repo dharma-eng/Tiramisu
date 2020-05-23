@@ -222,10 +222,11 @@ export class ExecutionAuditor extends StateMachine {
     const err = await this.getBasicProof(index, transaction.accountIndex) as HardDepositExecutionError;
     // If the account did not exist or had an insufficient balance,
     // the transaction should have a null output root.
+    const currentRoot = await this.state.rootHash();
     const account = await this.state.getAccount(transaction.accountIndex);
     if (
       (!account || account.balance < transaction.value) &&
-      transaction.intermediateStateRoot != `0x${'00'.repeat(32)}`
+      transaction.intermediateStateRoot != currentRoot
     ) {
       this.fail(err);
     }
@@ -267,6 +268,7 @@ export class ExecutionAuditor extends StateMachine {
     // Add checkpoint/commit/revert to SparseMerkleTree so we don't always have to
     // precalculate proof data which might not be used.
     const err = await this.getBasicProof(index, transaction.accountIndex) as HardDepositExecutionError;
+    const currentRoot = await this.state.rootHash();
     // If the account did not exist or had an insufficient balance,
     // the transaction should have a null output root.
     // const account = await this.state.getAccount(transaction.accountIndex);
@@ -275,7 +277,7 @@ export class ExecutionAuditor extends StateMachine {
         !account.hasSigner(transaction.signingAddress) ||
         account.signers.length == 10
       ) &&
-      transaction.intermediateStateRoot != `0x${'00'.repeat(32)}`
+      transaction.intermediateStateRoot != currentRoot
     ) {
       this.fail(err);
     }
