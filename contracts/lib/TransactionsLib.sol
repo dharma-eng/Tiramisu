@@ -362,27 +362,6 @@ library TransactionsLib {
   }
 
   /**
-   * @dev countCreateTransactionsWithEmptyRoot
-   * Counts the number of hard create transactions in a transactions buffer which failed to execute.
-   * @param txData - transactions buffer from a block
-   * @param meta - transactions metadata from the buffer
-   * @return count - number of failed create transactions in the block
-   */
-  function countCreateTransactionsWithEmptyRoot(
-    bytes memory txData, TransactionsMetadata memory meta
-  ) internal pure returns (uint256 count) {
-    uint256 pointer;
-    assembly { pointer := add(txData, 48) }
-    for (uint256 i = 0; i < meta.hardCreateCount; i++) {
-      assembly {
-        let root := mload(add(pointer, 56))
-        if iszero(root) { count := add(count, 1) }
-        pointer := add(pointer, 88)
-      }
-    }
-  }
-
-  /**
    * @dev transactionPrefix
    * Returns the transaction prefix from an encoded transaction by reading the first byte.
    * @param transaction - encoded transaction of any type
