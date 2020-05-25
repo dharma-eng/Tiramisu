@@ -1,1 +1,1 @@
-# [🔗](contracts/lib/Stateful.sol#L4) Stateful
+# [🔗](/contracts/lib/Stateful.sol#L4) Stateful

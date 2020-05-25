@@ -1,8 +1,8 @@
-# [🔗](contracts/lib/merkle/MerkleProofLib.sol#L5) MerkleProofLib
+# [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L5) MerkleProofLib
 
 # Data Structures
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L6) MerkleProof
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L6) MerkleProof
 
 ### Properties
 
@@ -12,9 +12,9 @@
 
 # Functions
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L12) `update(bytes newLeaf, uint256 path, undefined siblings)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L12) `update(bytes newLeaf, uint256 path, undefined siblings)`
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L27) `verifyAndUpdate(bytes32 root, bytes oldLeaf, bytes newLeaf, uint256 path, undefined siblings)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L27) `verifyAndUpdate(bytes32 root, bytes oldLeaf, bytes newLeaf, uint256 path, undefined siblings)`
 
 Verify an inclusion proof of some value, modify the value and return the new root.
 
@@ -32,7 +32,7 @@ Verify an inclusion proof of some value, modify the value and return the new roo
 - `bool valid` updatedRoot Merkle root with oldLeaf set to newLeaf.
 - `bytes32 updatedRoot` updatedRoot Merkle root with oldLeaf set to newLeaf.
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L70) `verify(bytes32 root, bytes leaf, uint256 path, undefined siblings)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L70) `verify(bytes32 root, bytes leaf, uint256 path, undefined siblings)`
 
 Verify an inclusion proof.
 
@@ -48,9 +48,9 @@ Verify an inclusion proof.
 
 - `bool` Boolean stating whether the proof was valid.
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L103) `verify(bytes leaf, MerkleProof proof)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L103) `verify(bytes leaf, MerkleProof proof)`
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L109) `getParent(bytes32 left, bytes32 right)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L109) `getParent(bytes32 left, bytes32 right)`
 
 Get the parent of two children nodes in the tree
 
@@ -63,7 +63,7 @@ Get the parent of two children nodes in the tree
 
 - `bytes32` The parent node
 
-## [🔗](contracts/lib/merkle/MerkleProofLib.sol#L121) `getNthBitFromRight(uint256 intVal, uint256 index)`
+## [🔗](/contracts/lib/merkle/MerkleProofLib.sol#L121) `getNthBitFromRight(uint256 intVal, uint256 index)`
 
 get the n'th bit in a uint.
 

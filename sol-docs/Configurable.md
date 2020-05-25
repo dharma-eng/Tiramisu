@@ -1,8 +1,8 @@
-# [🔗](contracts/Configurable.sol#L11) Configurable
+# [🔗](/contracts/Configurable.sol#L11) Configurable
 
 # Data Structures
 
-## [🔗](contracts/Configurable.sol#L74) PendingModification
+## [🔗](/contracts/Configurable.sol#L74) PendingModification
 
 ### Properties
 
@@ -12,6 +12,6 @@
 
 # Functions
 
-## [🔗](contracts/Configurable.sol#L83) `_queueChange(ConfigField field, uint256 value)`
+## [🔗](/contracts/Configurable.sol#L83) `_queueChange(ConfigField field, uint256 value)`
 
-## [🔗](contracts/Configurable.sol#L93) `_executeChange(PendingModification pending)`
+## [🔗](/contracts/Configurable.sol#L93) `_executeChange(PendingModification pending)`

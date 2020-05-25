@@ -1,8 +1,8 @@
-# [🔗](contracts/lib/AccountLib.sol#L7) AccountLib
+# [🔗](/contracts/lib/AccountLib.sol#L7) AccountLib
 
 # Data Structures
 
-## [🔗](contracts/lib/AccountLib.sol#L8) Account
+## [🔗](/contracts/lib/AccountLib.sol#L8) Account
 
 ### Properties
 
@@ -11,7 +11,7 @@
 - `uint56 balance`
 - `undefined signers`
 
-## [🔗](contracts/lib/AccountLib.sol#L15) StateProof
+## [🔗](/contracts/lib/AccountLib.sol#L15) StateProof
 
 ### Properties
 
@@ -21,7 +21,7 @@
 
 # Functions
 
-## [🔗](contracts/lib/AccountLib.sol#L21) `newAccount(address contractAddress, address signerAddress, uint56 balance)`
+## [🔗](/contracts/lib/AccountLib.sol#L21) `newAccount(address contractAddress, address signerAddress, uint56 balance)`
 
 newAccount Creates a new account struct with the provided inputs.
 
@@ -36,7 +36,7 @@ newAccount Creates a new account struct with the provided inputs.
 
 - `Account`
 
-## [🔗](contracts/lib/AccountLib.sol#L37) `updateAccount(Account account, uint256 accountIndex, undefined siblings)`
+## [🔗](/contracts/lib/AccountLib.sol#L37) `updateAccount(Account account, uint256 accountIndex, undefined siblings)`
 
 updateAccount Updates the leaf node in the state tree with the modified account structure.
 
@@ -51,7 +51,7 @@ updateAccount Updates the leaf node in the state tree with the modified account 
 
 - `bytes32 updatedRoot` updatedRoot - Root hash of the merkle tree after applying the update.
 
-## [🔗](contracts/lib/AccountLib.sol#L53) `verifyAccountInState(bytes32 stateRoot, bytes encoded)`
+## [🔗](/contracts/lib/AccountLib.sol#L53) `verifyAccountInState(bytes32 stateRoot, bytes encoded)`
 
 verifyAccountInState Verifies that an account exists in the provided state root and returns the account struct, the index of the account in the tree, the merkle proof (which is used for updates, where necessary) and whether the account was empty.
 
@@ -69,7 +69,7 @@ If the account does not exist (because the leaf at the index is null), but a val
 - `undefined siblings`
 - `Account account`
 
-## [🔗](contracts/lib/AccountLib.sol#L96) `hasSigner(Account account, address signer)`
+## [🔗](/contracts/lib/AccountLib.sol#L96) `hasSigner(Account account, address signer)`
 
 hasSigner Returns a boolean stating whether `signer` is in the `signers` array of `account`.
 
@@ -82,7 +82,7 @@ hasSigner Returns a boolean stating whether `signer` is in the `signers` array o
 
 - `bool`
 
-## [🔗](contracts/lib/AccountLib.sol#L115) `addSigner(Account account, address signer)`
+## [🔗](/contracts/lib/AccountLib.sol#L115) `addSigner(Account account, address signer)`
 
 addSigner Adds an address to the account's array of signers.
 
@@ -91,7 +91,7 @@ addSigner Adds an address to the account's array of signers.
 - `account` Account struct to add the signer to.
 - `signer` Signing address to add.
 
-## [🔗](contracts/lib/AccountLib.sol#L129) `removeSigner(Account account, address signer)`
+## [🔗](/contracts/lib/AccountLib.sol#L129) `removeSigner(Account account, address signer)`
 
 addSigner Removes an address from the account's array of signers.
 
@@ -102,7 +102,7 @@ This function creates a new array and reassigns the `signers` field in the accou
 - `account` Account struct to remove the signer from.
 - `signer` Signing address to remove.
 
-## [🔗](contracts/lib/AccountLib.sol#L148) `encode(Account account)`
+## [🔗](/contracts/lib/AccountLib.sol#L148) `encode(Account account)`
 
 encode Encodes an account struct with packed ABI encoding.
 
@@ -114,7 +114,7 @@ encode Encodes an account struct with packed ABI encoding.
 
 - `bytes encodedAccount`
 
-## [🔗](contracts/lib/AccountLib.sol#L164) `decode(bytes data)`
+## [🔗](/contracts/lib/AccountLib.sol#L164) `decode(bytes data)`
 
 decode Decodes an account that was encoded with packed ABI.
 
@@ -126,7 +126,7 @@ decode Decodes an account that was encoded with packed ABI.
 
 - `Account account`
 
-## [🔗](contracts/lib/AccountLib.sol#L203) `encodeExtraPacked(undefined signers)`
+## [🔗](/contracts/lib/AccountLib.sol#L203) `encodeExtraPacked(undefined signers)`
 
 encodeExtraPacked Tightly encodes an array of addresses.
 

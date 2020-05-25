@@ -1,8 +1,8 @@
-# [🔗](contracts/lib/WithdrawLib.sol#L8) WithdrawLib
+# [🔗](/contracts/lib/WithdrawLib.sol#L8) WithdrawLib
 
 # Data Structures
 
-## [🔗](contracts/lib/WithdrawLib.sol#L9) GenericWithdrawal
+## [🔗](/contracts/lib/WithdrawLib.sol#L9) GenericWithdrawal
 
 ### Properties
 
@@ -11,6 +11,6 @@
 
 # Functions
 
-## [🔗](contracts/lib/WithdrawLib.sol#L14) `checkHardWithdrawal(bytes32 lastRoot, uint256 ptr)`
+## [🔗](/contracts/lib/WithdrawLib.sol#L14) `checkHardWithdrawal(bytes32 lastRoot, uint256 ptr)`
 
-## [🔗](contracts/lib/WithdrawLib.sol#L29) `extractWithdrawals(Block.BlockHeader parent, bytes transactionsData)`
+## [🔗](/contracts/lib/WithdrawLib.sol#L29) `extractWithdrawals(Block.BlockHeader parent, bytes transactionsData)`

@@ -1,4 +1,4 @@
-# [🔗](contracts/mocks/MockDharmaDai.sol#L5) SafeMath
+# [🔗](/contracts/mocks/MockDharmaDai.sol#L5) SafeMath
 
 Wrappers over Solidity's arithmetic operations with added overflow checks.
 
@@ -10,7 +10,7 @@ Using this library instead of the unchecked operations eliminates an entire clas
 
 # Functions
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L19) `add(uint256 a, uint256 b)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L19) `add(uint256 a, uint256 b)`
 
 Returns the addition of two unsigned integers, reverting on overflow.
 
@@ -29,7 +29,7 @@ Requirements:
 
 - `uint256`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L35) `sub(uint256 a, uint256 b, string errorMessage)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L35) `sub(uint256 a, uint256 b, string errorMessage)`
 
 Returns the subtraction of two unsigned integers, reverting with custom message on overflow (when the result is negative).
 
@@ -49,9 +49,9 @@ Requirements:
 
 - `uint256`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L109) `freeCoins(address recipient, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L109) `freeCoins(address recipient, uint256 amount)`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L113) `transfer(address recipient, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L113) `transfer(address recipient, uint256 amount)`
 
 See {IERC20-transfer}.
 
@@ -70,7 +70,7 @@ Requirements:
 
 - `bool`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L128) `approve(address spender, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L128) `approve(address spender, uint256 amount)`
 
 See {IERC20-approve}.
 
@@ -87,7 +87,7 @@ Requirements:
 
 - `bool`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L142) `transferFrom(address sender, address recipient, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L142) `transferFrom(address sender, address recipient, uint256 amount)`
 
 See {IERC20-transferFrom}.
 
@@ -109,7 +109,7 @@ Emits an {Approval} event indicating the updated allowance. This is not required
 
 - `bool`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L168) `increaseAllowance(address spender, uint256 addedValue)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L168) `increaseAllowance(address spender, uint256 addedValue)`
 
 Atomically increases the allowance granted to `spender` by the caller.
 
@@ -130,7 +130,7 @@ Requirements:
 
 - `bool`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L190) `decreaseAllowance(address spender, uint256 subtractedValue)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L190) `decreaseAllowance(address spender, uint256 subtractedValue)`
 
 Atomically decreases the allowance granted to `spender` by the caller.
 
@@ -153,7 +153,7 @@ Requirements:
 
 - `bool`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L216) `name()`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L216) `name()`
 
 Returns the name of the token.
 
@@ -161,7 +161,7 @@ Returns the name of the token.
 
 - `string`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L223) `symbol()`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L223) `symbol()`
 
 Returns the symbol of the token, usually a shorter version of the name.
 
@@ -169,7 +169,7 @@ Returns the symbol of the token, usually a shorter version of the name.
 
 - `string`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L231) `decimals()`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L231) `decimals()`
 
 Returns the number of decimals used to get its user representation.
 
@@ -183,7 +183,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 - `uint8`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L247) `totalSupply()`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L247) `totalSupply()`
 
 See {IERC20-totalSupply}.
 
@@ -191,7 +191,7 @@ See {IERC20-totalSupply}.
 
 - `uint256`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L254) `balanceOf(address account)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L254) `balanceOf(address account)`
 
 See {IERC20-balanceOf}.
 
@@ -203,7 +203,7 @@ See {IERC20-balanceOf}.
 
 - `uint256`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L261) `allowance(address owner, address spender)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L261) `allowance(address owner, address spender)`
 
 See {IERC20-allowance}.
 
@@ -216,7 +216,7 @@ See {IERC20-allowance}.
 
 - `uint256`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L270) `_transfer(address sender, address recipient, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L270) `_transfer(address sender, address recipient, uint256 amount)`
 
 Moves tokens `amount` from `sender` to `recipient`.
 
@@ -238,7 +238,7 @@ Requirements:
 - `recipient`
 - `amount`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L303) `_mint(address account, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L303) `_mint(address account, uint256 amount)`
 
 Creates `amount` tokens and assigns them to `account`, increasing the total supply.
 
@@ -253,7 +253,7 @@ Requirements
 - `account`
 - `amount`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L320) `_burn(address account, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L320) `_burn(address account, uint256 amount)`
 
 Destroys `amount` tokens from `account`, reducing the total supply.
 
@@ -270,7 +270,7 @@ Requirements
 - `account`
 - `amount`
 
-## [🔗](contracts/mocks/MockDharmaDai.sol#L345) `_approve(address owner, address spender, uint256 amount)`
+## [🔗](/contracts/mocks/MockDharmaDai.sol#L345) `_approve(address owner, address spender, uint256 amount)`
 
 Sets `amount` as the allowance of `spender` over the `owner`s tokens.
 

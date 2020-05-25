@@ -1,8 +1,8 @@
-# [🔗](contracts/lib/BlockLib.sol#L5) BlockLib
+# [🔗](/contracts/lib/BlockLib.sol#L5) BlockLib
 
 # Data Structures
 
-## [🔗](contracts/lib/BlockLib.sol#L8) BlockHeader
+## [🔗](/contracts/lib/BlockLib.sol#L8) BlockHeader
 
 ### Properties
 
@@ -15,7 +15,7 @@
 - `bytes32 transactionsHash`
 - `uint256 submittedAt`
 
-## [🔗](contracts/lib/BlockLib.sol#L19) HeaderInput
+## [🔗](/contracts/lib/BlockLib.sol#L19) HeaderInput
 
 ### Properties
 
@@ -26,7 +26,7 @@
 - `uint40 hardTransactionsCount`
 - `bytes32 transactionsRoot`
 
-## [🔗](contracts/lib/BlockLib.sol#L28) BlockInput
+## [🔗](/contracts/lib/BlockLib.sol#L28) BlockInput
 
 ### Properties
 
@@ -35,7 +35,7 @@
 
 # Functions
 
-## [🔗](contracts/lib/BlockLib.sol#L39) `toCommitment(BlockInput blockInput)`
+## [🔗](/contracts/lib/BlockLib.sol#L39) `toCommitment(BlockInput blockInput)`
 
 \_toCommitment
 
@@ -49,8 +49,8 @@ This function takes a submitted block input and converts it to a committed block
 
 - `BlockHeader`
 
-## [🔗](contracts/lib/BlockLib.sol#L61) `decodeBlockHeader(bytes data)`
+## [🔗](/contracts/lib/BlockLib.sol#L61) `decodeBlockHeader(bytes data)`
 
-## [🔗](contracts/lib/BlockLib.sol#L67) `blockHash(BlockHeader header)`
+## [🔗](/contracts/lib/BlockLib.sol#L67) `blockHash(BlockHeader header)`
 
-## [🔗](contracts/lib/BlockLib.sol#L73) `hasTransactionsData(BlockHeader header, bytes txData)`
+## [🔗](/contracts/lib/BlockLib.sol#L73) `hasTransactionsData(BlockHeader header, bytes txData)`

@@ -1,15 +1,15 @@
-# [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L10) FraudUtilsLib
+# [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L10) FraudUtilsLib
 
 # Data Structures
 
-## [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L14) TransactionProof
+## [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L14) TransactionProof
 
 ### Properties
 
 - `bytes transactionData`
 - `undefined siblings`
 
-## [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L103) TransactionStateProof
+## [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L103) TransactionStateProof
 
 ### Properties
 
@@ -19,7 +19,7 @@
 
 # Functions
 
-## [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L19) `transactionHadPreviousState(State.State state, bytes previousRootProof, Block.BlockHeader blockHeader, uint256 transactionIndex)`
+## [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L19) `transactionHadPreviousState(State.State state, bytes previousRootProof, Block.BlockHeader blockHeader, uint256 transactionIndex)`
 
 Verifies the state root prior to a transaction.
 
@@ -34,7 +34,7 @@ Verifies the state root prior to a transaction.
 
 - `bytes32`
 
-## [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L74) `verifyPreviousAccountState(State.State state, Block.BlockHeader badHeader, uint256 transactionIndex, bytes previousStateProof, bytes stateProof)`
+## [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L74) `verifyPreviousAccountState(State.State state, Block.BlockHeader badHeader, uint256 transactionIndex, bytes previousStateProof, bytes stateProof)`
 
 Verifies the state of an account in the state root prior to a transaction.
 
@@ -53,7 +53,7 @@ Verifies the state of an account in the state root prior to a transaction.
 - `undefined siblings`
 - `Account.Account account`
 
-## [🔗](contracts/fraud-proofs/FraudUtilsLib.sol#L109) `validateTransactionStateProof(State.State state, Block.BlockHeader header, bytes proofBytes, bytes transactionBytes)`
+## [🔗](/contracts/fraud-proofs/FraudUtilsLib.sol#L109) `validateTransactionStateProof(State.State state, Block.BlockHeader header, bytes proofBytes, bytes transactionBytes)`
 
 validateTransactionStateProof Decodes and validates a TransactionStateProof, which contains an inclusion proof for a transaction and the state root prior to its execution.
 

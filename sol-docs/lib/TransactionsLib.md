@@ -1,8 +1,8 @@
-# [🔗](contracts/lib/TransactionsLib.sol#L5) TransactionsLib
+# [🔗](/contracts/lib/TransactionsLib.sol#L5) TransactionsLib
 
 # Data Structures
 
-## [🔗](contracts/lib/TransactionsLib.sol#L17) TransactionsMetadata
+## [🔗](/contracts/lib/TransactionsLib.sol#L17) TransactionsMetadata
 
 ### Properties
 
@@ -15,7 +15,7 @@
 - `uint16 softTransferCount`
 - `uint16 softChangeSignerCount`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L28) HardCreate
+## [🔗](/contracts/lib/TransactionsLib.sol#L28) HardCreate
 
 ### Properties
 
@@ -26,7 +26,7 @@
 - `address signerAddress`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L37) HardDeposit
+## [🔗](/contracts/lib/TransactionsLib.sol#L37) HardDeposit
 
 ### Properties
 
@@ -35,7 +35,7 @@
 - `uint56 value`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L44) HardWithdrawal
+## [🔗](/contracts/lib/TransactionsLib.sol#L44) HardWithdrawal
 
 ### Properties
 
@@ -45,7 +45,7 @@
 - `uint56 value`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L52) HardAddSigner
+## [🔗](/contracts/lib/TransactionsLib.sol#L52) HardAddSigner
 
 ### Properties
 
@@ -54,7 +54,7 @@
 - `address signingAddress`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L59) SoftWithdrawal
+## [🔗](/contracts/lib/TransactionsLib.sol#L59) SoftWithdrawal
 
 ### Properties
 
@@ -67,7 +67,7 @@
 - `bytes32 sigS`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L70) SoftCreate
+## [🔗](/contracts/lib/TransactionsLib.sol#L70) SoftCreate
 
 ### Properties
 
@@ -82,7 +82,7 @@
 - `bytes32 sigS`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L83) SoftTransfer
+## [🔗](/contracts/lib/TransactionsLib.sol#L83) SoftTransfer
 
 ### Properties
 
@@ -95,7 +95,7 @@
 - `bytes32 sigS`
 - `bytes32 intermediateStateRoot`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L94) SoftChangeSigner
+## [🔗](/contracts/lib/TransactionsLib.sol#L94) SoftChangeSigner
 
 ### Properties
 
@@ -110,25 +110,25 @@
 
 # Functions
 
-## [🔗](contracts/lib/TransactionsLib.sol#L105) `decodeTransactionsMetadata(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L105) `decodeTransactionsMetadata(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L135) `decodeHardCreate(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L135) `decodeHardCreate(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L160) `decodeHardDeposit(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L160) `decodeHardDeposit(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L180) `decodeHardWithdrawal(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L180) `decodeHardWithdrawal(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L202) `decodeHardAddSigner(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L202) `decodeHardAddSigner(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L222) `decodeSoftWithdrawal(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L222) `decodeSoftWithdrawal(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L252) `decodeSoftCreate(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L252) `decodeSoftCreate(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L287) `decodeSoftTransfer(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L287) `decodeSoftTransfer(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L317) `decodeSoftChangeSigner(bytes input)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L317) `decodeSoftChangeSigner(bytes input)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L347) `stateRootFromTransaction(bytes transaction)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L347) `stateRootFromTransaction(bytes transaction)`
 
 stateRootFromTransaction Reads the state root from a transaction by peeling off the last 32 bytes.
 
@@ -140,7 +140,7 @@ stateRootFromTransaction Reads the state root from a transaction by peeling off 
 
 - `bytes32 root` root - state root from the transaction
 
-## [🔗](contracts/lib/TransactionsLib.sol#L364) `transactionPrefix(bytes transaction)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L364) `transactionPrefix(bytes transaction)`
 
 transactionPrefix Returns the transaction prefix from an encoded transaction by reading the first byte.
 
@@ -152,7 +152,7 @@ transactionPrefix Returns the transaction prefix from an encoded transaction by 
 
 - `uint8 prefix` prefix - transaction prefix read from the first byte of the transaction
 
-## [🔗](contracts/lib/TransactionsLib.sol#L376) `transactionsCount(TransactionsMetadata meta)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L376) `transactionsCount(TransactionsMetadata meta)`
 
 transactionsCount Returns the total number of transactions in the tx metadata.
 
@@ -164,7 +164,7 @@ transactionsCount Returns the total number of transactions in the tx metadata.
 
 - `uint256` number of transactions the metadata says exist in the buffer
 
-## [🔗](contracts/lib/TransactionsLib.sol#L397) `expectedTransactionsLength(TransactionsMetadata meta)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L397) `expectedTransactionsLength(TransactionsMetadata meta)`
 
 expectedTransactionsLength Calculates the expected size of the transactions buffer based on the transactions metadata.
 
@@ -176,8 +176,8 @@ expectedTransactionsLength Calculates the expected size of the transactions buff
 
 - `uint256` number of bytes the transactions buffer should have
 
-## [🔗](contracts/lib/TransactionsLib.sol#L418) `putLeaves(undefined leaves, bool identitySuccess, uint256 leafIndex, uint256 currentPointer, uint8 typePrefix, uint256 typeCount, uint256 typeSize)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L418) `putLeaves(undefined leaves, bool identitySuccess, uint256 leafIndex, uint256 currentPointer, uint8 typePrefix, uint256 typeCount, uint256 typeSize)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L446) `deriveTransactionsRoot(bytes transactionsData)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L446) `deriveTransactionsRoot(bytes transactionsData)`
 
-## [🔗](contracts/lib/TransactionsLib.sol#L490) `recoverSignature(bytes txData)`
+## [🔗](/contracts/lib/TransactionsLib.sol#L490) `recoverSignature(bytes txData)`

@@ -1,10 +1,10 @@
-# [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L11) ExecutionErrorLib
+# [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L11) ExecutionErrorLib
 
 # Functions
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L22) `createsBeforeIndex(bytes txData, uint256 index)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L22) `createsBeforeIndex(bytes txData, uint256 index)`
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L49) `proveCreateIndexError(State.State state, Block.BlockHeader previousHeader, Block.BlockHeader badHeader, uint256 transactionIndex, bytes transactionsData)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L49) `proveCreateIndexError(State.State state, Block.BlockHeader previousHeader, Block.BlockHeader badHeader, uint256 transactionIndex, bytes transactionsData)`
 
 Prove that the account index in a create transaction was not equal to the state size of the previous block plus the sum of create transactions executed previously in the same block.
 
@@ -16,7 +16,7 @@ Prove that the account index in a create transaction was not equal to the state 
 - `transactionIndex` index of the transaction with the bad create index
 - `transactionsData` transactions buffer from the block
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L85) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardCreate transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L85) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardCreate transaction)`
 
 Validate a hard create execution error proof.
 
@@ -35,7 +35,7 @@ An error can be proven if any of the following are verified:
   with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L135) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardDeposit transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L135) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardDeposit transaction)`
 
 Validate a HardDeposit execution error proof.
 
@@ -46,7 +46,7 @@ Validate a HardDeposit execution error proof.
   the tree with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L167) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardWithdrawal transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L167) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardWithdrawal transaction)`
 
 Validate a HardWithdrawal execution error proof.
 
@@ -57,7 +57,7 @@ Validate a HardWithdrawal execution error proof.
   the tree with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L202) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardAddSigner transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L202) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.HardAddSigner transaction)`
 
 Validate a HardAddSigner execution error proof.
 
@@ -68,7 +68,7 @@ Validate a HardAddSigner execution error proof.
   the tree with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L237) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.SoftWithdrawal transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L237) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.SoftWithdrawal transaction)`
 
 Validate a SoftWithdrawal execution error proof.
 
@@ -79,7 +79,7 @@ Validate a SoftWithdrawal execution error proof.
   the tree with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L268) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes senderProof, bytes receiverProof, Tx.SoftCreate transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L268) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes senderProof, bytes receiverProof, Tx.SoftCreate transaction)`
 
 Validate a SoftCreate execution error proof.
 
@@ -92,7 +92,7 @@ Validate a SoftCreate execution error proof.
   state root after applying the change to the `from` account.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L325) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes senderProof, bytes receiverProof, Tx.SoftTransfer transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L325) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes senderProof, bytes receiverProof, Tx.SoftTransfer transaction)`
 
 Validate a SoftTransfer execution error proof.
 
@@ -105,7 +105,7 @@ Validate a SoftTransfer execution error proof.
   state root after applying the change to the `from` account.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L374) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.SoftChangeSigner transaction)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L374) `validateExecutionErrorProof(bytes32 priorStateRoot, bytes stateProof, Tx.SoftChangeSigner transaction)`
 
 Validate a SoftChangeSigner execution error proof.
 
@@ -116,4 +116,4 @@ Validate a SoftChangeSigner execution error proof.
   the tree with root `priorStateRoot`.
 - `transaction` Transaction to check for fraud.
 
-## [🔗](contracts/fraud-proofs/ExecutionErrorLib.sol#L412) `proveExecutionError(State.State state, Block.BlockHeader header, bytes transactionProof, bytes transaction, bytes stateProof1, bytes stateProof2)`
+## [🔗](/contracts/fraud-proofs/ExecutionErrorLib.sol#L412) `proveExecutionError(State.State state, Block.BlockHeader header, bytes transactionProof, bytes transaction, bytes stateProof1, bytes stateProof2)`

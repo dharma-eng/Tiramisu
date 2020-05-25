@@ -1,8 +1,8 @@
-# [🔗](contracts/StateManager.sol#L10) StateManager
+# [🔗](/contracts/StateManager.sol#L10) StateManager
 
 # Functions
 
-## [🔗](contracts/StateManager.sol#L15) `_putPendingBlock(Block.BlockInput input)`
+## [🔗](/contracts/StateManager.sol#L15) `_putPendingBlock(Block.BlockInput input)`
 
 \_putPendingBlock
 
@@ -14,7 +14,7 @@ First ensures that the block has the expected number for the next block, then co
 
 - `input` Block input data, including a header and transactions buffer.
 
-## [🔗](contracts/StateManager.sol#L34) `_confirmBlock(Block.BlockHeader header)`
+## [🔗](/contracts/StateManager.sol#L34) `_confirmBlock(Block.BlockHeader header)`
 
 \_confirmBlock
 

@@ -1,8 +1,8 @@
-# [🔗](contracts/interfaces/IDharmaAddressGetter.sol#L3) IDharmaAddressGetter
+# [🔗](/contracts/interfaces/IDharmaAddressGetter.sol#L3) IDharmaAddressGetter
 
 # Functions
 
-## [🔗](contracts/interfaces/IDharmaAddressGetter.sol#L4) `verifySignerHasAuthority(address contractAddress, address signerAddress)`
+## [🔗](/contracts/interfaces/IDharmaAddressGetter.sol#L4) `verifySignerHasAuthority(address contractAddress, address signerAddress)`
 
 verifySignerHasAuthority
 
@@ -17,7 +17,7 @@ Verifies that the given signer address has authority over the contract address.
 
 - `bool` Boolean stating whether the signer has authority over the contract address.
 
-## [🔗](contracts/interfaces/IDharmaAddressGetter.sol#L15) `getContractAddressForSigner(address signerAddress)`
+## [🔗](/contracts/interfaces/IDharmaAddressGetter.sol#L15) `getContractAddressForSigner(address signerAddress)`
 
 getContractAddressForSigner
 

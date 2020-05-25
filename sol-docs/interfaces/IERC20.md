@@ -1,10 +1,10 @@
-# [🔗](contracts/interfaces/IERC20.sol#L3) IERC20
+# [🔗](/contracts/interfaces/IERC20.sol#L3) IERC20
 
 Interface of the ERC20 standard as defined in the EIP.
 
 # Functions
 
-## [🔗](contracts/interfaces/IERC20.sol#L23) `transfer(address recipient, uint256 amount)`
+## [🔗](/contracts/interfaces/IERC20.sol#L23) `transfer(address recipient, uint256 amount)`
 
 Moves `amount` tokens from the caller's account to `recipient`.
 
@@ -21,7 +21,7 @@ Emits a {Transfer} event.
 
 - `bool`
 
-## [🔗](contracts/interfaces/IERC20.sol#L34) `approve(address spender, uint256 amount)`
+## [🔗](/contracts/interfaces/IERC20.sol#L34) `approve(address spender, uint256 amount)`
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
 
@@ -40,7 +40,7 @@ https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Appr
 
 - `bool`
 
-## [🔗](contracts/interfaces/IERC20.sol#L51) `transferFrom(address sender, address recipient, uint256 amount)`
+## [🔗](/contracts/interfaces/IERC20.sol#L51) `transferFrom(address sender, address recipient, uint256 amount)`
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
 
@@ -58,7 +58,7 @@ Emits a {Transfer} event.
 
 - `bool`
 
-## [🔗](contracts/interfaces/IERC20.sol#L64) `totalSupply()`
+## [🔗](/contracts/interfaces/IERC20.sol#L64) `totalSupply()`
 
 Returns the amount of tokens in existence.
 
@@ -66,7 +66,7 @@ Returns the amount of tokens in existence.
 
 - `uint256`
 
-## [🔗](contracts/interfaces/IERC20.sol#L69) `balanceOf(address account)`
+## [🔗](/contracts/interfaces/IERC20.sol#L69) `balanceOf(address account)`
 
 Returns the amount of tokens owned by `account`.
 
@@ -78,7 +78,7 @@ Returns the amount of tokens owned by `account`.
 
 - `uint256`
 
-## [🔗](contracts/interfaces/IERC20.sol#L74) `allowance(address owner, address spender)`
+## [🔗](/contracts/interfaces/IERC20.sol#L74) `allowance(address owner, address spender)`
 
 Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default.
 

@@ -1,4 +1,4 @@
-# [🔗](contracts/lib/StateLib.sol#L7) StateLib
+# [🔗](/contracts/lib/StateLib.sol#L7) StateLib
 
 Library for basic interaction with the Dharma Peg state.
 
@@ -6,7 +6,7 @@ This library defines the basic state structure for the peg contract, as well as 
 
 # Data Structures
 
-## [🔗](contracts/lib/StateLib.sol#L16) State
+## [🔗](/contracts/lib/StateLib.sol#L16) State
 
 ### Properties
 
@@ -17,13 +17,13 @@ This library defines the basic state structure for the peg contract, as well as 
 
 # Functions
 
-## [🔗](contracts/lib/StateLib.sol#L24) `blockIsPending(State state, uint32 blockNumber, bytes32 blockHash)`
+## [🔗](/contracts/lib/StateLib.sol#L24) `blockIsPending(State state, uint32 blockNumber, bytes32 blockHash)`
 
-## [🔗](contracts/lib/StateLib.sol#L32) `blockIsConfirmed(State state, uint32 blockNumber, bytes32 blockHash)`
+## [🔗](/contracts/lib/StateLib.sol#L32) `blockIsConfirmed(State state, uint32 blockNumber, bytes32 blockHash)`
 
-## [🔗](contracts/lib/StateLib.sol#L40) `blockIsPendingAndHasParent(State state, Block.BlockHeader header, Block.BlockHeader previousHeader)`
+## [🔗](/contracts/lib/StateLib.sol#L40) `blockIsPendingAndHasParent(State state, Block.BlockHeader header, Block.BlockHeader previousHeader)`
 
-## [🔗](contracts/lib/StateLib.sol#L60) `revertBlock(State state, Block.BlockHeader header)`
+## [🔗](/contracts/lib/StateLib.sol#L60) `revertBlock(State state, Block.BlockHeader header)`
 
 revertBlock
 
