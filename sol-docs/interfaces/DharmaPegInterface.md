@@ -1,7 +1,5 @@
 # [🔗](/contracts/interfaces/DharmaPegInterface.sol#L7) DharmaPegInterface
-
 # Functions
-
 ## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L11) `deposit(uint56 value)`
 
 ## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L13) `deposit(address signerAddress, uint56 value)`
@@ -14,12 +12,14 @@
 
 Executes the withdrawals in a confirmed block.
 
-### Parameters
 
-- `parent` Header of the previous block, used to determine which withdrawals were executed.
-- `header` Header of the block with the withdrawals to execute
-- `transactionsData` Transactions buffer from the block.
-  merkle tree.
+
+
+### Parameters
+* `parent` Header of the previous block, used to determine which withdrawals were executed.
+* `header` Header of the block with the withdrawals to execute
+* `transactionsData` Transactions buffer from the block.
+merkle tree.
 
 ## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L34) `confirmBlock(Block.BlockHeader header)`
 
@@ -32,3 +32,4 @@ Executes the withdrawals in a confirmed block.
 ## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L44) `getBlockCount()`
 
 ## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L46) `getConfirmedBlockCount()`
+

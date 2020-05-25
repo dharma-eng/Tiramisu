@@ -1,4 +1,32 @@
-# Summary
-
-- WELCOME
-- CONTRACTS - [Configurable](./Configurable.md) - [DharmaPeg](./DharmaPeg.md) - [Migrations](./Migrations.md) - [StateManager](./StateManager.md) - fraud-proofs/ - [BlockErrorLib](./fraud-proofs/BlockErrorLib.md) - [ExecutionErrorLib](./fraud-proofs/ExecutionErrorLib.md) - [FraudProver](./fraud-proofs/FraudProver.md) - [FraudUtilsLib](./fraud-proofs/FraudUtilsLib.md) - [TransactionErrorLib](./fraud-proofs/TransactionErrorLib.md) - interfaces/ - [DharmaPegInterface](./interfaces/DharmaPegInterface.md) - [IDharmaAddressGetter](./interfaces/IDharmaAddressGetter.md) - [IERC20](./interfaces/IERC20.md) - [StateManagerInterface](./interfaces/StateManagerInterface.md) - lib/ - [AccountLib](./lib/AccountLib.md) - [BlockLib](./lib/BlockLib.md) - [HardTransactionsLib](./lib/HardTransactionsLib.md) - [Owned](./lib/Owned.md) - [StateLib](./lib/StateLib.md) - [Stateful](./lib/Stateful.md) - [TransactionsLib](./lib/TransactionsLib.md) - [WithdrawLib](./lib/WithdrawLib.md) - lib/merkle/ - [MerkleProofLib](./lib/merkle/MerkleProofLib.md) - [MerkleTreeLib](./lib/merkle/MerkleTreeLib.md) - mocks/ - [MockDharmaPeg](./mocks/MockDharmaPeg.md) - [PublicLibMock](./mocks/PublicLibMock.md) - [SafeMath](./mocks/SafeMath.md)
+- CONTRACTS
+	 - [Configurable](./Configurable.md)
+	 - [DharmaPeg](./DharmaPeg.md)
+	 - [Migrations](./Migrations.md)
+	 - [StateManager](./StateManager.md)
+	 - fraud-proofs/
+	 	 - [BlockErrorLib](./fraud-proofs/BlockErrorLib.md)
+	 	 - [ExecutionErrorLib](./fraud-proofs/ExecutionErrorLib.md)
+	 	 - [FraudProver](./fraud-proofs/FraudProver.md)
+	 	 - [FraudUtilsLib](./fraud-proofs/FraudUtilsLib.md)
+	 	 - [TransactionErrorLib](./fraud-proofs/TransactionErrorLib.md)
+	 - interfaces/
+	 	 - [DharmaPegInterface](./interfaces/DharmaPegInterface.md)
+	 	 - [IDharmaAddressGetter](./interfaces/IDharmaAddressGetter.md)
+	 	 - [IERC20](./interfaces/IERC20.md)
+	 	 - [StateManagerInterface](./interfaces/StateManagerInterface.md)
+	 - lib/
+	 	 - [AccountLib](./lib/AccountLib.md)
+	 	 - [BlockLib](./lib/BlockLib.md)
+	 	 - [HardTransactionsLib](./lib/HardTransactionsLib.md)
+	 	 - [Owned](./lib/Owned.md)
+	 	 - [StateLib](./lib/StateLib.md)
+	 	 - [Stateful](./lib/Stateful.md)
+	 	 - [TransactionsLib](./lib/TransactionsLib.md)
+	 	 - [WithdrawLib](./lib/WithdrawLib.md)
+	 - lib/merkle/
+	 	 - [MerkleProofLib](./lib/merkle/MerkleProofLib.md)
+	 	 - [MerkleTreeLib](./lib/merkle/MerkleTreeLib.md)
+	 - mocks/
+	 	 - [MockDharmaPeg](./mocks/MockDharmaPeg.md)
+	 	 - [PublicLibMock](./mocks/PublicLibMock.md)
+	 	 - [SafeMath](./mocks/SafeMath.md)

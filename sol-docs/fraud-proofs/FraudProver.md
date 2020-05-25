@@ -1,7 +1,5 @@
 # [🔗](/contracts/fraud-proofs/FraudProver.sol#L22) FraudProver
-
 # Functions
-
 ## [🔗](/contracts/fraud-proofs/FraudProver.sol#L25) `proveStateRootError(Block.BlockHeader badHeader, bytes transactionsData)`
 
 ## [🔗](/contracts/fraud-proofs/FraudProver.sol#L34) `proveStateSizeError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, bytes transactionsData)`
@@ -23,3 +21,4 @@
 ## [🔗](/contracts/fraud-proofs/FraudProver.sol#L137) `proveCreateIndexError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, uint256 transactionIndex, bytes transactionsData)`
 
 ## [🔗](/contracts/fraud-proofs/FraudProver.sol#L152) `proveExecutionError(Block.BlockHeader header, bytes transactionProof, bytes transaction, bytes stateProof1, bytes stateProof2)`
+
