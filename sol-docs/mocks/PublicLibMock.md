@@ -1,5 +1,7 @@
-## `PublicLibMock`
+# [🔗](contracts/mocks/PublicLibMock.sol#L7) PublicLibMock
 
-### `deriveTransactionsRoot(bytes transactionsData) → bytes32` (public)
+# Functions
 
-### `recoverSignature(bytes txData) → address signer` (public)
+## [🔗](contracts/mocks/PublicLibMock.sol#L8) `deriveTransactionsRoot(bytes transactionsData)`
+
+## [🔗](contracts/mocks/PublicLibMock.sol#L14) `recoverSignature(bytes txData)`

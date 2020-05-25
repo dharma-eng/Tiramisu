@@ -1,23 +1,25 @@
-## `FraudProver`
+# [🔗](contracts/fraud-proofs/FraudProver.sol#L22) FraudProver
 
-### `proveStateRootError(struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+# Functions
 
-### `proveStateSizeError(struct BlockLib.BlockHeader previousHeader, struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L25) `proveStateRootError(Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveTransactionsRootError(struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L34) `proveStateSizeError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveHardTransactionsCountError(struct BlockLib.BlockHeader previousHeader, struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L44) `proveTransactionsRootError(Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveHardTransactionsRangeError(struct BlockLib.BlockHeader previousHeader, struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L53) `proveHardTransactionsCountError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveHardTransactionsOrderError(struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L63) `proveHardTransactionsRangeError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveTransactionsDataLengthError(struct BlockLib.BlockHeader badHeader, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L73) `proveHardTransactionsOrderError(Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveHardTransactionSourceError(struct BlockLib.BlockHeader badHeader, bytes transaction, uint256 transactionIndex, bytes32[] siblings, bytes previousStateProof, bytes stateProof)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L84) `proveTransactionsDataLengthError(Block.BlockHeader badHeader, bytes transactionsData)`
 
-### `proveSignatureError(struct BlockLib.BlockHeader badHeader, bytes transaction, uint256 transactionIndex, bytes32[] siblings, bytes previousStateProof, bytes stateProof)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L97) `proveHardTransactionSourceError(Block.BlockHeader badHeader, bytes transaction, uint256 transactionIndex, undefined siblings, bytes previousStateProof, bytes stateProof)`
 
-### `proveCreateIndexError(struct BlockLib.BlockHeader previousHeader, struct BlockLib.BlockHeader badHeader, uint256 transactionIndex, bytes transactionsData)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L116) `proveSignatureError(Block.BlockHeader badHeader, bytes transaction, uint256 transactionIndex, undefined siblings, bytes previousStateProof, bytes stateProof)`
 
-### `proveExecutionError(struct BlockLib.BlockHeader header, bytes transactionProof, bytes transaction, bytes stateProof1, bytes stateProof2)` (public)
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L137) `proveCreateIndexError(Block.BlockHeader previousHeader, Block.BlockHeader badHeader, uint256 transactionIndex, bytes transactionsData)`
+
+## [🔗](contracts/fraud-proofs/FraudProver.sol#L152) `proveExecutionError(Block.BlockHeader header, bytes transactionProof, bytes transaction, bytes stateProof1, bytes stateProof2)`

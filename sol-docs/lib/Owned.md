@@ -1,5 +1,5 @@
-## `Owned`
+# [🔗](contracts/lib/Owned.sol#L4) Owned
 
-### `onlyOwner()`
+# Functions
 
-### `setOwner(address newOwner)` (external)
+## [🔗](contracts/lib/Owned.sol#L16) `setOwner(address newOwner)`

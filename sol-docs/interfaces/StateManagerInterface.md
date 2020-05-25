@@ -1,3 +1,1 @@
-## `StateManagerInterface`
-
-### `BlockSubmitted(uint32 blockNumber, bytes32 blockHash)`
+# [🔗](contracts/interfaces/StateManagerInterface.sol#L4) StateManagerInterface

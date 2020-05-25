@@ -1,3 +1,5 @@
-## `MerkleTreeLib`
+# [🔗](contracts/lib/merkle/MerkleTreeLib.sol#L5) MerkleTreeLib
 
-### `getMerkleRoot(bytes[] leaves) → bytes32 root` (internal)
+# Functions
+
+## [🔗](contracts/lib/merkle/MerkleTreeLib.sol#L7) `getMerkleRoot(undefined leaves)`
