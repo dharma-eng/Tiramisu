@@ -44,7 +44,7 @@
     "test:coverage": "yarn test:coverage:app && yarn test:coverage:sol",
     "test": "yarn test:app && yarn test:coverage",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
-    "prettier": "prettier --write",
+    "prettier": "prettier --ignore-path ./sol-docs --write",
     "start": "node ./node_modules/ganache-cli/cli",
     "start:app": "NODE_ENV=develop nodemon --exec ts-node ./app/index.ts"
   },
