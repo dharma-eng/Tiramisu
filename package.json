@@ -91,7 +91,7 @@
     "prettier": "1.16.4",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.2",
-    "soldocgen": "^0.0.2",
+    "soldocgen": "^0.0.3",
     "source-map-support": "^0.5.18",
     "truffle-typings": "^1.0.8",
     "ts-node": "^8.9.0",
