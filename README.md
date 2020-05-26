@@ -3,7 +3,7 @@
 # Tiramisu
 > Tiramisu is a "Layer Two" system for scalable token transfers that prioritizes simplicity.
 
-[![License](https://img.shields.io/github/license/dharma-eng/Tiramisu.svg)](https://github.com/dharma-eng/Tiramisu/blob/master/LICENSE.md) [![CI](https://github.com/dharma-eng/Tiramisu/workflows/Tiramisu/badge.svg?branch=master)](https://github.com/dharma-eng/Tiramisu/actions?query=workflow%3A%22Tiramisu%22) [![Coverage](https://img.shields.io/coveralls/github/dharma-eng/Tiramisu)](https://coveralls.io/github/dharma-eng/Tiramisu) [![Community](https://img.shields.io/badge/community-Discord-blueviolet)](https://discordapp.com/invite/qvKTDgR)
+[![License](https://img.shields.io/github/license/dharma-eng/Tiramisu.svg)](https://github.com/dharma-eng/Tiramisu/blob/master/LICENSE.md) [![CI](https://github.com/dharma-eng/Tiramisu/workflows/Node.js%20CI/badge.svg)](https://github.com/dharma-eng/Tiramisu/actions?query=workflow%3A%22Tiramisu%22) [![Coverage](https://img.shields.io/coveralls/github/dharma-eng/Tiramisu)](https://coveralls.io/github/dharma-eng/Tiramisu) [![Community](https://img.shields.io/badge/community-Discord-blueviolet)](https://discordapp.com/invite/qvKTDgR)
 
 ## Summary
 **Tiramisu** is a framework for performing ERC20 token transfers at a fraction of the cost of a standard transfer.
