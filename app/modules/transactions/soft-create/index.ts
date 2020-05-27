@@ -119,7 +119,6 @@ export class SoftCreate {
             const publicKey = ecrecover(msgHash, v, r, s);
             return toHex(pubToAddress(publicKey, true));
         } catch (err) {
-            console.log(err);
             return null;
         }
     }
