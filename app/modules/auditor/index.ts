@@ -20,7 +20,11 @@ export class Auditor extends EventEmitter {
     this._parentInterface.getSubmissionListener(
       (event: BlockSubmissionEvent) => this.handleBlockSubmission(event)
     );
-    console.log(`Started auditor: listening for block submissions...`)
+    // console.log(`Started auditor: listening for block submissions...`)
+  }
+
+  close = async () => {
+    await this._db.close();
   }
 
   async handleBlockSubmission(event: BlockSubmissionEvent) {
@@ -55,13 +59,13 @@ export class Auditor extends EventEmitter {
     await this.promAudit(submitCalldata, blockNumber).then(async ({ block, state }) => {
       await state.commit(this._db.dbPath)
       await this._db.putBlock(block);
-      console.log(`Audited block and found no errors.`);
+      // console.log(`Audited block and found no errors.`);
       this.emit('audit:block-ok', block)
     }).catch((err) => {
       if (err instanceof ProvableError) {
         this.emit('audit:block-error', err.errorProof)
         // TODO - handle error proof submission
-        console.log(`Caught provable error: TYPE ${err.errorProof._type}`);
+        // console.log(`Caught provable error: TYPE ${err.errorProof._type}`);
         // console.log(`Proof of error:`)
         // console.log(err.errorProof);
       } else {
