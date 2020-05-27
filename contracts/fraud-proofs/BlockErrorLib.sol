@@ -310,7 +310,7 @@ library BlockErrorLib {
       );
     }
 
-    require(fraudProven, "Fraud not found in hard tx range.");
+    require(fraudProven, "Fraud not found in hard tx order.");
     return state.revertBlock(badHeader);
   }
 
@@ -358,7 +358,7 @@ library BlockErrorLib {
       assembly { txIndex := shr(216, mload(newOffset)) }
 
       // Ensure that each transaction has an index higher than the last
-      if (txIndex < lastIndex) {
+      if (i != 0 && txIndex <= lastIndex) {
         fraudulent = true;
         break;
       }
