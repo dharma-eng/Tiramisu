@@ -22,6 +22,11 @@ export class ParentInterface {
 
   currentBlockNumber = async (): Promise<number> => this.web3.eth.getBlockNumber();
 
+  currentPegBlockNumber = async (): Promise<number> => {
+    const num = await this.peg.methods.getBlockCount().call();
+    return +num;
+  }
+
   /**
    * Gets an array of encoded hard transactions from the Tiramisu contract.
    */
