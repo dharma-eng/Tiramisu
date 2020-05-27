@@ -16,7 +16,7 @@ export type TransactionErrorLibFunctionInput = {
 }
 
 export type BlockErrorLibFunctionName = 'proveStateSizeError' | 'proveStateRootError' | 'proveTransactionsRootError' |
-'proveTransactionsDataLengthError' | 'proveHardTransactionsCountError' | 'proveHardTransactionsRangeError';
+'proveTransactionsDataLengthError' | 'proveHardTransactionsCountError' | 'proveHardTransactionsRangeError' | 'proveHardTransactionsOrderError';
 
 export type BlockErrorLibFunctionInput = {
   name: BlockErrorLibFunctionName;
