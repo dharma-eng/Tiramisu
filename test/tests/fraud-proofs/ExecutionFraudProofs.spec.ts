@@ -7,7 +7,7 @@ import { encodeTransactionStateProof } from '../../../app/modules/auditor/coder'
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-export const test = () => describe("Header Fraud Proof Tests", async () => {
+export const test = () => describe("Execution Fraud Proof Tests", async () => {
   let web3: any, tester: Tester, from: string, blockchain: ProofBlockchain;
 
   async function resetBlockchain() {
@@ -49,7 +49,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         await blockchain.submitBlock(block);
         await blockchain.confirmBlock(block);
         previousHeader = block.commitment;
-        expect(await getBlockCount()).to.eq(1);
+        expect(await getBlockCount()).to.eq(2);
       });
 
       it('Should submit a block with a hard create that has a bad `accountIndex`', async () => {
@@ -64,21 +64,21 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         block.transactionsData = transactionsData;
         await blockchain.submitBlock(block);
         badBlock = block;
-        expect(await getBlockCount()).to.eq(2);
+        expect(await getBlockCount()).to.eq(3);
       });
 
       it('Should prove a hard create has a bad account index by calling `createdAccountIndexError`', async () => {
-        await blockchain.tiramisuContract.methods.createdAccountIndexError(
+        await blockchain.tiramisuContract.methods.proveCreateIndexError(
           previousHeader,
           badBlock.commitment,
           0,
           badBlock.transactionsData
         ).send({ from, gas: 5e6 })
-        expect(await getBlockCount()).to.eq(1);
+        expect(await getBlockCount()).to.eq(2);
       });
     });
 
-    describe('Case 2: Preceding unexecuted hard create', async () => {
+    describe('Case 2: Failure', async () => {
       let previousHeader: Commitment;
       let badBlock: Block;
       let account1, account2, account3;
@@ -96,55 +96,7 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         await blockchain.submitBlock(block);
         await blockchain.confirmBlock(block);
         previousHeader = block.commitment;
-        expect(await getBlockCount()).to.eq(1);
-      });
-
-      it('Should submit a block with a hard create that has a null root.', async () => {
-        await hardDeposit(account2, 50);
-        await hardDeposit(account3, 50);
-        const block = await blockchain.processBlock();
-        const transaction = block.transactions.hardCreates[0];
-        transaction.intermediateStateRoot = `0x${'00'.repeat(32)}`;
-        const transaction1 = block.transactions.hardCreates[1];
-        const leaves = [transaction, transaction1].map(t => t.encode(true));
-        block.header.transactionsRoot = getMerkleRoot(leaves);
-        const transactions = { hardCreates: [transaction, transaction1] }
-        block.transactionsData = encodeTransactions(transactions).transactionsData;
-        await blockchain.submitBlock(block);
-        badBlock = block;
         expect(await getBlockCount()).to.eq(2);
-      });
-
-      it('Should prove a hard create has a bad account index by calling `createdAccountIndexError`', async () => {
-        await blockchain.tiramisuContract.methods.createdAccountIndexError(
-          previousHeader,
-          badBlock.commitment,
-          1,
-          badBlock.transactionsData
-        ).send({ from, gas: 5e6 })
-        expect(await getBlockCount()).to.eq(1);
-      });
-    });
-
-    describe('Case 3: Failure', async () => {
-      let previousHeader: Commitment;
-      let badBlock: Block;
-      let account1, account2, account3;
-
-      before(async () => {
-        await resetBlockchain();
-        account1 = tester.randomAccount();
-        account2 = tester.randomAccount();
-        account3 = tester.randomAccount();
-      });
-  
-      it("Should process, submit and confirm an initial block.", async () => {
-        await hardDeposit(account1, 100);
-        let block = await blockchain.processBlock();
-        await blockchain.submitBlock(block);
-        await blockchain.confirmBlock(block);
-        previousHeader = block.commitment;
-        expect(await getBlockCount()).to.eq(1);
       });
 
       it('Should submit a block with a hard create that has a null root.', async () => {
@@ -153,29 +105,29 @@ export const test = () => describe("Header Fraud Proof Tests", async () => {
         const block = await blockchain.processBlock();
         await blockchain.submitBlock(block);
         badBlock = block;
-        expect(await getBlockCount()).to.eq(2);
+        expect(await getBlockCount()).to.eq(3);
       });
 
       it('Should fail to revert a valid block.', async () => {
-        const promise = blockchain.tiramisuContract.methods.createdAccountIndexError(
+        const promise = blockchain.tiramisuContract.methods.proveCreateIndexError(
           previousHeader,
           badBlock.commitment,
           1,
           badBlock.transactionsData
         ).send({ from })
         expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Transaction had correct index.')
-        expect(await getBlockCount()).to.eq(2);
+        expect(await getBlockCount()).to.eq(3);
       });
 
       it('Should reject a call with an out of range transaction.', async () => {
-        const promise = blockchain.tiramisuContract.methods.createdAccountIndexError(
+        const promise = blockchain.tiramisuContract.methods.proveCreateIndexError(
           previousHeader,
           badBlock.commitment,
           3,
           badBlock.transactionsData
         ).send({ from })
-        expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Not a valid create index.')
-        expect(await getBlockCount()).to.eq(2);
+        expect(promise).to.eventually.be.rejectedWith('VM Exception while processing transaction: revert Not a create transaction.')
+        expect(await getBlockCount()).to.eq(3);
       });
     });
   });

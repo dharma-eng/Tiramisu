@@ -63,7 +63,8 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
       const block = await blockchain.processBlock();
       await blockchain.tiramisuContract.methods.resetChain().send({ from });
       await blockchain.submitBlock(block);
-      expect(await getBlockCount()).to.eql(1);
+      const n = +(await getBlockCount());
+      // expect(await getBlockCount()).to.eql(1);
       const transaction = block.transactions.hardCreates[0];
       const leaf = transaction.encode(true);
       const siblings = getMerkleProof([leaf], 0).siblings;
@@ -75,7 +76,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         '0x',
         '0x'
       ).send({ from });
-      expect(await getBlockCount()).to.eql(0);
+      expect(await getBlockCount()).to.eql(n-1);
     });
 
     describe('Hard Create Source Error', async () => {
@@ -86,7 +87,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         const leaf = errorInducer(transaction);
         block.header.transactionsRoot = getMerkleRoot([leaf]);
         await blockchain.submitBlock(block);
-        expect(await getBlockCount()).to.eql(1);
+        const n = +(await getBlockCount());
         const siblings = getMerkleProof([leaf], 0).siblings;
         await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
@@ -96,7 +97,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
           '0x',
           '0x'
         ).send({ from });
-        expect(await getBlockCount()).to.eql(0);
+        expect(await getBlockCount()).to.eql(n-1);
       }
 
       it('Should prove that a hard create has a bad length', async () => {
@@ -283,7 +284,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         const transactionData = leaves[1];
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
-        expect(await getBlockCount()).to.eql(1);
+        const n = +(await getBlockCount());
         await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           transactionData,
@@ -292,7 +293,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
           '0x',
           '0x'
         ).send({ from });
-        expect(await getBlockCount()).to.eql(0);
+        expect(await getBlockCount()).to.eql(n-1);
       }
 
       /**
@@ -352,7 +353,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         const transactionData = leaves[1];
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
-        expect(await getBlockCount()).to.eql(1);
+        const n = +(await getBlockCount());
         await blockchain.tiramisuContract.methods.proveHardTransactionSourceError(
           block.commitment,
           transactionData,
@@ -361,7 +362,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
           '0x',
           '0x'
         ).send({ from });
-        expect(await getBlockCount()).to.eql(0);
+        expect(await getBlockCount()).to.eql(n-1);
       }
 
       /**
@@ -432,7 +433,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
         const transactionData = leaves[1];
         block.header.transactionsRoot = getMerkleRoot(leaves);
         await blockchain.submitBlock(block);
-        expect(await getBlockCount()).to.eql(1);
+        const n = +(await getBlockCount());
         await blockchain.tiramisuContract.methods.proveSignatureError(
           block.commitment,
           transactionData,
@@ -441,7 +442,7 @@ export const test = () => describe("Transaction Fraud Proof Tests", async () => 
           '0x',
           '0x'
         ).send({ from });
-        expect(await getBlockCount()).to.eql(0);
+        expect(await getBlockCount()).to.eql(n-1);
       }
 
       it('Should prove that a soft transfer has an invalid signature', async () => {
