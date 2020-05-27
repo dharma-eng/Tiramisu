@@ -7,3 +7,4 @@ export * from './simple-memdown';
 export * from './to';
 export * from './transaction-sort';
 export * from './transactions-coder';
+export * from './last';
