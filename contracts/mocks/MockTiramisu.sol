@@ -41,6 +41,18 @@ contract MockTiramisu is Tiramisu {
     delete _state.hardTransactions;
     delete _state.blockHashes;
     delete _state.confirmedBlocks;
+    Block.BlockHeader memory genesis = Block.BlockHeader({
+      blockNumber: 0,
+      hardTransactionsCount: 0,
+      stateRoot: 0x78ccaaab73373552f207a63599de54d7d8d0c1805f86ce7da15818d09f4cff62,
+      stateSize: 0,
+      submittedAt: 0,
+      transactionsHash: 0x0000000000000000000000000000000000000000000000000000000000000000,
+      transactionsRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
+      version: 0
+    });
+    _state.blockHashes.push(genesis.blockHash());
+    _state.confirmedBlocks = 1;
   }
 
   function transactionHadPreviousState(
