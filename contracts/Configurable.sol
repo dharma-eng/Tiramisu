@@ -58,10 +58,7 @@ contract Configurable {
   mapping(bytes32 => bool) internal _pendingChanges;
 
   /* <-- Data Structures --> */
-  /**
-   * @dev ConfigField
-   * @notice Used as a selector for config modification.
-   */
+  
   enum ConfigField {
     CHALLENGE_PERIOD,
     COMMITMENT_BOND,
@@ -72,8 +69,7 @@ contract Configurable {
   }
 
   /**
-   * @dev PendingModification
-   * @notice Data representing a requested modification to the configuration.
+   * @dev Data representing a requested modification to the configuration.
    */
   struct PendingModification {
     ConfigField field;
