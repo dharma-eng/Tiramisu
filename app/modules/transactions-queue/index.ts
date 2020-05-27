@@ -6,7 +6,7 @@ export interface TransactionQueue {
 }
 
 export class TransactionQueue {
-  private queue: Transaction[];
+  private queue: Transaction[] = [];
 
   getTransactions(max: number): Transaction[] {
     return this.queue.splice(0, max);
