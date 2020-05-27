@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import ParentInterface from "../modules/parent-interface"
 import { StateMachine, Block } from "../modules";
 import { Database } from "../modules/db";
-import TransactionQueue from "../modules/transactions-queue";
+import { TransactionQueue } from "../modules/transactions-queue";
 
 export type Web3Options = {
   tiramisuContract: any;
@@ -15,6 +15,7 @@ export class TiramisuCore extends EventEmitter {
   private maxSoftTransactions = 10;
   private confirmationPeriod = 0;
   private awaitingConfirmation: string[] = [];
+  public queue: TransactionQueue;
 
   constructor(
     public database: Database,
@@ -23,6 +24,7 @@ export class TiramisuCore extends EventEmitter {
   ) {
     super();
     this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
+    this.queue = new TransactionQueue();
   }
 
   static async create(web3: Web3Options, dbPath?: string): Promise<TiramisuCore> {
@@ -76,7 +78,7 @@ export class TiramisuCore extends EventEmitter {
     const state = await this.database.getState(parentData.stateRoot);
     const stateMachine = new StateMachine(state);
     const encodedHardTransactions = await this.parentInterface.getHardTransactions(parentData.hardTransactionsCount);
-    const softTransactions = await TransactionQueue.getTransactions(this.maxSoftTransactions);
+    const softTransactions = this.queue.getTransactions(this.maxSoftTransactions);
     const block = await stateMachine.executeBlock({
       ...parentData,
       hardTransactionsIndex: parentData.hardTransactionsCount,
