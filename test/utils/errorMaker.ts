@@ -4,7 +4,7 @@ import { HardCreate, State, Block, Account, StateMachine, Transaction, encodeTra
 import ParentInterface from '../../app/modules/parent-interface';
 import L2Client from './client';
 import { Database } from '../../app/modules/db';
-import DharmaL2Core from '../../app/l2-core';
+import DharmaL2Core from '../../app/tiramisu-core';
 import Auditor from '../../app/modules/auditor';
 import rimraf from 'rimraf';
 import { ProvableError, ErrorProof } from '../../app/modules/auditor/types';
