@@ -22,8 +22,8 @@ export class ParentInterface {
 
   currentBlockNumber = async (): Promise<number> => this.web3.eth.getBlockNumber();
 
-  currentPegBlockNumber = async (): Promise<number> => {
-    const num = await this.peg.methods.getBlockCount().call();
+  currentTiramisuBlockNumber = async (): Promise<number> => {
+    const num = await this.tiramisuContract.methods.getBlockCount().call();
     return +num;
   }
 
@@ -84,7 +84,7 @@ export class ParentInterface {
     parent: Block,
     block: Block
   ): Promise<any> {
-    return this.peg.methods.executeWithdrawals(
+    return this.tiramisuContract.methods.executeWithdrawals(
       parent.commitment,
       block.commitment,
       block.transactionsData

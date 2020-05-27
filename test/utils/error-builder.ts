@@ -1,11 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import { randomFromArray, randomHexString, randomAccount, randomHexBuffer } from  './random';
-import { HardCreate, State, Block, Account, StateMachine, Transaction, encodeTransactions, encodeBlock, last, HardTransactionUnion, HardDeposit, HardWithdraw, HardAddSigner, SoftWithdrawal, SoftTransactionUnion, sliceBuffer } from '../../app';
+import {
+  HardCreate, State, Block, Account, StateMachine,
+  Transaction, encodeTransactions, encodeBlock, last,
+  HardTransactionUnion, HardDeposit, HardWithdraw,
+  HardAddSigner, SoftWithdrawal, SoftTransactionUnion, sliceBuffer
+} from '../../app';
 import ParentInterface from '../../app/modules/parent-interface';
 import L2Client from './client';
 import { Database } from '../../app/modules/db';
-import DharmaL2Core from '../../app/l2-core';
+import DharmaL2Core from '../../app/tiramisu-core';
 import Auditor from '../../app/modules/auditor';
 import rimraf from 'rimraf';
 import { ProvableError, ErrorProof } from '../../app/modules/auditor/types';
@@ -172,24 +177,25 @@ export class ErrorBuilder {
     public from: string,
     public core: DharmaL2Core,
     public auditor: Auditor,
-    public dbPath: string
+    public dbPath: string,
+    public tiramisuContract: any
   ) {}
 
-  get peg() { return this.parentInterface.peg; }
+  get peg() { return this.parentInterface.tiramisuContract; }
   get web3() { return this.parentInterface.web3; }
 
   static async create(
     web3: any,
-    peg: any,
+    tiramisuContract: any,
     from: string,
     dbPath?: string
   ): Promise<ErrorBuilder> {
     const db = await Database.create(dbPath);
-    const parentInterface = new ManipulatedParentInterface(peg, from, web3, 10);
+    const parentInterface = new ManipulatedParentInterface(tiramisuContract, from, web3, 10);
     const core = new DharmaL2Core(db, parentInterface, dbPath);
     const auditorDB = await Database.create(path.join(dbPath, 'auditor'));
     const auditor = new Auditor(auditorDB, parentInterface);
-    return new ErrorBuilder(parentInterface, from, core, auditor, dbPath);
+    return new ErrorBuilder(parentInterface, from, core, auditor, dbPath, tiramisuContract);
   }
 
   async closeAndDelete() {
@@ -215,7 +221,7 @@ export class ErrorBuilder {
   async randomClient(): Promise<L2Client> {
     const account = this.web3.eth.accounts.create();
     await this.getEther(account.address);
-    const client = new L2Client(this.web3, this.parentInterface.peg, account, this.pendingStateSize++);
+    const client = new L2Client(this.web3, this.parentInterface.tiramisuContract, account, this.pendingStateSize++);
     this.clients[account.address] = client;
     return client;
   }
@@ -231,7 +237,7 @@ export class ErrorBuilder {
     this.accountsWithPendingBalance[account.address] = (
       this.accountsWithPendingBalance[account.address] || 0
     ) + value;
-    return this.peg.methods.mockDeposit(
+    return this.tiramisuContract.methods.mockDeposit(
       account.address, account.signers[0], value
     ).send({ from: this.from, gas: 5e5 });
   }
@@ -245,7 +251,7 @@ export class ErrorBuilder {
     this.accountsWithPendingBalance[address] = (
       this.accountsWithPendingBalance[address] || 0
     ) + value;
-    return this.peg.methods.mockDeposit(
+    return this.tiramisuContract.methods.mockDeposit(
       address, address, value
     ).send({ from: this.from, gas: 5e5 });
   }

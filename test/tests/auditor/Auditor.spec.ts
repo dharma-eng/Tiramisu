@@ -34,14 +34,14 @@ export const test = () => describe('Auditor Tests', () => {
     const testTypeWithSourceError = (txType: TransactionType, sourceError: HardTransactionSourceError) =>
     describe(`Hard Transaction Source Auditing: ${txType.valueOf()} ${sourceError}`, () => {
       let dbPath: string;
-      let web3: any, peg: any, from: string;
+      let web3: any, tiramisuContract: any, from: string;
       let builder: ErrorBuilder;
       let proof: ErrorProof;
       
       before(async () => {
-        ({ web3, peg, from } = await Tester.create());
+        ({ web3, tiramisuContract, from } = await Tester.create());
         dbPath = buildPath([sourceError.toString(), txType.toString()])
-        builder = await ErrorBuilder.create(web3, peg, from, dbPath);
+        builder = await ErrorBuilder.create(web3, tiramisuContract, from, dbPath);
       });
   
       after(async () => {
@@ -54,10 +54,10 @@ export const test = () => describe('Auditor Tests', () => {
         proof = await builder.buildWithSourceError(txType, sourceError);
       });
 
-      it('Should prove the error to the chain peg', async () => {
-        const blockNum = await builder.parentInterface.currentPegBlockNumber();
+      it('Should prove the error to the chain tiramisuContract', async () => {
+        const blockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         await builder.auditor.proveError(proof);
-        const newBlockNum = await builder.parentInterface.currentPegBlockNumber();
+        const newBlockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         expect(newBlockNum).to.eq(blockNum - 1);
       });
     });
@@ -92,14 +92,14 @@ export const test = () => describe('Auditor Tests', () => {
     const testTypeWithSignatureError = (txType: TransactionType, index: number) =>
     describe(`Soft Transaction Signature Auditing: ${txType.valueOf()}`, async () => {
       let dbPath: string;
-      let web3: any, peg: any, from: string;
+      let web3: any, tiramisuContract: any, from: string;
       let builder: ErrorBuilder;
       let proof: ErrorProof;
       
       before(async () => {
-        ({ web3, peg, from } = await Tester.create());
+        ({ web3, tiramisuContract, from } = await Tester.create());
         dbPath = buildPath([index.toString(), txType.toString()])
-        builder = await ErrorBuilder.create(web3, peg, from, dbPath);
+        builder = await ErrorBuilder.create(web3, tiramisuContract, from, dbPath);
       });
   
       after(async () => {
@@ -112,10 +112,10 @@ export const test = () => describe('Auditor Tests', () => {
         proof = await builder.buildWithSignatureError(txType);
       });
 
-      it('Should prove the error to the chain peg', async () => {
-        const blockNum = await builder.parentInterface.currentPegBlockNumber();
+      it('Should prove the error to the chain tiramisuContract', async () => {
+        const blockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         await builder.auditor.proveError(proof);
-        const newBlockNum = await builder.parentInterface.currentPegBlockNumber();
+        const newBlockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         expect(newBlockNum).to.eq(blockNum - 1);
       });
     });
@@ -129,14 +129,14 @@ export const test = () => describe('Auditor Tests', () => {
     const testTypeWithExecutionError = (txType: TransactionType, index: number) =>
     describe(`Transaction Execution Auditing: ${txType.valueOf()}`, async () => {
       let dbPath: string;
-      let web3: any, peg: any, from: string;
+      let web3: any, tiramisuContract: any, from: string;
       let builder: ErrorBuilder;
       let proof: ErrorProof;
       
       before(async () => {
-        ({ web3, peg, from } = await Tester.create());
+        ({ web3, tiramisuContract, from } = await Tester.create());
         dbPath = buildPath([index.toString(), txType.toString()])
-        builder = await ErrorBuilder.create(web3, peg, from, dbPath);
+        builder = await ErrorBuilder.create(web3, tiramisuContract, from, dbPath);
       });
   
       after(async () => {
@@ -149,10 +149,10 @@ export const test = () => describe('Auditor Tests', () => {
         proof = await builder.buildWithExecutionError(txType);
       });
 
-      it('Should prove the error to the chain peg', async () => {
-        const blockNum = await builder.parentInterface.currentPegBlockNumber();
+      it('Should prove the error to the chain tiramisuContract', async () => {
+        const blockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         await builder.auditor.proveError(proof);
-        const newBlockNum = await builder.parentInterface.currentPegBlockNumber();
+        const newBlockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         expect(newBlockNum).to.eq(blockNum - 1);
       });
     });
@@ -169,14 +169,14 @@ export const test = () => describe('Auditor Tests', () => {
     const testTypeWithBlockError = (errType: InducedBlockError) =>
     describe(`Block Auditing: ${errType.valueOf()}`, async () => {
       let dbPath: string;
-      let web3: any, peg: any, from: string;
+      let web3: any, tiramisuContract: any, from: string;
       let builder: ErrorBuilder;
       let proof: ErrorProof;
       
       before(async () => {
-        ({ web3, peg, from } = await Tester.create());
+        ({ web3, tiramisuContract, from } = await Tester.create());
         dbPath = buildPath([errType.toString()])
-        builder = await ErrorBuilder.create(web3, peg, from, dbPath);
+        builder = await ErrorBuilder.create(web3, tiramisuContract, from, dbPath);
       });
   
       after(async () => {
@@ -189,10 +189,10 @@ export const test = () => describe('Auditor Tests', () => {
         proof = await builder.buildWithBlockError(errType);
       });
 
-      it('Should prove the error to the chain peg', async () => {
-        const blockNum = await builder.parentInterface.currentPegBlockNumber();
+      it('Should prove the error to the chain tiramisuContract', async () => {
+        const blockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         await builder.auditor.proveError(proof);
-        const newBlockNum = await builder.parentInterface.currentPegBlockNumber();
+        const newBlockNum = await builder.parentInterface.currentTiramisuBlockNumber();
         expect(newBlockNum).to.eq(blockNum - 1);
       });
     });
