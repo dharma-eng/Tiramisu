@@ -447,7 +447,7 @@ library ExecutionErrorLib {
     }
     else if (prefix == 6) {
       Tx.SoftTransfer memory _tx = Tx.decodeSoftTransfer(transaction);
-      validateExecutionErrorProof(previousStateRoot, stateProof2, stateProof1, _tx);
+      validateExecutionErrorProof(previousStateRoot, stateProof1, stateProof2, _tx);
     }
     else if (prefix == 7) {
       Tx.SoftChangeSigner memory _tx = Tx.decodeSoftChangeSigner(transaction);
