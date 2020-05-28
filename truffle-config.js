@@ -1,20 +1,20 @@
-var Web3 = require('web3')
+var Web3 = require("web3");
 
 module.exports = {
   networks: {
     development: {
-      provider: new Web3('ws://localhost:8545'),
+      provider: new Web3("ws://localhost:8545"),
       network_id: "*"
     },
     coverage: {
-      provider: new Web3('ws://localhost:8555'),
-      network_id: '*',
-    },
+      provider: new Web3("ws://localhost:8555"),
+      network_id: "*"
+    }
   },
   compilers: {
     solc: {
-       version: "0.6.6",
-       settings: {
+      version: "^0.6.0",
+      settings: {
         optimizer: {
           enabled: true,
           runs: 200
@@ -27,4 +27,4 @@ module.exports = {
     enableTimeouts: false
   },
   plugins: ["solidity-coverage"]
-}
+};
