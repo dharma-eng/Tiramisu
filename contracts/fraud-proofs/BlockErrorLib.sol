@@ -69,13 +69,7 @@ library BlockErrorLib {
     Tx.TransactionsMetadata memory meta = transactionsData
       .decodeTransactionsMetadata();
 
-    uint256 failures = transactionsData.countCreateTransactionsWithEmptyRoot(
-      meta
-    );
-
-    uint256 expectedIncrease = (
-      (meta.hardCreateCount + meta.softCreateCount) - failures
-    );
+    uint256 expectedIncrease = (meta.hardCreateCount + meta.softCreateCount);
 
     if (badHeader.stateSize != (previousHeader.stateSize + expectedIncrease)) {
       state.revertBlock(badHeader);
@@ -258,7 +252,7 @@ library BlockErrorLib {
 
   /**
    * @dev proveHardTransactionsOrderError
-   * Proves that a block has a missing or duplicate hard transaction index.
+   * Proves that a block has a hard transaction which is out of order.
    * TODO - Replace this with something more specific, current approach
    * is a basic brute force search.
    * @param state storage struct representing the state of Tiramisu
@@ -316,7 +310,7 @@ library BlockErrorLib {
       );
     }
 
-    require(fraudProven, "Fraud not found in hard tx range.");
+    require(fraudProven, "Fraud not found in hard tx order.");
     return state.revertBlock(badHeader);
   }
 
@@ -364,7 +358,7 @@ library BlockErrorLib {
       assembly { txIndex := shr(216, mload(newOffset)) }
 
       // Ensure that each transaction has an index higher than the last
-      if (txIndex < lastIndex) {
+      if (i != 0 && txIndex <= lastIndex) {
         fraudulent = true;
         break;
       }

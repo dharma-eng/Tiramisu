@@ -47,6 +47,7 @@ export class State {
     }
 
     static async create(dbPath?: string, rootHash?: string): Promise<State> {
+        if  (rootHash == '0x78ccaaab73373552f207a63599de54d7d8d0c1805f86ce7da15818d09f4cff62') rootHash = null;
         let statePath: string;
         let makeCopy = false;
         if (dbPath && rootHash) {

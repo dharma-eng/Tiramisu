@@ -8,7 +8,8 @@ const blockErrorNamesMap = {
   state_size: 'proveStateSizeError',
   state_root: 'proveStateRootError',
   transactions_root: 'proveTransactionsRootError',
-  hard_transactions_range: 'proveHardTransactionsRangeError'
+  hard_transactions_range: 'proveHardTransactionsRangeError',
+  hard_transactions_order: 'proveHardTransactionsOrderError'
 };
 
 
@@ -26,7 +27,9 @@ export function getErrorProofFunctionInput(proof: ErrorProof): ErrorProofFunctio
           proof.header,
           encodeTransactionStateProof(proof),
           proof.transaction,
-          proof.stateProof ? encodeAccountProof(proof.stateProof) : '0x',
+          proof.stateProof && !(typeof proof.stateProof == 'string' && proof.stateProof == '0x')
+            ? encodeAccountProof(proof.stateProof)
+            : '0x',
           '0x'
         ]
       };
@@ -38,8 +41,12 @@ export function getErrorProofFunctionInput(proof: ErrorProof): ErrorProofFunctio
           proof.header,
           encodeTransactionStateProof(proof),
           proof.transaction,
-          proof.senderProof ? encodeAccountProof(proof.senderProof) : '0x',
-          proof.receiverProof ? encodeAccountProof(proof.receiverProof) : '0x'
+          proof.senderProof && !(typeof proof.senderProof == 'string' && proof.senderProof == '0x')
+            ? encodeAccountProof(proof.senderProof)
+            : '0x',
+          proof.receiverProof && !(typeof proof.receiverProof == 'string' && proof.receiverProof == '0x')
+            ? encodeAccountProof(proof.receiverProof)
+            : '0x'
         ]
       };
     case 'create_index_error':
@@ -59,6 +66,14 @@ export function getErrorProofFunctionInput(proof: ErrorProof): ErrorProofFunctio
         name: blockErrorNamesMap[proof._type] as BlockErrorLibFunctionName,
         data: [
           proof.previousHeader,
+          proof.header,
+          proof.transactionsData
+        ]
+      }
+    case 'hard_transactions_order':
+      return {
+        name: 'proveHardTransactionsOrderError',
+        data: [
           proof.header,
           proof.transactionsData
         ]
@@ -84,10 +99,10 @@ export function getErrorProofFunctionInput(proof: ErrorProof): ErrorProofFunctio
           proof.transaction,
           proof.transactionIndex,
           proof.siblings,
-          proof.previousRootProof
+          proof.previousRootProof && !(typeof proof.previousRootProof == 'string' && proof.previousRootProof == '0x')
             ? encodePreviousRootProof(proof.previousRootProof)
             : '0x',
-          proof.stateProof
+          (proof.stateProof && !(typeof proof.stateProof == 'string' && proof.stateProof == '0x'))
             ? encodeAccountProof(proof.stateProof)
             : '0x'
         ]

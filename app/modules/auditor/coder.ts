@@ -12,8 +12,9 @@ export const encodeCommitment = (commitment: Commitment): string =>
 export const encodeAccountProof = (proof: AccountProof): string =>
   ABI.encodeParameter(AccountProofAbi, proof);
 
-export const encodeTransactionProof = (proof: TransactionProof): string =>
-  ABI.encodeParameter(TransactionProofAbi, proof);
+export const encodeTransactionProof = (proof: TransactionProof): string => {
+  return ABI.encodeParameter(TransactionProofAbi, { ...proof, transactionData: proof.transaction });
+}
 
 export const encodePreviousRootProof = (proof: PreviousRootProof): string =>
   proof._type == 'commitment'

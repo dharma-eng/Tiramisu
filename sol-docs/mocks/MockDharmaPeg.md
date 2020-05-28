@@ -1,9 +1,8 @@
-## `MockDharmaPeg`
+# [🔗](/contracts/mocks/MockDharmaPeg.sol#L23) MockDharmaPeg
+# Functions
+## [🔗](/contracts/mocks/MockDharmaPeg.sol#L34) `mockDeposit(address contractAddress, address initialSignerAddress, uint56 value)`
 
-### `constructor(address daiContract)` (public)
+## [🔗](/contracts/mocks/MockDharmaPeg.sol#L40) `resetChain()`
 
-### `mockDeposit(address contractAddress, address initialSignerAddress, uint56 value)` (external)
+## [🔗](/contracts/mocks/MockDharmaPeg.sol#L46) `transactionHadPreviousState(bytes previousSource, Block.BlockHeader blockHeader, uint256 transactionIndex)`
 
-### `resetChain()` (external)
-
-### `transactionHadPreviousState(bytes previousSource, struct BlockLib.BlockHeader blockHeader, uint256 transactionIndex) → bytes32` (public)

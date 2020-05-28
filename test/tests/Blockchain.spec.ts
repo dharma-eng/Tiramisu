@@ -146,7 +146,7 @@ const test = () => describe("Blockchain Tests", () => {
 
         it(`Should update the blockchain's stateSize, blockNumber, hardTransactionsIndex`, () => {
           expect(blockchain.hardTransactionsIndex).to.eql(2);
-          expect(blockchain.blockNumber).to.eql(1);
+          expect(blockchain.blockNumber).to.eql(2);
           expect(blockchain.state.size).to.eql(2);
         });
 
@@ -161,7 +161,7 @@ const test = () => describe("Blockchain Tests", () => {
           const { header } = block;
           expect(header.version).to.eql(0);
           expect(header.hardTransactionsCount).to.eql(2);
-          expect(header.blockNumber).to.eql(0);
+          expect(header.blockNumber).to.eql(1);
           expect(header.stateSize).to.eql(blockchain.state.size);
           expect(header.stateRoot).to.eql(await blockchain.state.rootHash());
         });
@@ -173,9 +173,9 @@ const test = () => describe("Blockchain Tests", () => {
         });
 
         it("Should locally calculate the correct block hash", async () => {
-          const blockHash = block.blockHash(blockchain.web3);
+          const blockHash = block.blockHash();
           const committedHash = await blockchain.tiramisuContract.methods
-            .getBlockHash(0)
+            .getBlockHash(1)
             .call();
           expect(blockHash).to.eql(committedHash);
         });
@@ -185,11 +185,11 @@ const test = () => describe("Blockchain Tests", () => {
           const lastConfirmedBlock = await blockchain.tiramisuContract.methods
             .getConfirmedBlockCount()
             .call();
-          expect(lastConfirmedBlock).to.eql("1");
+          expect(lastConfirmedBlock).to.eql("2");
         });
       });
 
-      describe("Withdrawal Processing", async () => {
+      /* describe("Withdrawal Processing", async () => {
         describe("Soft Withdrawal", async () => {
           let withdrawal, withdrawalPromise, leaf1, siblings;
           it("Should execute a soft withdrawal transaction.", async () => {
@@ -283,7 +283,7 @@ const test = () => describe("Blockchain Tests", () => {
             expect(balance).to.eql("50");
           });
         });
-      });
+      }); */
     });
   });
 

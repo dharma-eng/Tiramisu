@@ -50,7 +50,7 @@ export function compile(dir, fileName, importPath) {
     for (let err of output.errors) {
       console.log(err);
     }
-    throw new Error();
+    if (output.errors.filter(err => err.severity != 'warning').length) throw new Error();
   }
   return output.contracts;
 }

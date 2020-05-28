@@ -14,7 +14,7 @@ import {
 } from "./types";
 import {
   ProofData_Basic, HardCreateExecutionError, CreateIndexError, SoftWithdrawalExecutionError,
-  SoftCreateExecutionError, SoftTransferExecutionError, SoftChangeSignerExecutionError
+  SoftCreateExecutionError, SoftTransferExecutionError, SoftChangeSignerExecutionError, HardWithdrawalExecutionError, HardAddSignerExecutionError
 } from "./types/execution-errors";
 
 const ABI = require('web3-eth-abi');
@@ -108,15 +108,16 @@ export class ExecutionAuditor extends StateMachine {
       softTransfers,
       softChangeSigners
     } = this.block.transactions;
-    console.log(`Checking block execution...`)
-    await Promise.all(hardCreates.map((tx, i) => this.validateHardCreate(tx, i)));
-    await Promise.all(hardDeposits.map((tx, i) => this.validateHardDeposit(tx, i)));
-    await Promise.all(hardWithdrawals.map((tx, i) => this.validateHardWithdrawal(tx, i)));
-    await Promise.all(hardAddSigners.map((tx, i) => this.validateHardAddSigner(tx, i)));
-    await Promise.all(softWithdrawals.map((tx, i) => this.validateSoftWithdrawal(tx, i)));
-    await Promise.all(softCreates.map((tx, i) => this.validateSoftCreate(tx, i)));
-    await Promise.all(softTransfers.map((tx, i) => this.validateSoftTransfer(tx, i)));
-    await Promise.all(softChangeSigners.map((tx, i) => this.validateSoftChangeSigner(tx, i)));
+    // console.log(`Checking block execution...`)
+    let index = 0;
+    for (let i = 0; i < hardCreates.length; i++) await this.validateHardCreate(hardCreates[i], i+(index++));
+    for (let i = 0; i < hardDeposits.length; i++) await this.validateHardDeposit(hardDeposits[i], i+(index++));
+    for (let i = 0; i < hardWithdrawals.length; i++) await this.validateHardWithdrawal(hardWithdrawals[i], i+(index++));
+    for (let i = 0; i < hardAddSigners.length; i++) await this.validateHardAddSigner(hardAddSigners[i], i+(index++));
+    for (let i = 0; i < softWithdrawals.length; i++) await this.validateSoftWithdrawal(softWithdrawals[i], i+(index++));
+    for (let i = 0; i < softCreates.length; i++) await this.validateSoftCreate(softCreates[i], i+(index++));
+    for (let i = 0; i < softTransfers.length; i++) await this.validateSoftTransfer(softTransfers[i], i+(index++));
+    for (let i = 0; i < softChangeSigners.length; i++) await this.validateSoftChangeSigner(softChangeSigners[i], i+(index++));
   }
 
   async validateHardCreate(transaction: HardCreate, index: number) {
@@ -169,20 +170,27 @@ export class ExecutionAuditor extends StateMachine {
   async validateHardDeposit(transaction: HardDeposit, index: number) {
     const real = this.realHardTransactions[transaction.hardTransactionIndex];
     if (
-      real.prefix != 0 || // Note: all deposits have prefix 0
+      real.prefix != 1 ||
       real.accountIndex != transaction.accountIndex ||
       real.value != transaction.value
     ) {
-      const { transaction, siblings } = this.block.proveTransaction(index);
-      const err = {
+      const { transaction: txBytes, siblings } = this.block.proveTransaction(index);
+      let err = {
         _type: "hard_transaction_source",
         header: this.block.commitment,
         transactionIndex: index,
-        transaction,
+        transaction: txBytes,
         siblings
       } as HardTransactionSourceError;
+      if (real.accountIndex != transaction.accountIndex) {
+        err = {
+          ...err,
+          ...(await this.getPreviousStateProof(index, real.accountIndex))
+        }
+      }
       this.fail(err);
     }
+    
     
     // TODO
     // Add checkpoint/commit/revert to SparseMerkleTree so we don't always have to
@@ -208,6 +216,7 @@ export class ExecutionAuditor extends StateMachine {
     ) {
       const { transaction, siblings } = this.block.proveTransaction(index);
       const err = {
+        _type: 'hard_transaction_source',
         header: this.block.commitment,
         transactionIndex: index,
         transaction,
@@ -219,13 +228,15 @@ export class ExecutionAuditor extends StateMachine {
     // TODO
     // Add checkpoint/commit/revert to SparseMerkleTree so we don't always have to
     // precalculate proof data which might not be used.
-    const err = await this.getBasicProof(index, transaction.accountIndex) as HardDepositExecutionError;
+    const err = await this.getBasicProof(index, transaction.accountIndex) as HardWithdrawalExecutionError;
+    err._type = 'hard_withdrawal';
     // If the account did not exist or had an insufficient balance,
     // the transaction should have a null output root.
+    const currentRoot = await this.state.rootHash();
     const account = await this.state.getAccount(transaction.accountIndex);
     if (
       (!account || account.balance < transaction.value) &&
-      transaction.intermediateStateRoot != `0x${'00'.repeat(32)}`
+      transaction.intermediateStateRoot != currentRoot
     ) {
       this.fail(err);
     }
@@ -266,7 +277,9 @@ export class ExecutionAuditor extends StateMachine {
     // TODO
     // Add checkpoint/commit/revert to SparseMerkleTree so we don't always have to
     // precalculate proof data which might not be used.
-    const err = await this.getBasicProof(index, transaction.accountIndex) as HardDepositExecutionError;
+    const err = await this.getBasicProof(index, transaction.accountIndex) as HardAddSignerExecutionError;
+    err._type = 'hard_add_signer';
+    const currentRoot = await this.state.rootHash();
     // If the account did not exist or had an insufficient balance,
     // the transaction should have a null output root.
     // const account = await this.state.getAccount(transaction.accountIndex);
@@ -275,7 +288,7 @@ export class ExecutionAuditor extends StateMachine {
         !account.hasSigner(transaction.signingAddress) ||
         account.signers.length == 10
       ) &&
-      transaction.intermediateStateRoot != `0x${'00'.repeat(32)}`
+      transaction.intermediateStateRoot != currentRoot
     ) {
       this.fail(err);
     }
@@ -297,7 +310,7 @@ export class ExecutionAuditor extends StateMachine {
         ...this.block.proveTransaction(index),
         transactionIndex: index,
         _type: 'transaction_signature',
-      } as TransactionSignatureError)
+      });
     }
     const account = await this.state.getAccount(transaction.accountIndex);
     if (!account.hasSigner(signer)) {

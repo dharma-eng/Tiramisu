@@ -29,7 +29,7 @@ export class Blockchain implements BlockchainType {
         this.state = state;
         this.stateMachine = new StateMachine(state);
         this.version = 0;
-        this.blockNumber = 0;
+        this.blockNumber = 1;
     }
 
     async getHardTransactions(): Promise<Transaction[]> {

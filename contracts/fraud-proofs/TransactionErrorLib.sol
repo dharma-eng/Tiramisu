@@ -148,7 +148,7 @@ library TransactionErrorLib {
     ) = Account.verifyAccountInState(previousStateRoot, stateProof);
     require(accountIndex == input.accountIndex, "Invalid state proof.");
     if (
-      output.intermediateStateRoot != bytes32(0) &&
+      output.intermediateStateRoot != previousStateRoot &&
       (empty || account.contractAddress != input.caller)
     ) return true;
   }
@@ -226,6 +226,7 @@ library TransactionErrorLib {
       ),
       "Invalid merkle proof."
     );
+
     address signer = transaction.recoverSignature();
     if (signer == address(0)) {
       return state.revertBlock(badHeader);

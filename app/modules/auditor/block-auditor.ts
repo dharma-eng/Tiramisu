@@ -1,5 +1,5 @@
 import Block, { Commitment } from "../block";
-import { getMerkleRoot, sliceBuffer } from "../../lib";
+import { getMerkleRoot, sliceBuffer, last } from "../../lib";
 import {
   ErrorProof,
   TransactionsLengthError,
@@ -15,10 +15,6 @@ import { TransactionMetadata } from "../transactions";
 import { decodeBlockSubmitCalldata, decodeSubmittedBlock } from "./coder";
 import { toBuffer } from "ethereumjs-util";
 import AuditProofProvider from "./provider";
-
-function last<T>(arr: T[]): T {
-  return arr[arr.length - 1];
-}
 
 export class BlockAuditor {
   private constructor(private provider: AuditProofProvider) {}
@@ -86,14 +82,14 @@ export class BlockAuditor {
       const txs = transactions[key];
       let lastIndex = 0;
       for (let tx of txs) {
-        if (tx.hardTransactionIndex <= lastIndex) {
+        if (lastIndex != 0 && tx.hardTransactionIndex <= lastIndex) {
           this.fail({
             header: block.commitment,
             transactionsData: block.transactionsData,
             _type: 'hard_transactions_order'
           } as HardTransactionsOrderError);
         }
-        else lastIndex = tx.hardTransactionIndex;
+        lastIndex = tx.hardTransactionIndex;
       }
     }
   }
@@ -122,10 +118,8 @@ export class BlockAuditor {
         _type: 'hard_transactions_count'
       } as HardTransactionsCountError)
     }
-    const hardCreates = transactions.hardCreates?.filter(t =>
-      t.intermediateStateRoot && t.intermediateStateRoot != `0x${'00'.repeat(32)}`
-    ).length;
-    const totalCreates = hardCreates + meta.softCreates;
+    
+    const totalCreates = meta.hardCreates + meta.softCreates;
     if (stateSize + totalCreates != header.stateSize) {
       this.fail({
         previousHeader: parentBlock.commitment,

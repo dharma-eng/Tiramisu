@@ -22,6 +22,11 @@ export class ParentInterface {
 
   currentBlockNumber = async (): Promise<number> => this.web3.eth.getBlockNumber();
 
+  currentTiramisuBlockNumber = async (): Promise<number> => {
+    const num = await this.tiramisuContract.methods.getBlockCount().call();
+    return +num;
+  }
+
   /**
    * Gets an array of encoded hard transactions from the Tiramisu contract.
    */
@@ -73,6 +78,17 @@ export class ParentInterface {
 
   async proveError(input: ErrorProofFunctionInput): Promise<any> {
     return this.tiramisuContract.methods[input.name](...input.data).send({ from: this.from, gas: 5e6 });
+  }
+
+  async submitWithdrawals(
+    parent: Block,
+    block: Block
+  ): Promise<any> {
+    return this.tiramisuContract.methods.executeWithdrawals(
+      parent.commitment,
+      block.commitment,
+      block.transactionsData
+    );
   }
 }
 

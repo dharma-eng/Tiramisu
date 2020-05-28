@@ -4,12 +4,12 @@ import { toHex, toInt } from '../../app';
 
 export function randomHexString(size) {
   const bytes = crypto.randomBytes(size);
-  return bytes.toString("hex");
+  return toHex(bytes);
 }
 
 export function randomHexBuffer(size) {
   const bytes = randomHexString(size);
-  return Buffer.from(bytes, "hex");
+  return Buffer.from(bytes.slice(2), "hex");
 }
 
 export const randomAccount = () => {

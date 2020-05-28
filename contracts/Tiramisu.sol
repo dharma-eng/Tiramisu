@@ -10,6 +10,7 @@ import "./fraud-proofs/FraudProver.sol";
 import "./lib/Owned.sol";
 import "./StateManager.sol";
 import "./interfaces/TiramisuInterface.sol";
+import { WithdrawLib as WD } from "./lib/WithdrawLib.sol";
 
 
 /**
@@ -188,66 +189,51 @@ contract Tiramisu is FraudProver, TiramisuInterface, Owned, StateManager {
   }
 
   /**
-   * @dev getConfirmedBlockCount
-   * Gets the number of confirmed blocks in the state.
+   * @dev Gets the number of confirmed blocks in the state.
    */
   function getConfirmedBlockCount() external view override returns (uint256) {
     return _state.confirmedBlocks;
   }
 
   /**
-   * @dev executeWithdrawal
-   * @notice Executes a withdrawal which exists in a confirmed block and
-   * replaces the leaf with a null value.
-   * @param header Block header which contains the transaction.
-   * @param transaction Encoded hard or soft withdrawal transaction.
-   * @param transactionIndex Location of the transaction in the transactions
-   * tree for the block.
-   * @param inclusionProof Array of sibling hashes for the transaction in the
+   * @dev Executes the withdrawals in a confirmed block.
+   * @param parent Header of the previous block, used to determine which withdrawals were executed.
+   * @param header Header of the block with the withdrawals to execute
+   * @param transactionsData Transactions buffer from the block.
    * merkle tree.
    */
-  function executeWithdrawal(
+  function executeWithdrawals(
+    Block.BlockHeader memory parent,
     Block.BlockHeader memory header,
-    bytes memory transaction,
-    uint256 transactionIndex,
-    bytes32[] memory inclusionProof
+    bytes memory transactionsData
   ) public override {
-    byte txPrefix = transaction[0];
-    uint56 value;
-    address receiver;
-    /* Ensure transaction is the correct type and get withdrawal parameters. */
-    if (txPrefix == 0x02) {
-      TX.HardWithdrawal memory withdrawal = TX.decodeHardWithdrawal(transaction);
-      value = withdrawal.value;
-      receiver = withdrawal.withdrawalAddress;
-    } else if (txPrefix == 0x04) {
-      TX.SoftWithdrawal memory withdrawal = TX.decodeSoftWithdrawal(transaction);
-      value = withdrawal.value;
-      receiver = withdrawal.withdrawalAddress;
-    } else revert("Transaction not of a withdrawal type.");
-    /* Verify that the block is confirmed. */
-    bytes32 blockHash = Block.blockHash(header);
+    bytes32 blockHash = header.blockHash();
+
     require(
-      _state.blockIsConfirmed(header.blockNumber, blockHash),
-      "Block is not confirmed."
+      _state.blockIsConfirmed(header.blockNumber, blockHash) &&
+      _state.blockIsConfirmed(parent.blockNumber, parent.blockHash()) &&
+      header.blockNumber == parent.blockNumber + 1 &&
+      header.hasTransactionsData(transactionsData) &&
+      _state.withdrawalsProcessed[blockHash] == false,
+      "Invalid inputs."
     );
 
-    /* Verify transaction's inclusion proof and replace it with a null leaf. */
-    (bool included, bytes32 newRoot) = Merkle.verifyAndUpdate(
-      header.transactionsRoot,
-      transaction,
-      bytes(""),
-      transactionIndex,
-      inclusionProof
+    WD.GenericWithdrawal[] memory withdrawals = WD.extractWithdrawals(
+      parent, transactionsData
     );
-    require(included, "Invalid inclusion proof.");
-    /* Update header with new transactions root. */
-    header.transactionsRoot = newRoot;
-    /* Update block hash with new header. */
-    _state.blockHashes[header.blockNumber] = Block.blockHash(header);
-    /* Transfer tokens to the recipient. */
-    /* TODO - Add decimal conversion */
-    tokenContract.transfer(receiver, value);
+
+    _state.withdrawalsProcessed[blockHash] = true;
+
+    for (uint256 i = 0; i < withdrawals.length; i++) {
+      WD.GenericWithdrawal memory withdrawal = withdrawals[i];
+      /* Transfer tokens to the recipient. */
+      /* TODO - Add decimal conversion */
+      bool ok = tokenContract.transfer(
+        withdrawal.withdrawalAddress, withdrawal.value
+      );
+
+      require(ok, "Token Transfer Failed.");
+    }
   }
 
   /**

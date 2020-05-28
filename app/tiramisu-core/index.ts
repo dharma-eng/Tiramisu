@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import ParentInterface from "../modules/parent-interface"
 import { StateMachine, Block } from "../modules";
 import { Database } from "../modules/db";
-import TransactionQueue from "../modules/transactions-queue";
+import { TransactionQueue } from "../modules/transactions-queue";
 
 export type Web3Options = {
   tiramisuContract: any;
@@ -15,6 +15,7 @@ export class TiramisuCore extends EventEmitter {
   private maxSoftTransactions = 10;
   private confirmationPeriod = 0;
   private awaitingConfirmation: string[] = [];
+  public queue: TransactionQueue;
 
   constructor(
     public database: Database,
@@ -23,6 +24,7 @@ export class TiramisuCore extends EventEmitter {
   ) {
     super();
     this._confirmationTimer = setTimeout(() => this.confirmationLoop, 5000);
+    this.queue = new TransactionQueue();
   }
 
   static async create(web3: Web3Options, dbPath?: string): Promise<TiramisuCore> {
@@ -41,6 +43,15 @@ export class TiramisuCore extends EventEmitter {
         const n = await this.parentInterface.currentBlockNumber();
         if (block.commitment.submittedAt + this.confirmationPeriod > n) {
           await this.parentInterface.confirmBlock(block);
+          if (
+            block.transactions.hardWithdrawals?.length ||
+            block.transactions.softWithdrawals?.length
+          ) {
+            await this.parentInterface.submitWithdrawals(
+              await this.database.getBlock(block.header.blockNumber - 1),
+              block
+            );
+          }
           this.emit('block-confirmed', block.blockHash());
         } else {
           this.awaitingConfirmation.unshift(hash);
@@ -55,6 +66,7 @@ export class TiramisuCore extends EventEmitter {
 
   async close() {
     await this.database.close();
+    delete this._confirmationTimer;
   }
 
   async getLatestState() {
@@ -66,7 +78,7 @@ export class TiramisuCore extends EventEmitter {
     const state = await this.database.getState(parentData.stateRoot);
     const stateMachine = new StateMachine(state);
     const encodedHardTransactions = await this.parentInterface.getHardTransactions(parentData.hardTransactionsCount);
-    const softTransactions = await TransactionQueue.getTransactions(this.maxSoftTransactions);
+    const softTransactions = this.queue.getTransactions(this.maxSoftTransactions);
     const block = await stateMachine.executeBlock({
       ...parentData,
       hardTransactionsIndex: parentData.hardTransactionsCount,
@@ -74,7 +86,7 @@ export class TiramisuCore extends EventEmitter {
       softTransactions
     });
     if (commit) {
-      await state.commit();
+      await state.commit(this.dbPath);
       await this.parentInterface.submitBlock(block);
       await this.database.putBlock(block);
       const hash = block.blockHash();

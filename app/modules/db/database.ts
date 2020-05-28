@@ -1,5 +1,6 @@
+import fs from 'fs';
 import BlockDatabase from "./block-database";
-import BlockHashDatabase from "./blockhash-database";
+import BlockHashDatabase, { Latest } from "./blockhash-database";
 import Block from "../block";
 import { State } from "../state";
 
@@ -22,9 +23,12 @@ export class Database {
   }
 
   static async create(dbPath?: string): Promise<Database> {
+    if (dbPath && !fs.existsSync(dbPath)) fs.mkdirSync(dbPath);
     const blocksDB = new BlockDatabase(dbPath);
     const blockHashDB = await BlockHashDatabase.create(dbPath);
-    return new Database(blocksDB, blockHashDB, dbPath);
+    const db = new Database(blocksDB, blockHashDB, dbPath);
+    if (blockHashDB._latest == 0) await db.putBlock(Block.genesisBlock());
+    return db;
   }
 
   async putBlock(block: Block) {
@@ -57,6 +61,7 @@ export class Database {
    */
   async getLatestBlock(height?: number): Promise<Block> {
     const blockHash = await this.blockHashDB.latest(height);
+    if (typeof blockHash != 'string') return this.getBlock((blockHash as Latest).blockHash);
     return this.getBlock(blockHash);
   }
 

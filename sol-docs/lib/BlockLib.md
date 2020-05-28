@@ -1,15 +1,45 @@
-## `BlockLib`
+# [🔗](/contracts/lib/BlockLib.sol#L5) BlockLib
+# Data Structures
+## [🔗](/contracts/lib/BlockLib.sol#L8) BlockHeader
+### Properties
+- `uint16 version`
+- `uint32 blockNumber`
+- `uint32 stateSize`
+- `bytes32 stateRoot`
+- `uint40 hardTransactionsCount`
+- `bytes32 transactionsRoot`
+- `bytes32 transactionsHash`
+- `uint256 submittedAt`
+## [🔗](/contracts/lib/BlockLib.sol#L19) HeaderInput
+### Properties
+- `uint16 version`
+- `uint32 blockNumber`
+- `uint32 stateSize`
+- `bytes32 stateRoot`
+- `uint40 hardTransactionsCount`
+- `bytes32 transactionsRoot`
+## [🔗](/contracts/lib/BlockLib.sol#L28) BlockInput
+### Properties
+- `HeaderInput header`
+- `bytes transactionsData`
+# Functions
+## [🔗](/contracts/lib/BlockLib.sol#L39) `toCommitment(BlockInput blockInput)`
 
-### `toCommitment(struct BlockLib.BlockInput blockInput) → struct BlockLib.BlockHeader` (internal)
+_toCommitment
 
-This function takes a submitted block input and converts it to a
-committed block. The transaction bytes are hashed and the hash is placed
-in the committed header.
+This function takes a submitted block input and converts it to a committed block. The transaction bytes are hashed and the hash is placed in the committed header.
 
-\_toCommitment
 
-### `decodeBlockHeader(bytes data) → struct BlockLib.BlockHeader` (internal)
 
-### `blockHash(struct BlockLib.BlockHeader header) → bytes32` (internal)
 
-### `hasTransactionsData(struct BlockLib.BlockHeader header, bytes txData) → bool` (internal)
+### Parameters
+* `blockInput` - Block input data submitted with a block submission.
+### Returns
+* `BlockHeader`
+
+## [🔗](/contracts/lib/BlockLib.sol#L61) `decodeBlockHeader(bytes data)`
+
+## [🔗](/contracts/lib/BlockLib.sol#L67) `blockHash(BlockHeader header)`
+
+## [🔗](/contracts/lib/BlockLib.sol#L73) `hasTransactionsData(BlockHeader header, bytes txData)`
+

@@ -19,53 +19,49 @@ library ExecutionErrorLib {
   /**
    * Determine how many successful create transactions were executed prior to `index`.
    */
-  function executedCreatesBeforeIndex(
+  function createsBeforeIndex(
     bytes memory txData,
     uint256 index
   ) internal pure returns (uint256 pointer, uint256 creates, bool hard) {
     Tx.TransactionsMetadata memory meta = txData.decodeTransactionsMetadata();
     assembly { pointer := add(txData, 48) }
-    uint256 currentIndex = 0;
 
     if (index < meta.hardCreateCount) {
-      while (currentIndex < index) {
-        assembly { if iszero(iszero(mload(add(pointer, 56)))) { creates := add(creates, 1) } }
-        currentIndex++;
-      }
-      pointer += index * 88;
-      return (pointer, creates, true);
+      return (pointer + 88 * index, index, true);
     }
 
-    while (currentIndex <= meta.hardCreateCount) {
-      assembly {
-        if iszero(iszero(mload(add(pointer, 56)))) {
-          creates := add(creates, 1)
-        }
-      }
-      currentIndex++;
-      pointer += 88;
-    }
-    currentIndex += (
-      meta.hardDepositCount + meta.hardWithdrawCount +
+    uint256 minimumSoftCreateIndex = (
+      meta.hardCreateCount + meta.hardDepositCount + meta.hardWithdrawCount +
       meta.hardAddSignerCount + meta.softWithdrawCount
     );
+
     require(
-      index >= currentIndex &&
-      index < currentIndex + meta.softCreateCount,
-      "Not a valid create index."
+      index >= minimumSoftCreateIndex &&
+      index < minimumSoftCreateIndex + meta.softCreateCount,
+      "Not a create transaction."
     );
 
+    uint256 executedSoftCreates = index - minimumSoftCreateIndex;
+
     pointer += (
+      (meta.hardCreateCount * 88) +
       (meta.hardDepositCount * 48) + (meta.hardWithdrawCount * 68) +
-      (meta.hardAddSignerCount * 61) + (meta.softWithdrawCount * 131)
+      (meta.hardAddSignerCount * 61) + (meta.softWithdrawCount * 131) +
+      (executedSoftCreates * 155)
     );
+
+    return (pointer, meta.hardCreateCount + executedSoftCreates, false);
   }
 
   /**
-   * @dev proveCreateIndexError
-   * Prove that the account index in a create transaction was not equal to the
+   * @dev Prove that the account index in a create transaction was not equal to the
    * state size of the previous block plus the sum of create
    * transactions executed previously in the same block.
+   * @param state storage struct representing the peg state
+   * @param previousHeader header of the last block
+   * @param badHeader header of the block containing the error
+   * @param transactionIndex index of the transaction with the bad create index
+   * @param transactionsData transactions buffer from the block
    */
   function proveCreateIndexError(
     State.State storage state,
@@ -82,7 +78,7 @@ library ExecutionErrorLib {
     );
     (
       uint256 pointer, uint256 creates, bool hard
-    ) = executedCreatesBeforeIndex(transactionsData, transactionIndex);
+    ) = createsBeforeIndex(transactionsData, transactionIndex);
     uint256 expectedIndex = previousHeader.stateSize + creates;
     uint256 accountIndex;
 
@@ -95,9 +91,18 @@ library ExecutionErrorLib {
 
   /**
    * @dev Validate a hard create execution error proof.
+   * An error can be proven if any of the following are verified:
+   * - `stateProof` proves that an account with the contract address in the
+   *   transaction already existed.
+   * - `stateProof` proves that the account with the index from the transaction
+   *   was not empty prior to the transaction.
+   * - `stateProof` proves that the account with the index from the transaction
+   *   was empty, but the result of recalculating the state root with the account
+   *   that should have been created by the transaction is not equal to the
+   *   transaction's `intermediateStateRoot`.
    * @param priorStateRoot State root prior to the transaction.
-   * @param stateProof Inclusion proof of the account in
-   * the tree with root `priorStateRoot`.
+   * @param stateProof Inclusion proof of the account in the tree
+   * with root `priorStateRoot`.
    * @param transaction Transaction to check for fraud.
    */
   function validateExecutionErrorProof(
@@ -111,11 +116,12 @@ library ExecutionErrorLib {
       bytes32[] memory siblings,
       Account.Account memory provenAccount
     ) = priorStateRoot.verifyAccountInState(stateProof);
-    bool rejected = transaction.intermediateStateRoot == bytes32(0);
+    // Hard creates can not be rejected.
+    if (transaction.intermediateStateRoot == priorStateRoot) return;
 
     if (accountIndex != transaction.accountIndex) {
       require(
-        provenAccount.contractAddress == transaction.contractAddress && !rejected,
+        provenAccount.contractAddress == transaction.contractAddress,
         "Wrong account proven."
       );
       return;
@@ -151,8 +157,10 @@ library ExecutionErrorLib {
       bytes32[] memory siblings,
       Account.Account memory account
     ) = priorStateRoot.verifyAccountInState(stateProof);
-    /* Hard deposits can not be rejected. */
-    if (transaction.intermediateStateRoot == bytes32(0)) return;
+
+    // Hard deposits can not be rejected.
+    if (transaction.intermediateStateRoot == priorStateRoot) return;
+
     require(transaction.accountIndex == accountIndex, "Wrong account proven.");
     if (empty) return;
     account.balance += transaction.value;
@@ -182,7 +190,7 @@ library ExecutionErrorLib {
       Account.Account memory account
     ) = priorStateRoot.verifyAccountInState(stateProof);
     require(accountIndex == transaction.accountIndex, "Wrong account proven.");
-    bool rejected = transaction.intermediateStateRoot == bytes32(0);
+    bool rejected = transaction.intermediateStateRoot == priorStateRoot;
     bool shouldReject = (
       empty ||
       account.balance < transaction.value ||
@@ -217,7 +225,7 @@ library ExecutionErrorLib {
       Account.Account memory account
     ) = priorStateRoot.verifyAccountInState(stateProof);
     require(accountIndex == transaction.accountIndex, "Wrong account proven.");
-    bool rejected = transaction.intermediateStateRoot == bytes32(0);
+    bool rejected = transaction.intermediateStateRoot == priorStateRoot;
     bool shouldReject = (
       empty ||
       (account.signers.length == 10) ||
@@ -446,7 +454,7 @@ library ExecutionErrorLib {
     }
     else if (prefix == 6) {
       Tx.SoftTransfer memory _tx = Tx.decodeSoftTransfer(transaction);
-      validateExecutionErrorProof(previousStateRoot, stateProof2, stateProof1, _tx);
+      validateExecutionErrorProof(previousStateRoot, stateProof1, stateProof2, _tx);
     }
     else if (prefix == 7) {
       Tx.SoftChangeSigner memory _tx = Tx.decodeSoftChangeSigner(transaction);

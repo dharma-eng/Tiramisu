@@ -103,85 +103,125 @@ library TransactionsLib {
     bytes32 intermediateStateRoot;
   }
 
-  function decodeHardCreate(
-    bytes memory transaction
-  ) internal pure returns (HardCreate memory hardCreate) {
+  function decodeTransactionsMetadata(bytes memory input)
+  internal pure returns (TransactionsMetadata memory) {
+    uint16 hardCreateCount;
+    uint16 hardDepositCount;
+    uint16 hardWithdrawCount;
+    uint16 hardAddSignerCount;
+    uint16 softWithdrawCount;
+    uint16 softCreateCount;
+    uint16 softTransferCount;
+    uint16 softChangeSignerCount;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // hardTransactionIndex: [no offset] [40 bits]  (load(0) >> 216)
-      mstore(hardCreate, shr(216, mload(bodyPtr)))
-      // accountIndex: [offset 5 bytes] [32 bits]  (load(5) >> 224)
-      mstore(add(hardCreate, 0x20), shr(224, mload(add(bodyPtr, 5))))
-      // value: [offset 9 bytes] [56 bits]  (load(9) >> 200)
-      mstore(add(hardCreate, 0x40), shr(200, mload(add(bodyPtr, 9))))
-      // contractAddress: [offset 16 bytes] [160 bits]  (load(16) >> 96)
-      mstore(add(hardCreate, 0x60), shr(96, mload(add(bodyPtr, 16))))
-      // signerAddress: [offset 36 bytes] [160 bits]  (load(36) >> 96)
-      mstore(add(hardCreate, 0x80), shr(96, mload(add(bodyPtr, 36))))
-      // intermediateStateRoot: [offset 56 bytes] [256 bits] (load(56))
-      mstore(add(hardCreate, 0xa0), mload(add(bodyPtr, 56)))
+      // Add 32 to skip length
+      let ptr := add(input, 32)
+      hardCreateCount := shr(240, mload(ptr))
+      hardDepositCount := shr(240, mload(add(ptr, 2)))
+      hardWithdrawCount := shr(240, mload(add(ptr, 4)))
+      hardAddSignerCount := shr(240, mload(add(ptr, 6)))
+      softWithdrawCount := shr(240, mload(add(ptr, 8)))
+      softCreateCount := shr(240, mload(add(ptr, 10)))
+      softTransferCount := shr(240, mload(add(ptr, 12)))
+      softChangeSignerCount := shr(240, mload(add(ptr, 14)))
     }
+    return TransactionsMetadata(
+      hardCreateCount, hardDepositCount,
+      hardWithdrawCount, hardAddSignerCount,
+      softWithdrawCount, softCreateCount,
+      softTransferCount, softChangeSignerCount
+    );
   }
 
-  function decodeHardDeposit(
-    bytes memory transaction
-  ) internal pure returns (HardDeposit memory hardDeposit) {
+  function decodeHardCreate(bytes memory input)
+  internal pure returns (HardCreate memory) {
+    uint40 hardTransactionIndex;
+    uint32 accountIndex;
+    uint56 value;
+    address contractAddress;
+    address signerAddress;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // hardTransactionIndex: [no offset] [40 bits]  (load(0) >> 216)
-      mstore(hardDeposit, shr(216, mload(bodyPtr)))
-      // accountIndex: [offset 5 bytes] [32 bits]  (load(5) >> 224)
-      mstore(add(hardDeposit, 0x20), shr(224, mload(add(bodyPtr, 5))))
-      // value: [offset 9 bytes] [56 bits]  (load(9) >> 200)
-      mstore(add(hardDeposit, 0x40), shr(200, mload(add(bodyPtr, 9))))
-      // intermediateStateRoot: [offset 56 bytes] [256 bits] (load(16))
-      mstore(add(hardDeposit, 0x60), mload(add(bodyPtr, 16)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      hardTransactionIndex := shr(216, mload(ptr))
+      accountIndex := shr(224, mload(add(ptr, 5)))
+      value := shr(200, mload(add(ptr, 9)))
+      contractAddress := shr(96, mload(add(ptr, 16)))
+      signerAddress := shr(96, mload(add(ptr, 36)))
+      intermediateStateRoot := mload(add(ptr, 56))
     }
+    return HardCreate(
+      hardTransactionIndex, accountIndex,
+      value, contractAddress,
+      signerAddress, intermediateStateRoot
+    );
   }
 
-  function decodeHardWithdrawal(
-    bytes memory transaction
-  ) internal pure returns (HardWithdrawal memory hardWithdrawal) {
+  function decodeHardDeposit(bytes memory input)
+  internal pure returns (HardDeposit memory) {
+    uint40 hardTransactionIndex;
+    uint32 accountIndex;
+    uint56 value;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // hardTransactionIndex: [no offset] [40 bits]  (load(0) >> 216)
-      mstore(hardWithdrawal, shr(216, mload(bodyPtr)))
-      // accountIndex: [offset 5 bytes] [32 bits]  (load(5) >> 224)
-      mstore(add(hardWithdrawal, 0x20), shr(224, mload(add(bodyPtr, 5))))
-      // withdrawalAddress: [offset 9 bytes] [160 bits]  (load(9) >> 96)
-      mstore(add(hardWithdrawal, 0x40), shr(96, mload(add(bodyPtr, 9))))
-      // value: [offset 29 bytes] [56 bits]  (load(9) >> 200)
-      mstore(add(hardWithdrawal, 0x60), shr(200, mload(add(bodyPtr, 29))))
-      // intermediateStateRoot: [offset 36 bytes] [256 bits] (load(16))
-      mstore(add(hardWithdrawal, 0x80), mload(add(bodyPtr, 36)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      hardTransactionIndex := shr(216, mload(ptr))
+      accountIndex := shr(224, mload(add(ptr, 5)))
+      value := shr(200, mload(add(ptr, 9)))
+      intermediateStateRoot := mload(add(ptr, 16))
     }
+    return HardDeposit(
+      hardTransactionIndex, accountIndex,
+      value, intermediateStateRoot
+    );
   }
 
-  function decodeHardAddSigner(
-    bytes memory transaction
-  ) internal pure returns (HardAddSigner memory hardAddSigner) {
+  function decodeHardWithdrawal(bytes memory input)
+  internal pure returns (HardWithdrawal memory) {
+    uint40 hardTransactionIndex;
+    uint32 accountIndex;
+    address withdrawalAddress;
+    uint56 value;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // hardTransactionIndex: [no offset] [40 bits]  (load(0) >> 216)
-      mstore(hardAddSigner, shr(216, mload(bodyPtr)))
-      // accountIndex: [offset 5 bytes] [32 bits]  (load(5) >> 224)
-      mstore(add(hardAddSigner, 0x20), shr(224, mload(add(bodyPtr, 5))))
-      // withdrawalAddress: [offset 9 bytes] [160 bits]  (load(9) >> 96)
-      mstore(add(hardAddSigner, 0x40), shr(96, mload(add(bodyPtr, 9))))
-      // signerAddress: [offset 29 bytes] [160 bits]  (load(29) >> 96)
-      mstore(add(hardAddSigner, 0x60), shr(96, mload(add(bodyPtr, 29))))
-      // intermediateStateRoot: [offset 49 bytes] [256 bits] (load(49))
-      mstore(add(hardAddSigner, 0x80), mload(add(bodyPtr, 49)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      hardTransactionIndex := shr(216, mload(ptr))
+      accountIndex := shr(224, mload(add(ptr, 5)))
+      withdrawalAddress := shr(96, mload(add(ptr, 9)))
+      value := shr(200, mload(add(ptr, 29)))
+      intermediateStateRoot := mload(add(ptr, 36))
     }
+    return HardWithdrawal(
+      hardTransactionIndex, accountIndex,
+      withdrawalAddress, value, intermediateStateRoot
+    );
   }
 
-  function decodeSoftWithdrawal(
-    bytes memory transaction
-  ) internal pure returns (SoftWithdrawal memory softWithdrawal) {
+  function decodeHardAddSigner(bytes memory input)
+  internal pure returns (HardAddSigner memory) {
+    uint40 hardTransactionIndex;
+    uint32 accountIndex;
+    address signingAddress;
+    bytes32 intermediateStateRoot;
+    assembly {
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      hardTransactionIndex := shr(216, mload(ptr))
+      accountIndex := shr(224, mload(add(ptr, 5)))
+      signingAddress := shr(96, mload(add(ptr, 9)))
+      intermediateStateRoot := mload(add(ptr, 29))
+    }
+    return HardAddSigner(
+      hardTransactionIndex, accountIndex,
+      signingAddress, intermediateStateRoot
+    );
+  }
+
+  function decodeSoftWithdrawal(bytes memory input)
+  internal pure returns (SoftWithdrawal memory) {
     uint24 nonce;
     uint32 accountIndex;
     address withdrawalAddress;
@@ -190,141 +230,119 @@ library TransactionsLib {
     bytes32 sigR;
     bytes32 sigS;
     bytes32 intermediateStateRoot;
-
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-
-      nonce := shr(232, mload(bodyPtr))
-      accountIndex := shr(224, mload(add(bodyPtr, 3)))
-      withdrawalAddress := shr(96, mload(add(bodyPtr, 7)))
-      value := shr(200, mload(add(bodyPtr, 27)))
-      sigV := shr(248, mload(add(bodyPtr, 34)))
-      sigR := mload(add(bodyPtr, 35))
-      sigS := mload(add(bodyPtr, 67))
-      intermediateStateRoot := mload(add(bodyPtr, 99))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      nonce := shr(232, mload(ptr))
+      accountIndex := shr(224, mload(add(ptr, 3)))
+      withdrawalAddress := shr(96, mload(add(ptr, 7)))
+      value := shr(200, mload(add(ptr, 27)))
+      sigV := shr(248, mload(add(ptr, 34)))
+      sigR := mload(add(ptr, 35))
+      sigS := mload(add(ptr, 67))
+      intermediateStateRoot := mload(add(ptr, 99))
     }
-
-    softWithdrawal = SoftWithdrawal(
-      nonce,
-      accountIndex,
-      withdrawalAddress,
-      value,
-      sigV,
-      sigR,
-      sigS,
+    return SoftWithdrawal(
+      nonce, accountIndex,
+      withdrawalAddress, value,
+      sigV, sigR, sigS,
       intermediateStateRoot
     );
   }
 
-  function decodeSoftCreate(
-    bytes memory transaction
-  ) internal pure returns (SoftCreate memory softCreate) {
+  function decodeSoftCreate(bytes memory input)
+  internal pure returns (SoftCreate memory) {
+    uint24 nonce;
+    uint32 fromIndex;
+    uint32 toIndex;
+    uint56 value;
+    address contractAddress;
+    address signingAddress;
+    uint8 sigV;
+    bytes32 sigR;
+    bytes32 sigS;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      let writePtr := softCreate
-      // nonce: [no offset] [24 bits]  (load(0) >> 232)
-      mstore(softCreate, shr(232, mload(bodyPtr)))
-      // fromIndex: [offset 3 bytes] [32 bits]  (load(3) >> 224)
-      mstore(add(softCreate, 0x20), shr(224, mload(add(bodyPtr, 3))))
-      // toIndex: [offset 7 bytes] [32 bits]  (load(7) >> 224)
-      mstore(add(softCreate, 0x40), shr(224, mload(add(bodyPtr, 7))))
-      // value: [offset 11 bytes] [56 bits]  (load(11) >> 200)
-      mstore(add(softCreate, 0x60), shr(200, mload(add(bodyPtr, 11))))
-      // contractAddress: [offset 18 bytes] [160 bits]  (load(18) >> 96)
-      mstore(add(softCreate, 0x80), shr(96, mload(add(bodyPtr, 18))))
-      // signingAddress: [offset 38 bytes] [160 bits]  (load(38) >> 96)
-      mstore(add(softCreate, 0xa0), shr(96, mload(add(bodyPtr, 38))))
-      // sigV: [offset 58 bytes] [8 bits]  (load(58) >> 248)
-      mstore(add(softCreate, 0xa0), shr(248, mload(add(bodyPtr, 58))))
-      // sigR: [offset 59 bytes] [256 bits]  (load(59))
-      mstore(add(softCreate, 0xc0), mload(add(bodyPtr, 59)))
-      // sigS: [offset 91 bytes] [256 bits]  (load(91))
-      mstore(add(softCreate, 0xe0), mload(add(bodyPtr, 91)))
-      // intermediateStateRoot: [offset 123 bytes] [256 bits] (load(123))
-      mstore(add(softCreate, 0x100), mload(add(bodyPtr, 123)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      nonce := shr(232, mload(ptr))
+      fromIndex := shr(224, mload(add(ptr, 3)))
+      toIndex := shr(224, mload(add(ptr, 7)))
+      value := shr(200, mload(add(ptr, 11)))
+      contractAddress := shr(96, mload(add(ptr, 18)))
+      signingAddress := shr(96, mload(add(ptr, 38)))
+      sigV := shr(248, mload(add(ptr, 58)))
+      sigR := mload(add(ptr, 59))
+      sigS := mload(add(ptr, 91))
+      intermediateStateRoot := mload(add(ptr, 123))
     }
+    return SoftCreate(
+      nonce, fromIndex,
+      toIndex, value,
+      contractAddress, signingAddress,
+      sigV, sigR, sigS,
+      intermediateStateRoot
+    );
   }
 
-  function decodeSoftTransfer(
-    bytes memory transaction
-  ) internal pure returns (SoftTransfer memory softTransfer) {
+  function decodeSoftTransfer(bytes memory input)
+  internal pure returns (SoftTransfer memory) {
+    uint24 nonce;
+    uint32 fromIndex;
+    uint32 toIndex;
+    uint56 value;
+    uint8 sigV;
+    bytes32 sigR;
+    bytes32 sigS;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // nonce: [no offset] [24 bits]  (load(0) >> 232)
-      mstore(softTransfer, shr(232, mload(bodyPtr)))
-      // fromIndex: [offset 3 bytes] [32 bits]  (load(3) >> 224)
-      mstore(add(softTransfer, 0x20), shr(224, mload(add(bodyPtr, 3))))
-      // toIndex: [offset 7 bytes] [32 bits]  (load(7) >> 224)
-      mstore(add(softTransfer, 0x40), shr(224, mload(add(bodyPtr, 7))))
-      // value: [offset 11 bytes] [56 bits]  (load(11) >> 200)
-      mstore(add(softTransfer, 0x60), shr(200, mload(add(bodyPtr, 11))))
-      // sigV: [offset 18 bytes] [8 bits]  (load(18) >> 248)
-      mstore(add(softTransfer, 0x80), shr(248, mload(add(bodyPtr, 18))))
-      // sigR: [offset 19 bytes] [256 bits]  (load(19))
-      mstore(add(softTransfer, 0xa0), mload(add(bodyPtr, 19)))
-      // sigS: [offset 51 bytes] [256 bits]  (load(51))
-      mstore(add(softTransfer, 0xc0), mload(add(bodyPtr, 51)))
-      // intermediateStateRoot: [offset 83 bytes] [256 bits] (load(83))
-      mstore(add(softTransfer, 0xe0), mload(add(bodyPtr, 83)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      nonce := shr(232, mload(ptr))
+      fromIndex := shr(224, mload(add(ptr, 3)))
+      toIndex := shr(224, mload(add(ptr, 7)))
+      value := shr(200, mload(add(ptr, 11)))
+      sigV := shr(248, mload(add(ptr, 18)))
+      sigR := mload(add(ptr, 19))
+      sigS := mload(add(ptr, 51))
+      intermediateStateRoot := mload(add(ptr, 83))
     }
+    return SoftTransfer(
+      nonce, fromIndex,
+      toIndex, value,
+      sigV, sigR, sigS,
+      intermediateStateRoot
+    );
   }
 
-  function decodeSoftChangeSigner(
-    bytes memory transaction
-  ) internal pure returns (SoftChangeSigner memory softChangeSigner) {
+  function decodeSoftChangeSigner(bytes memory input)
+  internal pure returns (SoftChangeSigner memory) {
+    uint24 nonce;
+    uint32 fromIndex;
+    address signingAddress;
+    uint8 modificationCategory;
+    uint8 sigV;
+    bytes32 sigR;
+    bytes32 sigS;
+    bytes32 intermediateStateRoot;
     assembly {
-      /* Add 33 bytes - 32 to skip the length field of the bytes var, 1 to skip the prefix */
-      let bodyPtr := add(transaction, 0x21)
-      // nonce: [no offset] [24 bits]  (load(0) >> 232)
-      mstore(softChangeSigner, shr(232, mload(bodyPtr)))
-      // fromIndex: [offset 3 bytes] [32 bits]  (load(3) >> 224)
-      mstore(add(softChangeSigner, 0x20), shr(224, mload(add(bodyPtr, 3))))
-      // signingAddress: [offset 7 bytes] [160 bits] (load(7) >> 96)
-      mstore(add(softChangeSigner, 0x40), shr(96, mload(add(bodyPtr, 7))))
-      // modificationCategory: [offset 27 bytes] [8 bits]  (load(27) >> 248)
-      mstore(add(softChangeSigner, 0x60), shr(248, mload(add(bodyPtr, 27))))
-      // sigV: [offset 28 bytes] [8 bits]  (load(28) >> 248)
-      mstore(add(softChangeSigner, 0x80), shr(248, mload(add(bodyPtr, 28))))
-      // sigR: [offset 29 bytes] [256 bits]  (load(29))
-      mstore(add(softChangeSigner, 0xa0), mload(add(bodyPtr, 29)))
-      // sigS: [offset 61 bytes] [256 bits]  (load(61))
-      mstore(add(softChangeSigner, 0xc0), mload(add(bodyPtr, 61)))
-      // intermediateStateRoot: [offset 93 bytes] [256 bits] (load(93))
-      mstore(add(softChangeSigner, 0xe0), mload(add(bodyPtr, 93)))
+      // Add 33 to skip length and prefix
+      let ptr := add(input, 33)
+      nonce := shr(232, mload(ptr))
+      fromIndex := shr(224, mload(add(ptr, 3)))
+      signingAddress := shr(96, mload(add(ptr, 7)))
+      modificationCategory := shr(248, mload(add(ptr, 27)))
+      sigV := shr(248, mload(add(ptr, 28)))
+      sigR := mload(add(ptr, 29))
+      sigS := mload(add(ptr, 61))
+      intermediateStateRoot := mload(add(ptr, 93))
     }
-  }
-
-  /**
-   * @dev decodeTransactionsMetadata
-   * Decodes the first 16 bytes of a block's transactions buffer into a metadata struct.
-   * @param transactions - transactions buffer from a block
-   * @return meta - decoded metadata object
-   */
-  function decodeTransactionsMetadata(
-    bytes memory transactions
-  ) internal pure returns (TransactionsMetadata memory meta) {
-    assembly {
-      let ptr := add(transactions, 32)
-      /* hardCreateCount */
-      mstore(meta, shr(240, mload(ptr)))
-      /* hardDepositCount */
-      mstore(add(meta, 32), shr(240, mload(add(ptr, 2))))
-      /* hardWithdrawCount */
-      mstore(add(meta, 64), shr(240, mload(add(ptr, 4))))
-      /* hardAddSignerCount */
-      mstore(add(meta, 96), shr(240, mload(add(ptr, 6))))
-      /* softWithdrawCount */
-      mstore(add(meta, 128), shr(240, mload(add(ptr, 8))))
-      /* softCreateCount */
-      mstore(add(meta, 160), shr(240, mload(add(ptr, 10))))
-      /* softTransferCount */
-      mstore(add(meta, 192), shr(240, mload(add(ptr, 12))))
-      /* softChangeSignerCount */
-      mstore(add(meta, 224), shr(240, mload(add(ptr, 14))))
-    }
+    return SoftChangeSigner(
+      nonce, fromIndex,
+      signingAddress, modificationCategory,
+      sigV, sigR, sigS,
+      intermediateStateRoot
+    );
   }
 
   /**
@@ -341,27 +359,6 @@ library TransactionsLib {
       let len := mload(transaction)
       let rootPtr := add(inPtr, sub(len, 32))
       root := mload(rootPtr)
-    }
-  }
-
-  /**
-   * @dev countCreateTransactionsWithEmptyRoot
-   * Counts the number of hard create transactions in a transactions buffer which failed to execute.
-   * @param txData - transactions buffer from a block
-   * @param meta - transactions metadata from the buffer
-   * @return count - number of failed create transactions in the block
-   */
-  function countCreateTransactionsWithEmptyRoot(
-    bytes memory txData, TransactionsMetadata memory meta
-  ) internal pure returns (uint256 count) {
-    uint256 pointer;
-    assembly { pointer := add(txData, 48) }
-    for (uint256 i = 0; i < meta.hardCreateCount; i++) {
-      assembly {
-        let root := mload(add(pointer, 56))
-        if iszero(root) { count := add(count, 1) }
-        pointer := add(pointer, 88)
-      }
     }
   }
 
@@ -436,7 +433,10 @@ library TransactionsLib {
         let outPtr := add(_tx, 32)
         mstore8(outPtr, typePrefix)
         outPtr := add(outPtr, 1)
-        identitySuccess := and(identitySuccess, staticcall(gas(), 0x04, currentPointer, typeSize, outPtr, typeSize))
+        identitySuccess := and(
+          identitySuccess,
+          staticcall(gas(), 0x04, currentPointer, typeSize, outPtr, typeSize)
+        )
         currentPointer := add(currentPointer, typeSize)
       }
       leaves[leafIndex++] = _tx;

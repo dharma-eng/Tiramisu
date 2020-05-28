@@ -182,8 +182,7 @@ export class StateMachine {
         const { accountIndex, value } = transaction;
         const account = await this.state.getAccount(accountIndex) as Account;
         if (!account || transaction.checkValid(account)) {
-            const stateRoot = `0x${"00".repeat(20)}`;
-            transaction.addOutput(stateRoot);
+            transaction.addOutput(await this.state.rootHash());
             return false;
         }
         account.balance -= value;
@@ -198,8 +197,7 @@ export class StateMachine {
         const account = await this.state.getAccount(accountIndex) as Account;
 
         if (!account || transaction.checkValid(account)) {
-            const stateRoot = `0x${"00".repeat(20)}`;
-            transaction.addOutput(stateRoot);
+            transaction.addOutput(await this.state.rootHash());
             return false;
         }
 

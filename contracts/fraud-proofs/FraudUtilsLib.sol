@@ -16,15 +16,22 @@ library FraudUtilsLib {
     bytes32[] siblings;
   }
 
+  /**
+   * @dev Verifies the state root prior to a transaction.
+   * @param state storage struct representing the peg state
+   * @param previousRootProof ABI encoded form of either a block header or a transaction inclusion proof
+   * @param blockHeader Header of the block with the original transaction
+   * @param transactionIndex Index of the original transaction
+   */
   function transactionHadPreviousState(
     State.State storage state,
-    bytes memory previousSource,
+    bytes memory previousRootProof,
     Block.BlockHeader memory blockHeader,
     uint256 transactionIndex
   ) internal view returns (bytes32) {
     if (transactionIndex == 0) {
       Block.BlockHeader memory previousHeader = Block.decodeBlockHeader(
-        previousSource
+        previousRootProof
       );
 
       require(
@@ -43,7 +50,7 @@ library FraudUtilsLib {
     }
 
     TransactionProof memory proof = abi.decode(
-      (previousSource), (TransactionProof)
+      (previousRootProof), (TransactionProof)
     );
 
     require(
@@ -64,6 +71,14 @@ library FraudUtilsLib {
     return root;
   }
 
+  /**
+   * @dev Verifies the state of an account in the state root prior to a transaction.
+   * @param state storage struct representing the peg state
+   * @param badHeader Header of the block with the original transaction
+   * @param transactionIndex Index of the original transaction
+   * @param previousStateProof ABI encoded form of either a block header or a transaction inclusion proof
+   * @param stateProof Merkle proof of the account in the previous state root.
+   */
   function verifyPreviousAccountState(
     State.State storage state,
     Block.BlockHeader memory badHeader,

@@ -17,6 +17,7 @@ library StateLib {
     uint32 confirmedBlocks;
     bytes32[] blockHashes;
     bytes[] hardTransactions;
+    mapping(bytes32 => bool) withdrawalsProcessed;
   }
 
   /* State Query Functions */

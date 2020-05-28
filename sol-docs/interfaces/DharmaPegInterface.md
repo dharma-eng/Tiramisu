@@ -1,30 +1,35 @@
-## `DharmaPegInterface`
+# [🔗](/contracts/interfaces/DharmaPegInterface.sol#L7) DharmaPegInterface
+# Functions
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L11) `deposit(uint56 value)`
 
-### `deposit(uint56 value)` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L13) `deposit(address signerAddress, uint56 value)`
 
-### `deposit(address signerAddress, uint56 value)` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L15) `forceAddSigner(uint32 accountIndex, address signingAddress)`
 
-### `forceAddSigner(uint32 accountIndex, address signingAddress)` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L19) `forceWithdrawal(uint32 accountIndex, uint56 value)`
 
-### `forceWithdrawal(uint32 accountIndex, uint56 value)` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L21) `executeWithdrawals(Block.BlockHeader parent, Block.BlockHeader header, bytes transactionsData)`
 
-### `executeWithdrawal(struct BlockLib.BlockHeader header, bytes transaction, uint256 transactionIndex, bytes32[] inclusionProof)` (external)
+Executes the withdrawals in a confirmed block.
 
-Executes a withdrawal which exists in a confirmed block and
-replaces the leaf with a null value.
 
-executeWithdrawal
 
-### `confirmBlock(struct BlockLib.BlockHeader header)` (external)
 
-### `submitBlock(struct BlockLib.BlockInput input)` (external)
+### Parameters
+* `parent` Header of the previous block, used to determine which withdrawals were executed.
+* `header` Header of the block with the withdrawals to execute
+* `transactionsData` Transactions buffer from the block.
+merkle tree.
 
-### `getHardTransactionsFrom(uint256 start, uint256 max) → bytes[] hardTransactions` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L34) `confirmBlock(Block.BlockHeader header)`
 
-### `getBlockHash(uint256 height) → bytes32` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L36) `submitBlock(Block.BlockInput input)`
 
-### `getBlockCount() → uint256` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L38) `getHardTransactionsFrom(uint256 start, uint256 max)`
 
-### `getConfirmedBlockCount() → uint256` (external)
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L42) `getBlockHash(uint256 height)`
 
-### `NewHardTransaction(uint256 hardTransactionIndex)`
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L44) `getBlockCount()`
+
+## [🔗](/contracts/interfaces/DharmaPegInterface.sol#L46) `getConfirmedBlockCount()`
+

@@ -91,6 +91,23 @@ export class Block {
         },
         transactions: this.transactions
     });
+
+    static genesisBlock(): Block {
+        const blockJSON = {
+            commitment: {
+                blockNumber: 0,
+                hardTransactionsCount: 0,
+                stateRoot: '0x78ccaaab73373552f207a63599de54d7d8d0c1805f86ce7da15818d09f4cff62',
+                stateSize: 0,
+                submittedAt: 0,
+                transactionsHash: `0x${'00'.repeat(32)}`,
+                transactionsRoot: `0x${'00'.repeat(32)}`,
+                version: 0,
+            },
+            transactions: {}
+        };
+        return new Block(blockJSON);
+    }
 }
 
 export default Block;

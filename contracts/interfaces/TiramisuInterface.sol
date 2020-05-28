@@ -19,21 +19,16 @@ interface TiramisuInterface {
   function forceWithdrawal(uint32 accountIndex, uint56 value) external;
 
   /**
-   * @dev executeWithdrawal
-   * @notice Executes a withdrawal which exists in a confirmed block and
-   * replaces the leaf with a null value.
-   * @param header Block header which contains the transaction.
-   * @param transaction Encoded hard or soft withdrawal transaction.
-   * @param transactionIndex Location of the transaction in the transactions
-   * tree for the block.
-   * @param inclusionProof Array of sibling hashes for the transaction in the
+   * @dev Executes the withdrawals in a confirmed block.
+   * @param parent Header of the previous block, used to determine which withdrawals were executed.
+   * @param header Header of the block with the withdrawals to execute
+   * @param transactionsData Transactions buffer from the block.
    * merkle tree.
    */
-  function executeWithdrawal(
+  function executeWithdrawals(
+    Block.BlockHeader calldata parent,
     Block.BlockHeader calldata header,
-    bytes calldata transaction,
-    uint256 transactionIndex,
-    bytes32[] calldata inclusionProof
+    bytes calldata transactionsData
   ) external;
 
   function confirmBlock(Block.BlockHeader calldata header) external;

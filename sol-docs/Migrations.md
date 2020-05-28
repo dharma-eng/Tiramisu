@@ -1,5 +1,6 @@
-## `Migrations`
+# [🔗](/contracts/Migrations.sol#L4) Migrations
+# Functions
+## [🔗](/contracts/Migrations.sol#L7) `setCompleted(uint256 completed)`
 
-### `setCompleted(uint256 completed)` (public)
+## [🔗](/contracts/Migrations.sol#L11) `upgrade(address new_address)`
 
-### `upgrade(address new_address)` (public)

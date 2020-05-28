@@ -54,7 +54,7 @@ transactionsData */
       badBlock.header.stateSize += 1;
       await blockchain.submitBlock(badBlock);
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eql(3);
     });
 
     it('Should prove fraud by calling proveStateSizeError', async () => {
@@ -66,7 +66,7 @@ transactionsData */
 
     it('Should have updated the block count', async () => {
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('1');
+      expect(+blockCount).to.eql(2);
     });
   });
 
@@ -95,7 +95,7 @@ transactionsData */
       badBlock.header.transactionsRoot = randomHexBuffer(32);
       await blockchain.submitBlock(badBlock);
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eql(3);
     });
 
     it('Should prove fraud by calling proveTransactionsRootError', async () => {
@@ -107,7 +107,7 @@ transactionsData */
 
     it('Should have updated the block count', async () => {
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('1');
+      expect(+blockCount).to.eql(2);
     });
   });
 
@@ -136,7 +136,7 @@ transactionsData */
       badBlock.header.hardTransactionsCount = 5;
       await blockchain.submitBlock(badBlock);
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eql(3);
     });
 
     it('Should prove fraud by calling proveHardTransactionsCountError', async () => {
@@ -148,7 +148,7 @@ transactionsData */
 
     it('Should have updated the block count', async () => {
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('1');
+      expect(+blockCount).to.eql(2);
     });
 
     it('Should not revert a block with a valid hard transactions count', async () => {
@@ -162,7 +162,7 @@ transactionsData */
       badBlock = await blockchain.processBlock();
       await blockchain.submitBlock(badBlock);
       let blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eql(3);
       const promise = blockchain.tiramisuContract.methods
         .proveHardTransactionsCountError(
           previousHeader, badBlock.commitment, badBlock.transactionsData
@@ -188,6 +188,8 @@ transactionsData */
       await blockchain.submitBlock(block);
       await blockchain.confirmBlock(block);
       previousHeader = block.commitment;
+      const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
+      expect(+blockCount).to.eq(previousHeader.blockNumber + 1);
     });
 
     it('Should submit a block with a duplicate hard transaction index.', async () => {
@@ -204,7 +206,7 @@ transactionsData */
       });
       await blockchain.submitBlock(badBlock);
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eq(badBlock.header.blockNumber + 1);
     });
 
     it('Should prove fraud by calling proveHardTransactionsRangeError', async () => {
@@ -216,7 +218,7 @@ transactionsData */
 
     it('Should have updated the block count', async () => {
       const blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('1');
+      expect(+blockCount).to.eql(2);
     });
 
     it('Should not revert a valid block', async () => {
@@ -231,7 +233,7 @@ transactionsData */
       badBlock = await blockchain.processBlock();
       await blockchain.submitBlock(badBlock);
       let blockCount = await blockchain.tiramisuContract.methods.getBlockCount().call();
-      expect(blockCount).to.eql('2');
+      expect(+blockCount).to.eql(3);
       const promise = blockchain.tiramisuContract.methods
         .proveHardTransactionsRangeError(
           previousHeader, badBlock.commitment, badBlock.transactionsData

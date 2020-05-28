@@ -114,6 +114,9 @@ export class Tester {
         ? await getContractsFromExternalHost(tester)
         : await deployContracts(tester);
       Object.assign(res, { token, tiramisuContract });
+      if (res.usingExternalHost) {
+        await tiramisuContract.methods.resetChain().send({ from: res.from, gas: 5e6 });
+      }
     }
 
     if (state) state = await tester.newState();
