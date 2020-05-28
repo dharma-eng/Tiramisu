@@ -1,12 +1,12 @@
-# Dharma L2 - Spec
+# Tiramisu - Spec
 
 _Authors: @_**0age** _& @_**d1ll0n**
 
-Scaling out Dharma's user base will require a transition of the Dharma Dai token to "Layer 2". This spec outlines an initial implementation using Optimistic Rollup. It endeavors to remain as simple as possible while still affording important security guarantees and significant efficiency improvements. It is designed to fill the current application requirements of scalable token transfers, with the expectation that we will eventually move to a more mature, generic L2 as production-ready platforms come online.
+This spec outlines an initial implementation of a simple Layer Two construction based on fraud proofs (i.e., Optimistic Rollup). It endeavors to remain as simple as possible while still affording important security guarantees and significant efficiency improvements. It is designed to support scalable token transfers in the near term, with an expectation that eventually more mature, generic L2 platforms will become available and ready for production use.
 
 ## Table of Contents
 
-- [Dharma L2 - Spec](#dharma-l2---spec)
+- [Tiramisu - Spec](#tiramisu---spec)
   - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [State](#state)
@@ -45,14 +45,14 @@ Scaling out Dharma's user base will require a transition of the Dharma Dai token
 
 This spec has been designed to meet the following requirements:
 
-- The system must be able to support deposits, transfers, and withdrawals of a single ERC20 token: Dharma Dai.
+- The system must be able to support deposits, transfers, and withdrawals of a single ERC20 token.
 - All participants must remain in control of their tokens, with any transfer requiring their authorization via a valid signature, <!-- _(or set of signatures)_ --> and with the ability to exit the system of their own volition.
 - All participants must be able to locally recreate the current state of the system based on publicly available data, and to roll back an invalid state during a challenge period by submitting a proof of an invalid state transition.
 - The system should be able to scale out to support a large user base, allowing for faster L2 transactions and reducing gas costs by at least an order of magnitude compared to L1.
 
 In contrast, certain properties are explicitly _not_ required in the initial spec:
 
-- Transactions do not require strong guarantees of censorship resistance _(as long as unprocessed deposits and exits remain uncensorable)_ — Dharma Labs will act as the sole block producer, thereby simplifying many aspects of the system.
+- Transactions do not require strong guarantees of censorship resistance _(as long as unprocessed deposits and exits remain uncensorable)_ — the chain is meant to be operated by a sole block producer, simplifying many aspects of the system.
 - Generic EVM support _(indeed, even support for \_any_ functionality beyond token transfers)\_ is not required — this greatly simplifies the resultant state, transaction, block production, and fraud proof mechanics.
 - Scalability does not need to be maximal, only sufficient to support usage in the near-term under realistic scenarios — we only need to hold out until more efficient data-availability oracles or zero-knowledge circuits and provers become production-ready.
 
@@ -62,7 +62,7 @@ The world state will be represented as a collection of accounts, each designated
 
 - the address of the account _(represented by a 160-bit value)_
 - the nonce of the account _(represented by a 24-bit value, capped at 16,777,216 transactions per account)_
-- the balance of the account _(represented by a 56-bit value, capped at 720,575,940 dDai per account)_
+- the balance of the account _(represented by a 56-bit value, capped at 720,575,940 tokens per account)_
 - an array of unique signing addresses _(represented by concatenated 160 bit addresses, with a maximum of 10 signing addresses per account, in order of assignment)_
   The state is represented as a merkle root, composed by constructing a sparse merkle tree with accounts as leaves. Each leaf hash is the hash of `keccak256(address ++ nonce ++ balance ++ signing_addresses)`.
 
@@ -104,11 +104,11 @@ Each soft transaction must bear a signature that resolves to one of the signing 
 
 ## Deposits
 
-Upon deposit of Dharma Dai into a dedicated contract on L1, a deposit address _(or, in the case of multisig support, multiple addresses and a threshold)_ will be specified. Next, the `hardTransasctionIndex` is incremented and assigned to the deposit.
+Upon deposit of the supported token into a dedicated contract on L1, a deposit address _(or, in the case of multisig support, multiple addresses and a threshold)_ will be specified. Next, the `hardTransasctionIndex` is incremented and assigned to the deposit.
 
 The block producer will then reference that index in order to construct a valid transaction that credits an account specified by the depositor with the respective token balance. Therefore, all deposits are "hard" transactions.
 
-> Note: In practice, it is likely that Dharma users will not generally make deposits via L1, and will instead purchase L2 tokens through other means.
+> Note: In practice, it is likely that users will not generally make deposits via L1, and will instead purchase L2 tokens through other means.
 
 ### Default Deposits
 
@@ -203,7 +203,7 @@ Once a batch of soft withdrawal transactions have been included in a block, a 24
 
 This challenge period is to ensure that any fraudulent block has a sufficient window of time for a challenge to be submitted, proving the fraud and rolling back to the latest good block.
 
-> Note: In practice, Dharma will likely facilitate early exits from L2 withdrawals by serving as a counterparty and settling through other means once sufficient confidence in the accuracy of prior block submissions has been established.
+> Note: In practice, the block producer will likely facilitate early exits from L2 withdrawals by serving as a counterparty and settling through other means once sufficient confidence in the accuracy of prior block submissions has been established.
 
 Each withdrawal proof verifies that the associated transactions are present and valid for each withdrawal to process, then updates the respective historical transaction root and corresponding block root to reflect that the withdrawal has been processed.
 
@@ -336,15 +336,15 @@ The root hash of this merkle tree is derived and placed in the block header prio
 
 # Block Production
 
-Dharma Labs will produce successive blocks off-chain, incorporating transactions submitted to its API and transactions submitted on-chain.
+The block producer will produce successive blocks off-chain, incorporating transactions submitted to its API and transactions submitted on-chain.
 
 **Hard Transaction Retrieval**
 
-Immediately before processing a block, Dharma will query the peg contract for new hard transactions which have been submitted since the last query it made. A configurable parameter in the blockchain software `MAX_HARD_TRANSACTIONS` identifies the maximum number of hard transactions that the chain will execute in a given block. This parameter is not subject to any kind of fraud proof and is not stored anywhere on-chain, as it is only used to restrict the amount of gas spent per block submission.
+Immediately before processing a block, the operator will query the peg contract for new hard transactions which have been submitted since the last query it made. A configurable parameter in the blockchain software `MAX_HARD_TRANSACTIONS` identifies the maximum number of hard transactions that the chain will execute in a given block. This parameter is not subject to any kind of fraud proof and is not stored anywhere on-chain, as it is only used to restrict the amount of gas spent per block submission.
 
 **Soft Transaction Queue**
 
-Dharma will maintain an off-chain API by which users of the l2 chain can submit "soft" transactions. When a soft transaction is submitted, a basic integrity check will be used to ensure the transaction is at least possibly valid: this check entails verifying that the encoding matches the transaction type and that it has a valid signature, but not that the transaction is actually valid according to the current state of the blockchain, as it could _become_ valid based on other transactions which will be executed first.
+The operator will maintain an off-chain API by which users of the l2 chain can submit "soft" transactions. When a soft transaction is submitted, a basic integrity check will be used to ensure the transaction is at least possibly valid: this check entails verifying that the encoding matches the transaction type and that it has a valid signature, but not that the transaction is actually valid according to the current state of the blockchain, as it could _become_ valid based on other transactions which will be executed first.
 
 The L2 blockchain software will retrieve the current set of pending soft transactions from the queue, up to some per-block limit, and combine them with the hard transactions to make the full set of transactions which will be placed in the block.
 
@@ -387,39 +387,37 @@ The block input will then be created as:
 
 **Block Submission**
 
-Once the block is created, Dharma will submit the input form of the block to the peg contract. The block submission must include 100 Dharma Dai as collateral against fraud.
+Once the block is created, the node will submit the input form of the block to the peg contract. The block submission must include collateral against fraud, the value of which will be a chain configuration option.
 
-The peg contract will produce the full block header by setting the `submittedAt` field to the current block number of the mainnet chain and setting the `transactionsHash` field to the keccak256 hash of the transactions buffer. Once Dharma receives the receipt of the transaction as confirmation of the block's inclusion on the peg contract, it will set these fields and save the full block in its database.
+The peg contract will produce the full block header by setting the `submittedAt` field to the current block number of the mainnet chain and setting the `transactionsHash` field to the keccak256 hash of the transactions buffer. Once the node receives the receipt of the transaction as confirmation of the block's inclusion on the peg contract, it will set these fields and save the full block in its database.
 
-Once the block is finalized, meaning the confirmation period has passed without the block being reverted due to fraud, the 100 Dai collateral will be returned to Dharma.
-
-> Note: A bonding commitment of 100 Dharma Dai per block would result in a total commitment of 576,000 Dharma Dai at maximum capacity, i.e. with blocks being committed for every new block on the Ethereum mainnet — this would imply that ~5000 transactions are being processed each minute over the entirety of a 24-hour period. A more realistic total commitment would likely be at least an order of magnitude lower than this maximum.
+Once the block is finalized, meaning the confirmation period has passed without the block being reverted due to fraud, the collateral will be returned to the block producer.
 
 # Peg Contract
 
-The peg contract is the interface between Ethereum and the Dharma blockchain, as well as the sole arbiter of block validity. It tracks the history of the Dharma chain and acts as an escrow account holding all tokens on the sidechain.
+The peg contract is the interface between Ethereum and the Tiramisu blockchain, as well as the sole arbiter of block validity. It tracks the history of the chain and acts as an escrow account holding all tokens on the sidechain.
 
 New blocks on the sidechain are submitted to this contract and recorded as pending for a period of time called the confirmation period, which is defined in the chain configuration, during which anyone can audit the block for errors and submit fraud proofs.
 
-The peg contract allows accounts on Ethereum to record "hard" transactions which the Dharma chain must execute.
+The peg contract allows accounts on Ethereum to record "hard" transactions which the Tiramisu chain must execute.
 
-If submitted blocks are invalid, anyone may submit a fraud proof to this contract to prove that the block contains some error, which will cause the block to be reverted. If fraud is proven, the operator (Dharma) will be penalized and the prover will be rewarded.
+If submitted blocks are invalid, anyone may submit a fraud proof to this contract to prove that the block contains some error, which will cause the block to be reverted. If fraud is proven, the operator will be penalized and the prover will be rewarded.
 
 ## Block Submission
 
-When a block is submitted by Dharma, the peg contract will verify that the transaction was submitted by the configured block producer address, that it included the requisite collateral of 100 Dharma Dai, and that the block number in the submitted block is equal to the current total number of blocks submitted. It will then produce the complete block header as described in [Block Production](#Block-Production) and save the block as pending.
+When a block is submitted, the peg contract will verify that the transaction was submitted by the configured block producer address, that it included the requisite collateral, and that the block number in the submitted block is equal to the current total number of blocks submitted. It will then produce the complete block header as described in [Block Production](#Block-Production) and save the block as pending.
 
 ## Block Confirmation
 
-When the confirmation period of a pending block has passed without the block being proven fraudulent, anyone may call the `confirmBlock` function to mark the block as confirmed. This will mark the block as confirmed and return the collateral to the Dharma block producer address.
+When the confirmation period of a pending block has passed without the block being proven fraudulent, anyone may call the `confirmBlock` function to mark the block as confirmed. This will mark the block as confirmed and return the collateral to the configured block producer address.
 
 ## Withdrawals
 
-When a block is confirmed, the withdrawal transactions in the block will be able to be processed. This function takes the transactions buffer from the block as an argument and decodes the `withdrawalAddress` and `value` fields from each hard and soft withdrawal transaction in the buffer. Hard withdrawals which contain an intermediate state root equal to the previous transaction (i.e. rejected hard withdrawals) will be ignored during this process. The blockhash will then be marked as having been processed for withdrawals, and the peg contract will transfer `value` Dai to `withdrawalAddress` in each decoded withdrawal.
+When a block is confirmed, the withdrawal transactions in the block will be able to be processed. This function takes the transactions buffer from the block as an argument and decodes the `withdrawalAddress` and `value` fields from each hard and soft withdrawal transaction in the buffer. Hard withdrawals which contain an intermediate state root equal to the previous transaction (i.e. rejected hard withdrawals) will be ignored during this process. The blockhash will then be marked as having been processed for withdrawals, and the peg contract will transfer `value` to `withdrawalAddress` in each decoded withdrawal.
 
 ## Fraud Proofs
 
-Once blocks are submitted, they must undergo a 24-hour "challenge" period before they become finalized. During this period, any block containing an invalid operation can be challenged by any party that submits sufficient proof to invalidate any part of the block. In doing so, the state will be rolled back to the point when the fraudulent block was submitted. Furthermore, the bonded stake provided when submitting the fraudulent block, as well as the stake of each subsequent block, will be siezed, with half irrevocably burned (with the equivalent backing collateral distributed amongst all Dharma Dai holders via an increase in the exchange rate) and half provided to the submitter as a reward.
+Once blocks are submitted, they must undergo a 24-hour "challenge" period before they become finalized. During this period, any block containing an invalid operation can be challenged by any party that submits sufficient proof to invalidate any part of the block. In doing so, the state will be rolled back to the point when the fraudulent block was submitted. Furthermore, the bonded stake provided when submitting the fraudulent block, as well as the stake of each subsequent block, will be seized, with half burned irrevocably -- if the ERC20 token supports it, distributing the burned funds to all holders in the form of an increase in the exchange rate -- (to prevent churning attacks wherein the block producer claims fraud against itself) and half provided to the submitter as a reward.
 
 ### Overview
 
