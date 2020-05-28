@@ -14,10 +14,13 @@ library WithdrawLib {
   function checkHardWithdrawal(
     bytes32 lastRoot,
     uint256 ptr
-  ) internal pure returns (bytes32 txRoot, GenericWithdrawal memory withdrawal) {
-    assembly {
-      txRoot := mload(add(ptr, 36))
-      if iszero(eq(txRoot, lastRoot)) {
+  ) internal pure returns (
+    bytes32 txRoot, GenericWithdrawal memory withdrawal
+  ) {
+    assembly { txRoot := mload(add(ptr, 36)) }
+
+    if (txRoot != lastRoot) {
+      assembly {
         let withdrawalAddress := shr(96, mload(add(ptr, 9)))
         let value := shr(200, mload(add(ptr, 29)))
         mstore(withdrawal, withdrawalAddress)
@@ -30,7 +33,10 @@ library WithdrawLib {
     Block.BlockHeader memory parent,
     bytes memory transactionsData
   ) internal pure returns (GenericWithdrawal[] memory withdrawals) {
-    TX.TransactionsMetadata memory meta = TX.decodeTransactionsMetadata(transactionsData);
+    TX.TransactionsMetadata memory meta = TX.decodeTransactionsMetadata(
+      transactionsData
+    );
+
     withdrawals = new GenericWithdrawal[](
       meta.hardWithdrawCount + meta.softWithdrawCount
     );

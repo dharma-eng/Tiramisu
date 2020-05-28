@@ -26,23 +26,30 @@ library ExecutionErrorLib {
     Tx.TransactionsMetadata memory meta = txData.decodeTransactionsMetadata();
     assembly { pointer := add(txData, 48) }
 
-    if (index < meta.hardCreateCount) return (pointer + 88 * index, index, true);
+    if (index < meta.hardCreateCount) {
+      return (pointer + 88 * index, index, true);
+    }
+
     uint256 minimumSoftCreateIndex = (
       meta.hardCreateCount + meta.hardDepositCount + meta.hardWithdrawCount +
       meta.hardAddSignerCount + meta.softWithdrawCount
     );
+
     require(
       index >= minimumSoftCreateIndex &&
       index < minimumSoftCreateIndex + meta.softCreateCount,
       "Not a create transaction."
     );
+
     uint256 executedSoftCreates = index - minimumSoftCreateIndex;
+
     pointer += (
       (meta.hardCreateCount * 88) +
       (meta.hardDepositCount * 48) + (meta.hardWithdrawCount * 68) +
       (meta.hardAddSignerCount * 61) + (meta.softWithdrawCount * 131) +
       (executedSoftCreates * 155)
     );
+
     return (pointer, meta.hardCreateCount + executedSoftCreates, false);
   }
 
@@ -104,14 +111,14 @@ library ExecutionErrorLib {
     Tx.HardCreate memory transaction
   ) internal pure {
     (
-      bool empty, 
+      bool empty,
       uint256 accountIndex,
       bytes32[] memory siblings,
       Account.Account memory provenAccount
     ) = priorStateRoot.verifyAccountInState(stateProof);
     // Hard creates can not be rejected.
     if (transaction.intermediateStateRoot == priorStateRoot) return;
-    
+
     if (accountIndex != transaction.accountIndex) {
       require(
         provenAccount.contractAddress == transaction.contractAddress,

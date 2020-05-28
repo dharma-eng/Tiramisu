@@ -12,6 +12,7 @@ import "./StateManager.sol";
 import "./interfaces/TiramisuInterface.sol";
 import { WithdrawLib as WD } from "./lib/WithdrawLib.sol";
 
+
 /**
  * @title Tiramisu
  * @dev This contract interfaces between Ethereum and a Tiramisu blockchain.
@@ -207,6 +208,7 @@ contract Tiramisu is FraudProver, TiramisuInterface, Owned, StateManager {
     bytes memory transactionsData
   ) public override {
     bytes32 blockHash = header.blockHash();
+
     require(
       _state.blockIsConfirmed(header.blockNumber, blockHash) &&
       _state.blockIsConfirmed(parent.blockNumber, parent.blockHash()) &&
@@ -215,19 +217,22 @@ contract Tiramisu is FraudProver, TiramisuInterface, Owned, StateManager {
       _state.withdrawalsProcessed[blockHash] == false,
       "Invalid inputs."
     );
-    WD.GenericWithdrawal[] memory withdrawals = WD.extractWithdrawals(parent, transactionsData);
+
+    WD.GenericWithdrawal[] memory withdrawals = WD.extractWithdrawals(
+      parent, transactionsData
+    );
+
     _state.withdrawalsProcessed[blockHash] = true;
+
     for (uint256 i = 0; i < withdrawals.length; i++) {
       WD.GenericWithdrawal memory withdrawal = withdrawals[i];
       /* Transfer tokens to the recipient. */
       /* TODO - Add decimal conversion */
-      require(
-        tokenContract.transfer(
-          withdrawal.withdrawalAddress,
-          withdrawal.value
-        ),
-        "Token Transfer Failed"
+      bool ok = tokenContract.transfer(
+        withdrawal.withdrawalAddress, withdrawal.value
       );
+
+      require(ok, "Token Transfer Failed.");
     }
   }
 
@@ -237,7 +242,9 @@ contract Tiramisu is FraudProver, TiramisuInterface, Owned, StateManager {
    * @notice Can only be called by `owner`.
    * @param input Block input to submit.
    */
-  function submitBlock(Block.BlockInput memory input) public override onlyOwner {
+  function submitBlock(
+    Block.BlockInput memory input
+  ) public override onlyOwner {
     _putPendingBlock(input);
   }
 

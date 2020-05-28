@@ -58,7 +58,7 @@ contract Configurable {
   mapping(bytes32 => bool) internal _pendingChanges;
 
   /* <-- Data Structures --> */
-  
+
   enum ConfigField {
     CHALLENGE_PERIOD,
     COMMITMENT_BOND,
