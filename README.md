@@ -17,7 +17,7 @@ These operations are broken down into two high-level categories:
 - **Hard transactions**, including deposits and direct withdrawals or signing key additions, can only be initiated from a corresponding account on mainnet. These are placed in a queue as soon as the Tiramisu contract is called, and must be processed by the block producer in the order they are received.
 - **Soft transactions**, including transfers and standard withdrawals or signing key modifications, require a signature from a designated signer, and the block producer can choose whether or not to include a given soft transaction in a block.
 
-See the [specification](docs/README.md) for a more detailed overview of the design decisions behind Tiramisu.
+See the [specification](docs/Specification.md) for a more detailed overview of the design decisions behind Tiramisu.
 
 ⚠️ **Warning**: these contracts and libraries **have not been audited** and are **not yet production-ready!** ⚠️
 
