@@ -78,7 +78,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.0.11",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ganache-cli": "^6.9.1",
     "ganache-core": "^2.10.2",
     "graphql": "^15.0.0",
